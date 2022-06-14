@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("LSM-Revisited")]
-[assembly: AssemblyCopyright("Copyright © 2021-22 algernon, based off work Copyright ©  2017-21 by Thale and 2021 by Klyte")]
+[assembly: AssemblyCopyright("Copyright © 2022 algernon, based off work Copyright ©  2017-21 by Thale and 2022 by Klyte")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
