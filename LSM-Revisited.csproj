@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{D5910A70-E96A-4F22-AB07-ACC6E667A097}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>LSMRevisited</RootNamespace>
+    <AssemblyName>LSM-Revisited</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="CitiesHarmony.API, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\CitiesHarmony.API.2.1.0\lib\net35\CitiesHarmony.API.dll</HintPath>
+    </Reference>
+    <Reference Include="CitiesHarmony.Harmony, Version=2.0.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\CitiesHarmony.Harmony.2.2.0\lib\net35\CitiesHarmony.Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="ColossalManaged">
+      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\ColossalManaged.dll</HintPath>
+    </Reference>
+    <Reference Include="ICities">
+      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\ICities.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Code\Legacy\AssetDeserializer.cs" />
+    <Compile Include="Code\Legacy\AssetError.cs" />
+    <Compile Include="Code\Legacy\AssetLoader.cs" />
+    <Compile Include="Code\Legacy\AtlasObj.cs" />
+    <Compile Include="Code\Legacy\Atomic.cs" />
+    <Compile Include="Code\Legacy\Available.cs" />
+    <Compile Include="Code\Legacy\ByNames.cs" />
+    <Compile Include="Code\Legacy\ByPatterns.cs" />
+    <Compile Include="Code\Legacy\ConcurrentQueue.cs" />
+    <Compile Include="Code\Legacy\CustomDeserializer.cs" />
+    <Compile Include="Code\Legacy\Detour.cs" />
+    <Compile Include="Code\Legacy\DetourUtility.cs" />
+    <Compile Include="Code\Legacy\DualProfilerSource.cs" />
+    <Compile Include="Code\Legacy\Exts.cs" />
+    <Compile Include="Code\Legacy\Fetch.cs" />
+    <Compile Include="Code\Legacy\Fixes.cs" />
+    <Compile Include="Code\Legacy\Instance.cs" />
+    <Compile Include="Code\Legacy\Item.cs" />
+    <Compile Include="Code\Legacy\L10n.cs" />
+    <Compile Include="Code\Legacy\LevelLoader.cs" />
+    <Compile Include="Code\Legacy\LineSource.cs" />
+    <Compile Include="Code\Legacy\LinkedHashMap.cs" />
+    <Compile Include="Code\Legacy\LoadingScreen.cs" />
+    <Compile Include="Code\Legacy\Matcher.cs" />
+    <Compile Include="Code\Legacy\MaterialData.cs" />
+    <Compile Include="Code\Legacy\MemoryAPI.cs" />
+    <Compile Include="Code\Legacy\MemorySource.cs" />
+    <Compile Include="Code\Legacy\MemReader.cs" />
+    <Compile Include="Code\Legacy\MemStream.cs" />
+    <Compile Include="Code\Legacy\MeshObj.cs" />
+    <Compile Include="Code\Legacy\Missing.cs" />
+    <Compile Include="Code\Legacy\Mod.cs" />
+    <Compile Include="Code\Legacy\PackageManagerFix.cs" />
+    <Compile Include="Code\Legacy\PrefabLoader.cs" />
+    <Compile Include="Code\Legacy\ProfilerSource.cs" />
+    <Compile Include="Code\Legacy\Profiling.cs" />
+    <Compile Include="Code\Legacy\RedirectCallsState.cs" />
+    <Compile Include="Code\Legacy\RedirectionHelper.cs" />
+    <Compile Include="Code\Legacy\Reports.cs" />
+    <Compile Include="Code\Legacy\Safenets.cs" />
+    <Compile Include="Code\Legacy\Settings.cs" />
+    <Compile Include="Code\Legacy\Sharing.cs" />
+    <Compile Include="Code\Legacy\SimpleProfilerSource.cs" />
+    <Compile Include="Code\Legacy\Sink.cs" />
+    <Compile Include="Code\Legacy\SomeMetaData.cs" />
+    <Compile Include="Code\Legacy\Source.cs" />
+    <Compile Include="Code\Legacy\Text.cs" />
+    <Compile Include="Code\Legacy\TextObj.cs" />
+    <Compile Include="Code\Legacy\TimeSource.cs" />
+    <Compile Include="Code\Legacy\Triple.cs" />
+    <Compile Include="Code\Legacy\UsedAssets.cs" />
+    <Compile Include="Code\Legacy\Util.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>mkdir "%25LOCALAPPDATA%25\Colossal Order\Cities_Skylines\Addons\Mods\$(ProjectName)"
+del "%25LOCALAPPDATA%25\Colossal Order\Cities_Skylines\Addons\Mods\$(ProjectName)\*.dll"
+xcopy /y "$(TargetPath)" "%25LOCALAPPDATA%25\Colossal Order\Cities_Skylines\Addons\Mods\$(ProjectName)"
+
+xcopy /y "$(SolutionDir)\packages\CitiesHarmony.API.2.1.0\lib\net35\CitiesHarmony.API.dll" "%25LOCALAPPDATA%25\Colossal Order\Cities_Skylines\Addons\Mods\$(ProjectName)"</PostBuildEvent>
+  </PropertyGroup>
+</Project>
