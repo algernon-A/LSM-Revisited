@@ -170,7 +170,9 @@ namespace LoadingScreenMod
 			imageLoaded = (animationLoaded = (fontLoaded = (bgLoaded = false)));
 		}
 
-		public void SetImage(Mesh mesh, Material material, float scale, bool showAnimation)
+		//[HarmonyPatch(typeof(LoadingAnimation), nameof(LoadingAnimation.SetImage))]
+		//[HarmonyPrefix]
+		public static bool SetImage(Mesh mesh, Material material, float scale, bool showAnimation)
 		{
 			LoadingScreen loadingScreen = Instance<LoadingScreen>.instance;
 			if (loadingScreen.imageMaterial != null)
@@ -181,10 +183,14 @@ namespace LoadingScreenMod
 			loadingScreen.imageMaterial = new Material(material);
 			loadingScreen.imageScale = scale;
 			loadingScreen.imageLoaded = true;
+			return false;
 		}
 
-		public void SetText(UIFont font, Color color, float size, string title, string text)
+		//[HarmonyPatch(typeof(LoadingAnimation), nameof(LoadingAnimation.SetText))]
+		//[HarmonyPrefix]
+		public static bool SetText(UIFont font, Color color, float size, string title, string text)
 		{
+			return false;
 		}
 
 		public void SetFont()
@@ -236,16 +242,22 @@ namespace LoadingScreenMod
 			}
 		}
 
-		private void OnEnable()
+		//[HarmonyPatch(typeof(LoadingAnimation), "OnEnable")]
+		//[HarmonyPrefix]
+		private static bool OnEnable()
 		{
 			Instance<LoadingScreen>.instance.camera.enabled = true;
 			Instance<LoadingScreen>.instance.camera.clearFlags = CameraClearFlags.Color;
+			return false;
 		}
 
-		private void OnDisable()
+		//[HarmonyPatch(typeof(LoadingAnimation), "OnDisable")]
+		//[HarmonyPrefix]
+		private static bool OnDisable()
 		{
 			Instance<LoadingScreen>.instance.camera.enabled = false;
 			Instance<LoadingScreen>.instance.Dispose();
+			return false;
 		}
 
 		internal void SetProgress(float min, float max, int assetsCount, int assetsTotal, int beginMillis, int nowMillis)
@@ -270,9 +282,18 @@ namespace LoadingScreenMod
 			progress = Mathf.Clamp(progress, minProgress, maxProgress);
 		}
 
-		private void Update()
+
+		//[HarmonyPatch(typeof(LoadingAnimation), "Update")]
+		//[HarmonyPrefix]
+		private static bool Update()
 		{
 			LoadingScreen loadingScreen = Instance<LoadingScreen>.instance;
+			if (loadingScreen == null)
+			{
+				Instance<LoadingScreen>.Create();
+				loadingScreen = Instance<LoadingScreen>.instance;
+			}
+
 			float num = Mathf.Min(0.125f, Time.deltaTime);
 			loadingScreen.timer += num;
 			float time = Time.time;
@@ -281,9 +302,12 @@ namespace LoadingScreenMod
 				loadingScreen.progressTime = time;
 				loadingScreen.Progress();
 			}
+			return false;
 		}
 
-		private void OnPostRender()
+		//[HarmonyPatch(typeof(LoadingAnimation), "OnPostRender")]
+		//[HarmonyPrefix]
+		private static bool OnPostRender()
 		{
 			LoadingScreen loadingScreen = Instance<LoadingScreen>.instance;
 			if (loadingScreen.imageLoaded)
@@ -324,7 +348,7 @@ namespace LoadingScreenMod
 			}
 			if (!loadingScreen.imageLoaded || !loadingScreen.fontLoaded)
 			{
-				return;
+				return false;
 			}
 			if (loadingScreen.bgLoaded && loadingScreen.bgMaterial.SetPass(0))
 			{
@@ -349,6 +373,8 @@ namespace LoadingScreenMod
 					Graphics.DrawMeshNow(text.mesh, Matrix4x4.TRS(text.pos, Quaternion.identity, text.Scale));
 				}
 			}
+
+			return false;
 		}
 
 		private static Mesh CreateQuads()

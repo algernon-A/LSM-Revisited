@@ -94,8 +94,6 @@
     <Compile Include="Code\Legacy\PrefabLoader.cs" />
     <Compile Include="Code\Legacy\ProfilerSource.cs" />
     <Compile Include="Code\Legacy\Profiling.cs" />
-    <Compile Include="Code\Legacy\RedirectCallsState.cs" />
-    <Compile Include="Code\Legacy\RedirectionHelper.cs" />
     <Compile Include="Code\Legacy\Reports.cs" />
     <Compile Include="Code\Legacy\Safenets.cs" />
     <Compile Include="Code\Legacy\Settings.cs" />
@@ -110,6 +108,8 @@
     <Compile Include="Code\Legacy\Triple.cs" />
     <Compile Include="Code\Legacy\UsedAssets.cs" />
     <Compile Include="Code\Legacy\Util.cs" />
+    <Compile Include="Code\Patches\Patcher.cs" />
+    <Compile Include="Code\Utils\Logging.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -103,9 +103,12 @@ namespace LoadingScreenMod
 			return array;
 		}
 
-		private static byte[] DreadByteArray(PackageReader r)
+		//[HarmonyPatch(typeof(PackageReader), nameof(PackageReader.ReadByteArray))]
+		//[HarmonyPrefix]
+		private static bool DreadByteArray(ref byte[] __result, PackageReader __instance)
 		{
-			return r.ReadBytes(r.ReadInt32());
+			__result = __instance.ReadBytes(__instance.ReadInt32());
+			return false;
 		}
 	}
 }

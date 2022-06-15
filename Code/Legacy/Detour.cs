@@ -10,8 +10,6 @@ namespace LoadingScreenMod
 
 		private readonly MethodInfo to;
 
-		private RedirectCallsState state;
-
 		private bool deployed;
 
 		internal Detour(MethodInfo from, MethodInfo to)
@@ -26,7 +24,7 @@ namespace LoadingScreenMod
 			{
 				if (!deployed)
 				{
-					state = RedirectionHelper.RedirectCalls(from, to);
+					Patcher.PrefixMethod(from, to);
 				}
 				deployed = true;
 			}
@@ -43,7 +41,7 @@ namespace LoadingScreenMod
 			{
 				if (deployed)
 				{
-					RedirectionHelper.RevertRedirect(from, state);
+					Patcher.UnpatchMethod(from, to);
 				}
 				deployed = false;
 			}

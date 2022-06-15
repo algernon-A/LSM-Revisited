@@ -83,9 +83,11 @@ namespace LoadingScreenMod
 			Array.Clear(skippedPrefabs, 0, skippedPrefabs.Length);
 		}
 
-		public static void QueueLoadingAction(LoadingManager lm, IEnumerator action)
+		//[HarmonyPatch(typeof(LoadingManager), nameof(LoadingManager.QueueLoadingAction))]
+		//[HarmonyPrefix]
+		public static bool QueueLoadingAction(LoadingManager __instance, IEnumerator action)
 		{
-			Type declaringType = action.GetType().DeclaringType;
+				Type declaringType = action.GetType().DeclaringType;
 			int num = -1;
 			if (declaringType == typeof(BuildingCollection))
 			{
@@ -133,13 +135,15 @@ namespace LoadingScreenMod
 				Instance<LevelLoader>.instance.mainThreadQueue.Enqueue(action);
 				if (Instance<LevelLoader>.instance.mainThreadQueue.Count < 2)
 				{
-					Instance<PrefabLoader>.instance.hasQueuedActionsField.SetValue(lm, true);
+					Instance<PrefabLoader>.instance.hasQueuedActionsField.SetValue(__instance, true);
 				}
 			}
 			finally
 			{
 				Monitor.Exit(Instance<LevelLoader>.instance.loadingLock);
 			}
+
+			return false;
 		}
 
 		private void Skip<P>(IEnumerator action, UpdatePrefabs UpdateAll, UpdateCollection UpdateKept, int index) where P : PrefabInfo

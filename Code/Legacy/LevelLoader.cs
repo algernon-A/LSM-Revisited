@@ -118,7 +118,11 @@ namespace LoadingScreenMod
 			Array.Clear(skippedPrefabs, 0, skippedPrefabs.Length);
 		}
 
-		public Coroutine LoadLevel(Package.Asset asset, string playerScene, string uiScene, SimulationMetaData ngs, bool forceEnvironmentReload = false)
+		/*[HarmonyPatch(typeof(LoadingManager), nameof(LoadingManager.LoadLevel),
+			new Type[] { typeof(Package.Asset), typeof(string), typeof(string), typeof(SimulationMetaData), typeof(bool) },
+			new ArgumentType[] { ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal })]
+		[HarmonyPrefix]*/
+		public static bool LoadLevel(LoadingManager __instance, ref Coroutine __result, Package.Asset asset, string playerScene, string uiScene, SimulationMetaData ngs, bool forceEnvironmentReload = false)
 		{
 			L10n.SetCurrent();
 			LoadingManager loadingManager = Singleton<LoadingManager>.instance;
@@ -161,9 +165,11 @@ namespace LoadingScreenMod
 				loadingManager.m_loadingProfilerSimulation.Reset();
 				loadingManager.m_loadingProfilerScenes.Reset();
 				IEnumerator routine = (flag ? Instance<LevelLoader>.instance.LoadLevelCoroutine(asset, playerScene, uiScene, ngs, forceEnvironmentReload) : ((IEnumerator)Util.Invoke(loadingManager, "LoadLevelCoroutine", asset, playerScene, uiScene, ngs, forceEnvironmentReload)));
-				return loadingManager.StartCoroutine(routine);
+				__result = loadingManager.StartCoroutine(routine);
+				return false;
 			}
-			return null;
+			__result =  null;
+			return false;
 		}
 
 		public IEnumerator LoadLevelCoroutine(Package.Asset asset, string playerScene, string uiScene, SimulationMetaData ngs, bool forceEnvironmentReload)
@@ -719,7 +725,7 @@ namespace LoadingScreenMod
 			return true;
 		}
 
-		private bool ShiftE()
+		private static bool ShiftE()
 		{
 			if (Input.GetKey(KeyCode.LeftShift))
 			{

@@ -1126,20 +1126,24 @@ namespace LoadingScreenMod
 			return asset;
 		}
 
-		private static string ResolveCustomAssetName(string fullName)
+		//[HarmonyPatch(typeof(BuildConfig), "ResolveCustomAssetName")]
+		//[HarmonyPrefix]
+		private static bool ResolveCustomAssetName(ref string __result, string name)
 		{
-			if (fullName.IndexOf('.') < 0 && !fullName.StartsWith("lsm___") && !Instance<LevelLoader>.instance.HasFailed(fullName))
+			if (name.IndexOf('.') < 0 && !name.StartsWith("lsm___") && !Instance<LevelLoader>.instance.HasFailed(name))
 			{
 				Package.Asset[] array = Assets;
 				for (int i = 0; i < array.Length; i++)
 				{
-					if (fullName == array[i].name)
+					if (name == array[i].name)
 					{
-						return array[i].package.packageName + "." + fullName;
+						__result = array[i].package.packageName + "." + name;
+						return false;
 					}
 				}
 			}
-			return fullName;
+			__result = name;
+			return false;
 		}
 
 		private static Package.Asset[] FilterAssets(Package.AssetType assetType)
