@@ -597,6 +597,8 @@ namespace LoadingScreenMod
 			{
 				list.Add(new KeyValuePair<string, float>("ModderPack8Prefabs", 0.1464f));
 			}
+
+			// Modder Pack 9 is Content Creator Pack: Map Pack
 			for (int j = 0; j < levelStringsAiportDLC.Length; j++)
 			{
 				if (Check(levelStringsAiportDLC[j].Value))
