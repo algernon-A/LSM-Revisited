@@ -25,18 +25,18 @@ namespace LoadingScreenMod
 				{
 					switch (buffer[num].m_type)
 					{
-					case LoadingProfiler.Type.BeginLoading:
-					case LoadingProfiler.Type.BeginSerialize:
-					case LoadingProfiler.Type.BeginDeserialize:
-					case LoadingProfiler.Type.BeginAfterDeserialize:
-						if (num != index || base.IsLoading)
-						{
-							index = num;
-							sink.Add(buffer[num].m_name);
-							return sink.CreateText(isLoading: true);
-						}
-						sink.Clear();
-						return sink.CreateText(isLoading: false);
+						case LoadingProfiler.Type.BeginLoading:
+						case LoadingProfiler.Type.BeginSerialize:
+						case LoadingProfiler.Type.BeginDeserialize:
+						case LoadingProfiler.Type.BeginAfterDeserialize:
+							if (num != index || base.IsLoading)
+							{
+								index = num;
+								sink.Add(buffer[num].m_name);
+								return sink.CreateText(isLoading: true);
+							}
+							sink.Clear();
+							return sink.CreateText(isLoading: false);
 					}
 				}
 			}

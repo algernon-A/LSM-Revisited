@@ -667,34 +667,34 @@ namespace LoadingScreenMod
 			{
 				switch ((int)item.type)
 				{
-				case 1:
-					asset = item;
-					if ((object)item != assetRef)
-					{
-						break;
-					}
-					goto end_IL_0029;
-				case 103:
-					if (asset != null)
-					{
-						string name = asset.name;
-						int length = name.Length;
-						if (length < 35 || name[length - 34] != '-' || name[length - 35] != ' ' || name[length - 33] != ' ')
+					case 1:
+						asset = item;
+						if ((object)item != assetRef)
 						{
-							assetRefs.Add(asset);
-							asset = null;
 							break;
 						}
-						GetSecondaryAssetRefs(mainAsset, assetRefs);
-					}
-					else
-					{
-						GetSecondaryAssetRefs(mainAsset, assetRefs);
-					}
-					goto end_IL_0029;
+						goto end_IL_0029;
+					case 103:
+						if (asset != null)
+						{
+							string name = asset.name;
+							int length = name.Length;
+							if (length < 35 || name[length - 34] != '-' || name[length - 35] != ' ' || name[length - 33] != ' ')
+							{
+								assetRefs.Add(asset);
+								asset = null;
+								break;
+							}
+							GetSecondaryAssetRefs(mainAsset, assetRefs);
+						}
+						else
+						{
+							GetSecondaryAssetRefs(mainAsset, assetRefs);
+						}
+						goto end_IL_0029;
 				}
 			}
-			end_IL_0029:
+		end_IL_0029:
 			if (assetRef != null)
 			{
 				assetRefs.Add(assetRef);

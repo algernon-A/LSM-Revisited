@@ -60,12 +60,12 @@ namespace LoadingScreenMod
 				{
 					switch (buffer[i].m_type)
 					{
-					case LoadingProfiler.Type.BeginLoading:
-					case LoadingProfiler.Type.BeginSerialize:
-					case LoadingProfiler.Type.BeginDeserialize:
-					case LoadingProfiler.Type.BeginAfterDeserialize:
-						sink.Add(buffer[i].m_name);
-						break;
+						case LoadingProfiler.Type.BeginLoading:
+						case LoadingProfiler.Type.BeginSerialize:
+						case LoadingProfiler.Type.BeginDeserialize:
+						case LoadingProfiler.Type.BeginAfterDeserialize:
+							sink.Add(buffer[i].m_name);
+							break;
 					}
 				}
 				return sink.CreateText(IsLoading);

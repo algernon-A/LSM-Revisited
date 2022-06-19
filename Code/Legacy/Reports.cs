@@ -237,7 +237,7 @@ namespace LoadingScreenMod
 		internal string[] GetMissing()
 		{
 			return (from item in assets.Values.Which(32)
-				select item.FullName).ToArray();
+					select item.FullName).ToArray();
 		}
 
 		internal string[] GetDuplicates()
@@ -400,8 +400,8 @@ namespace LoadingScreenMod
 				{
 					SetIndirectUsages();
 					Item[] array3 = (from item in assets.Values.Which(32)
-						where !hidden.Contains(item.FullName)
-						select item).ToArray();
+									 where !hidden.Contains(item.FullName)
+									 select item).ToArray();
 					SetNameChanges(array3);
 					if (hidden.Count > 0)
 					{
@@ -653,8 +653,8 @@ namespace LoadingScreenMod
 					num = usages[i];
 				}
 				Item[] array = ((num != 2) ? (from item in items.Which(types[i])
-					where usedBy.ContainsKey(item)
-					select item).OrderBy(Name).ToArray() : items.Which(types[i], num).OrderBy(Name).ToArray());
+											  where usedBy.ContainsKey(item)
+											  select item).OrderBy(Name).ToArray() : items.Which(types[i], num).OrderBy(Name).ToArray());
 				if (array.Length == 0)
 				{
 					continue;
@@ -723,9 +723,9 @@ namespace LoadingScreenMod
 					continue;
 				}
 				Item[] array = (from a in duplicate
-					select FindItem(a) into item
-					where item != null
-					select item).ToArray();
+								select FindItem(a) into item
+								where item != null
+								select item).ToArray();
 				if (array.Length > 1)
 				{
 					string text = Enc(fullName);
@@ -749,13 +749,13 @@ namespace LoadingScreenMod
 		private void ReportEWs(IEnumerable<AssetError<string>> all)
 		{
 			foreach (IGrouping<Item, AssetError<string>> item in from e in all
-				group e by FindItem(e.package) into g
-				where g.Key != null
-				orderby g.Key.name
-				select g)
+																 group e by FindItem(e.package) into g
+																 where g.Key != null
+																 orderby g.Key.name
+																 select g)
 			{
 				Div("my", Cl("mi", Ref(item.Key)) + Cl("bx", "<i>" + string.Join("<br>", (from e in item.Distinct()
-					select e.value).ToArray()) + "</i>"));
+																						  select e.value).ToArray()) + "</i>"));
 			}
 		}
 
@@ -1057,30 +1057,30 @@ namespace LoadingScreenMod
 				char c2 = s[j];
 				switch (c2)
 				{
-				case '&':
-					stringBuilder.Append("&amp;");
-					break;
-				case '>':
-					stringBuilder.Append("&gt;");
-					break;
-				case '<':
-					stringBuilder.Append("&lt;");
-					break;
-				case '"':
-					stringBuilder.Append("&quot;");
-					break;
-				case '\'':
-					stringBuilder.Append("&#39;");
-					break;
-				case '＜':
-					stringBuilder.Append("&#65308;");
-					break;
-				case '＞':
-					stringBuilder.Append("&#65310;");
-					break;
-				default:
-					stringBuilder.Append(c2);
-					break;
+					case '&':
+						stringBuilder.Append("&amp;");
+						break;
+					case '>':
+						stringBuilder.Append("&gt;");
+						break;
+					case '<':
+						stringBuilder.Append("&lt;");
+						break;
+					case '"':
+						stringBuilder.Append("&quot;");
+						break;
+					case '\'':
+						stringBuilder.Append("&#39;");
+						break;
+					case '＜':
+						stringBuilder.Append("&#65308;");
+						break;
+					case '＞':
+						stringBuilder.Append("&#65310;");
+						break;
+					default:
+						stringBuilder.Append(c2);
+						break;
 				}
 			}
 			return stringBuilder.ToString();
