@@ -54,7 +54,7 @@ namespace LoadingScreenMod
             // Use StringBuilder for efficiency since we're doing a lot of manipulation here.
             // Start with mod name (to easily identify relevant messages), followed by colon to indicate start of actual message.
             message.Length = 0;
-            message.Append(Mod.ModName);
+            message.Append(LSMRMod.ModName);
             message.Append(": ");
 
             // Add each message parameter.
@@ -94,7 +94,7 @@ namespace LoadingScreenMod
             // Use StringBuilder for efficiency since we're doing a lot of manipulation here.
             // Start with mod name (to easily identify relevant messages), followed by colon to indicate start of actual message.
             message.Length = 0;
-            message.Append(Mod.ModName);
+            message.Append(LSMRMod.ModName);
             message.Append(": ");
 
             // Append prefix.

@@ -89,7 +89,6 @@
     <Compile Include="Code\Legacy\MemStream.cs" />
     <Compile Include="Code\Legacy\MeshObj.cs" />
     <Compile Include="Code\Legacy\Missing.cs" />
-    <Compile Include="Code\Legacy\Mod.cs" />
     <Compile Include="Code\Legacy\PackageManagerFix.cs" />
     <Compile Include="Code\Legacy\PrefabLoader.cs" />
     <Compile Include="Code\Legacy\ProfilerSource.cs" />
@@ -108,6 +107,7 @@
     <Compile Include="Code\Legacy\Triple.cs" />
     <Compile Include="Code\Legacy\UsedAssets.cs" />
     <Compile Include="Code\Legacy\Util.cs" />
+    <Compile Include="Code\Mod.cs" />
     <Compile Include="Code\Patches\Patcher.cs" />
     <Compile Include="Code\Utils\Logging.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

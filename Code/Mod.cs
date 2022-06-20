@@ -1,39 +1,27 @@
-using ICities;
+﻿using ICities;
 using CitiesHarmony.API;
+
 
 namespace LoadingScreenMod
 {
-	public sealed class Mod : IUserMod, ILoadingExtension
+	/// <summary>
+	/// The base mod class for instantiation by the game.
+	/// </summary>
+	public sealed class LSMRMod : IUserMod
 	{
-		private static bool created;
-
 		public static string ModName => "LSM Revisited";
+		public static string Version => "0.0.1";
 
-		public string Name => "Loading Screen Mod Revisited";
-
+		public string Name => "Loading Screen Mod Revisited " + Version;
 		public string Description => "Optimizes game loading";
 
-		public void OnSettingsUI(UIHelperBase helper)
-		{
-			Settings.settings.OnSettingsUI(helper);
-		}
+		// Status flag.
+		private bool created = false;
 
-		public void OnCreated(ILoading loading)
-		{
-		}
 
-		public void OnReleased()
-		{
-		}
-
-		public void OnLevelLoaded(LoadMode mode)
-		{
-		}
-
-		public void OnLevelUnloading()
-		{
-		}
-
+		/// <summary>
+		/// Called by the game when the mod is enabled.
+		/// </summary>
 		public void OnEnabled()
 		{
 			// Apply Harmony patches via Cities Harmony.
@@ -65,6 +53,15 @@ namespace LoadingScreenMod
 			Instance<LevelLoader>.instance?.Dispose();
 			Settings.settings.helper = null;
 			created = false;
+		}
+
+
+		/// <summary>
+		/// Called by the game when the mod options panel is setup.
+		/// </summary>
+		public void OnSettingsUI(UIHelperBase helper)
+		{
+			Settings.settings.OnSettingsUI(helper);
 		}
 	}
 }
