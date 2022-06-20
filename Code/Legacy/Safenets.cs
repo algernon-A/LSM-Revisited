@@ -21,9 +21,11 @@ namespace LoadingScreenMod
 			yield break;
 		}
 
-		public static void ContinueLoading(LoadingProfiler loadingProfiler)
+		//[HarmonyPatch(typeof(LoadingProfiler), nameof(LoadingProfiler.ContinueLoading))]
+		//[HarmonyPrefix]
+		public static bool ContinueLoading(LoadingProfiler __instance)
 		{
-			ProfilerSource.GetEvents(loadingProfiler).Add(new LoadingProfiler.Event(LoadingProfiler.Type.ContinueLoading, null, 0L));
+			ProfilerSource.GetEvents(__instance).Add(new LoadingProfiler.Event(LoadingProfiler.Type.ContinueLoading, null, 0L));
 			if (Thread.CurrentThread == Singleton<SimulationManager>.instance.m_simulationThread)
 			{
 				try
@@ -50,6 +52,8 @@ namespace LoadingScreenMod
 					Debug.LogException(exception);
 				}
 			}
+
+			return false;
 		}
 
 		private static FastList<ushort> GetBadNodes()
@@ -228,12 +232,12 @@ namespace LoadingScreenMod
 		{
 			try
 			{
-				int num = ForVehicles(delegate(uint i, ref Vehicle d)
+				int num = ForVehicles(delegate (uint i, ref Vehicle d)
 				{
 					Singleton<VehicleManager>.instance.ReleaseVehicle((ushort)i);
 				});
 				Util.DebugPrint("Removed", num, "vehicles");
-				num = ForParkedVehicles(delegate(uint i, ref VehicleParked d)
+				num = ForParkedVehicles(delegate (uint i, ref VehicleParked d)
 				{
 					Singleton<VehicleManager>.instance.ReleaseParkedVehicle((ushort)i);
 				});
@@ -253,17 +257,17 @@ namespace LoadingScreenMod
 				{
 					parkedGrid[l] = 0;
 				}
-				ForCitizens(delegate(uint i, ref Citizen d)
+				ForCitizens(delegate (uint i, ref Citizen d)
 				{
 					d.SetVehicle(i, 0, 0u);
 					d.SetParkedVehicle(i, 0);
 				});
-				ForBuildings(delegate(uint i, ref Building d)
+				ForBuildings(delegate (uint i, ref Building d)
 				{
 					d.m_ownVehicles = 0;
 					d.m_guestVehicles = 0;
 				});
-				ForTransportLines(delegate(uint i, ref TransportLine d)
+				ForTransportLines(delegate (uint i, ref TransportLine d)
 				{
 					d.m_vehicles = 0;
 				});
@@ -278,7 +282,7 @@ namespace LoadingScreenMod
 		{
 			try
 			{
-				int num = ForCitizenInstances(delegate(uint i, ref CitizenInstance d)
+				int num = ForCitizenInstances(delegate (uint i, ref CitizenInstance d)
 				{
 					Singleton<CitizenManager>.instance.ReleaseCitizenInstance((ushort)i);
 				});
@@ -288,16 +292,16 @@ namespace LoadingScreenMod
 				{
 					citizenGrid[j] = 0;
 				}
-				ForCitizens(delegate(uint i, ref Citizen d)
+				ForCitizens(delegate (uint i, ref Citizen d)
 				{
 					d.m_instance = 0;
 				});
-				ForBuildings(delegate(uint i, ref Building d)
+				ForBuildings(delegate (uint i, ref Building d)
 				{
 					d.m_sourceCitizens = 0;
 					d.m_targetCitizens = 0;
 				});
-				ForNetNodes(delegate(uint i, ref NetNode d)
+				ForNetNodes(delegate (uint i, ref NetNode d)
 				{
 					d.m_targetCitizens = 0;
 				});
