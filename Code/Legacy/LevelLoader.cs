@@ -122,7 +122,7 @@ namespace LoadingScreenMod
 			new Type[] { typeof(Package.Asset), typeof(string), typeof(string), typeof(SimulationMetaData), typeof(bool) },
 			new ArgumentType[] { ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal })]
 		[HarmonyPrefix]*/
-		public static bool LoadLevel(LoadingManager __instance, ref Coroutine __result, Package.Asset asset, string playerScene, string uiScene, SimulationMetaData ngs, bool forceEnvironmentReload = false)
+		public static bool LoadLevel(ref Coroutine __result, LoadingManager __instance, Package.Asset asset, string playerScene, string uiScene, SimulationMetaData ngs, bool forceEnvironmentReload = false)
 		{
 			L10n.SetCurrent();
 			LoadingManager loadingManager = Singleton<LoadingManager>.instance;
@@ -168,7 +168,7 @@ namespace LoadingScreenMod
 				__result = loadingManager.StartCoroutine(routine);
 				return false;
 			}
-			__result =  null;
+			__result = null;
 			return false;
 		}
 

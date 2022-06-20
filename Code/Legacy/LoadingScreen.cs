@@ -282,13 +282,11 @@ namespace LoadingScreenMod
 			progress = Mathf.Clamp(progress, minProgress, maxProgress);
 		}
 
-
 		//[HarmonyPatch(typeof(LoadingAnimation), "Update")]
 		//[HarmonyPrefix]
 		private static bool Update()
 		{
 			LoadingScreen loadingScreen = Instance<LoadingScreen>.instance;
-
 			float num = Mathf.Min(0.125f, Time.deltaTime);
 			loadingScreen.timer += num;
 			float time = Time.time;

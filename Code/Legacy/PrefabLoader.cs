@@ -87,7 +87,7 @@ namespace LoadingScreenMod
 		//[HarmonyPrefix]
 		public static bool QueueLoadingAction(LoadingManager __instance, IEnumerator action)
 		{
-				Type declaringType = action.GetType().DeclaringType;
+			Type declaringType = action.GetType().DeclaringType;
 			int num = -1;
 			if (declaringType == typeof(BuildingCollection))
 			{
@@ -116,21 +116,21 @@ namespace LoadingScreenMod
 			{
 				switch (num)
 				{
-				case 0:
-					Instance<PrefabLoader>.instance.Skip<BuildingInfo>(action, UpdateBuildingPrefabs, UpdateBuildingCollection, num);
-					break;
-				case 1:
-					Instance<PrefabLoader>.instance.Skip<VehicleInfo>(action, UpdateVehiclePrefabs, UpdateVehicleCollection, num);
-					break;
-				case 2:
-					Instance<PrefabLoader>.instance.Skip<PropInfo>(action, UpdatePropPrefabs, UpdatePropCollection, num);
-					break;
-				default:
-					if (Instance<PrefabLoader>.instance.skipMatcher.Has[2] && declaringType == typeof(NetCollection))
-					{
-						Instance<PrefabLoader>.instance.RemoveSkippedFromNets(action);
-					}
-					break;
+					case 0:
+						Instance<PrefabLoader>.instance.Skip<BuildingInfo>(action, UpdateBuildingPrefabs, UpdateBuildingCollection, num);
+						break;
+					case 1:
+						Instance<PrefabLoader>.instance.Skip<VehicleInfo>(action, UpdateVehiclePrefabs, UpdateVehicleCollection, num);
+						break;
+					case 2:
+						Instance<PrefabLoader>.instance.Skip<PropInfo>(action, UpdatePropPrefabs, UpdatePropCollection, num);
+						break;
+					default:
+						if (Instance<PrefabLoader>.instance.skipMatcher.Has[2] && declaringType == typeof(NetCollection))
+						{
+							Instance<PrefabLoader>.instance.RemoveSkippedFromNets(action);
+						}
+						break;
 				}
 				Instance<LevelLoader>.instance.mainThreadQueue.Enqueue(action);
 				if (Instance<LevelLoader>.instance.mainThreadQueue.Count < 2)

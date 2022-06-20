@@ -265,85 +265,85 @@ namespace LoadingScreenMod
 			}
 			switch (value)
 			{
-			case 0:
-			{
-				ModInfo modInfo = default(ModInfo);
-				modInfo.modName = r.ReadString();
-				modInfo.modWorkshopID = r.ReadUInt64();
-				return modInfo;
-			}
-			case 3:
-				return r.ReadInt32();
-			case 6:
-				return r.ReadString();
-			case 10:
-				return ReadBuildingInfoProp(r);
-			case 13:
-				return ReadPackageAsset(p, r);
-			case 16:
-				return r.ReadVector3();
-			case 20:
-				return ReadNetInfoLane(p, r);
-			case 23:
-				return ReadItemClass(r);
-			case 26:
-				return r.ReadDateTime();
-			case 29:
-				if (!optimizeThumbs)
-				{
-					return PackageHelper.CustomDeserialize(p, t, r);
-				}
-				return ReadUITextureAtlas(p, r);
-			case 32:
-				return r.ReadVector4();
-			case 35:
-				return ReadBuildingInfoPathInfo(p, r);
-			case 39:
-				return ReadNetInfoNode(p, r);
-			case 42:
-				return ReadNetInfoSegment(p, r);
-			case 45:
-				return ReadNetInfo(p, r);
-			case 48:
-				return ReadMilestone(r);
-			case 52:
-				return r.ReadVector2();
-			case 56:
-				return ReadMessageInfo(r);
-			case 59:
-				return ReadVehicleInfoEffect(r);
-			case 62:
-				return ReadTransportInfo(r);
-			case 65:
-				return ReadVehicleInfoVehicleTrailer(p, r);
-			case 70:
-				return ReadVehicleInfoVehicleDoor(r);
-			case 74:
-				return ReadBuildingInfo(p, r);
-			case 77:
-				return ReadBuildingInfoSubInfo(p, r);
-			case 81:
-				return ReadDepotAISpawnPoint(r);
-			case 86:
-				return ReadPropInfoEffect(r);
-			case 89:
-				return ReadPropInfoVariation(p, r);
-			case 95:
-				return ReadVehicleInfoMeshInfo(p, r);
-			case 103:
-				return ReadBuildingInfoMeshInfo(p, r);
-			case 109:
-				return ReadPropInfoSpecialPlace(r);
-			case 116:
-				return ReadTreeInfoVariation(p, r);
-			case 125:
-				return ReadDictStringByteArray(r);
-			case 3232:
-				return ReadPropInfoParkingSpace(r);
-			case 11386:
-				return ReadDisasterPropertiesDisasterSettings(r);
-			default:
-				return null;
+				case 0:
+					{
+						ModInfo modInfo = default(ModInfo);
+						modInfo.modName = r.ReadString();
+						modInfo.modWorkshopID = r.ReadUInt64();
+						return modInfo;
+					}
+				case 3:
+					return r.ReadInt32();
+				case 6:
+					return r.ReadString();
+				case 10:
+					return ReadBuildingInfoProp(r);
+				case 13:
+					return ReadPackageAsset(p, r);
+				case 16:
+					return r.ReadVector3();
+				case 20:
+					return ReadNetInfoLane(p, r);
+				case 23:
+					return ReadItemClass(r);
+				case 26:
+					return r.ReadDateTime();
+				case 29:
+					if (!optimizeThumbs)
+					{
+						return PackageHelper.CustomDeserialize(p, t, r);
+					}
+					return ReadUITextureAtlas(p, r);
+				case 32:
+					return r.ReadVector4();
+				case 35:
+					return ReadBuildingInfoPathInfo(p, r);
+				case 39:
+					return ReadNetInfoNode(p, r);
+				case 42:
+					return ReadNetInfoSegment(p, r);
+				case 45:
+					return ReadNetInfo(p, r);
+				case 48:
+					return ReadMilestone(r);
+				case 52:
+					return r.ReadVector2();
+				case 56:
+					return ReadMessageInfo(r);
+				case 59:
+					return ReadVehicleInfoEffect(r);
+				case 62:
+					return ReadTransportInfo(r);
+				case 65:
+					return ReadVehicleInfoVehicleTrailer(p, r);
+				case 70:
+					return ReadVehicleInfoVehicleDoor(r);
+				case 74:
+					return ReadBuildingInfo(p, r);
+				case 77:
+					return ReadBuildingInfoSubInfo(p, r);
+				case 81:
+					return ReadDepotAISpawnPoint(r);
+				case 86:
+					return ReadPropInfoEffect(r);
+				case 89:
+					return ReadPropInfoVariation(p, r);
+				case 95:
+					return ReadVehicleInfoMeshInfo(p, r);
+				case 103:
+					return ReadBuildingInfoMeshInfo(p, r);
+				case 109:
+					return ReadPropInfoSpecialPlace(r);
+				case 116:
+					return ReadTreeInfoVariation(p, r);
+				case 125:
+					return ReadDictStringByteArray(r);
+				case 3232:
+					return ReadPropInfoParkingSpace(r);
+				case 11386:
+					return ReadDisasterPropertiesDisasterSettings(r);
+				default:
+					return null;
 			}
 		}
 
