@@ -7,8 +7,8 @@
     <ProjectGuid>{D5910A70-E96A-4F22-AB07-ACC6E667A097}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LSMRevisited</RootNamespace>
-    <AssemblyName>LSM-Revisited</AssemblyName>
+    <RootNamespace>LoadingScreenModRevisited</RootNamespace>
+    <AssemblyName>LoadingScreenModRevisited</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>

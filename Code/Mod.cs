@@ -1,8 +1,9 @@
 ﻿using ICities;
 using CitiesHarmony.API;
+using LoadingScreenMod;
 
 
-namespace LoadingScreenMod
+namespace LoadingScreenModRevisited
 {
 	/// <summary>
 	/// The base mod class for instantiation by the game.
@@ -51,7 +52,7 @@ namespace LoadingScreenMod
 				Patcher.UnpatchAll();
 			}
 			Instance<LevelLoader>.instance?.Dispose();
-			Settings.settings.helper = null;
+			LoadingScreenMod.Settings.settings.helper = null;
 			created = false;
 		}
 
@@ -61,7 +62,7 @@ namespace LoadingScreenMod
 		/// </summary>
 		public void OnSettingsUI(UIHelperBase helper)
 		{
-			Settings.settings.OnSettingsUI(helper);
+			LoadingScreenMod.Settings.settings.OnSettingsUI(helper);
 		}
 	}
 }

@@ -4,7 +4,7 @@ using HarmonyLib;
 using CitiesHarmony.API;
 
 
-namespace LoadingScreenMod
+namespace LoadingScreenModRevisited
 {
     /// <summary>
     /// Class to manage the mod's Harmony patches.

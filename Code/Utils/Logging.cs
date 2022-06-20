@@ -3,7 +3,7 @@ using System.Text;
 using UnityEngine;
 
 
-namespace LoadingScreenMod
+namespace LoadingScreenModRevisited
 {
     /// <summary>
     /// Logging utility class.
