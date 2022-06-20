@@ -288,11 +288,6 @@ namespace LoadingScreenMod
 		private static bool Update()
 		{
 			LoadingScreen loadingScreen = Instance<LoadingScreen>.instance;
-			if (loadingScreen == null)
-			{
-				Instance<LoadingScreen>.Create();
-				loadingScreen = Instance<LoadingScreen>.instance;
-			}
 
 			float num = Mathf.Min(0.125f, Time.deltaTime);
 			loadingScreen.timer += num;
