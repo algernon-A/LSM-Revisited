@@ -109,6 +109,7 @@
     <Compile Include="Code\Legacy\Util.cs" />
     <Compile Include="Code\Mod.cs" />
     <Compile Include="Code\Patches\Patcher.cs" />
+    <Compile Include="Code\Sharing.cs" />
     <Compile Include="Code\Utils\Logging.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
