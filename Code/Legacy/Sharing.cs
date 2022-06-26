@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace LoadingScreenMod
 {
-	internal sealed class Sharing : Instance<Sharing>
+	public sealed class Sharing : Instance<Sharing>
 	{
 		private const int maxData = 600;
 
@@ -737,7 +737,14 @@ namespace LoadingScreenMod
 			}
 			else
 			{
-				value = AssetDeserializer.InstantiateOne(package.FindByChecksum(checksum), isMain, isTop: false) as MaterialData;
+				// Add null check for cases when FindByChecksum returns null.
+				Package.Asset asset = package.FindByChecksum(checksum);
+				if (asset == null)
+				{
+					LoadingScreenModRevisited.Logging.Message("asset not found for package ", package.packageName ?? "null", " with checksum ", checksum);
+					return null;
+				}
+				value = AssetDeserializer.InstantiateOne(asset, isMain, isTop: false) as MaterialData;
 				matload++;
 			}
 			if (checkAssets && !isMain)
@@ -812,6 +819,7 @@ namespace LoadingScreenMod
 
 		private Sharing()
 		{
+			LoadingScreenModRevisited.Sharing.inst = instance;
 			shareTextures = Settings.settings.shareTextures;
 			shareMaterials = Settings.settings.shareMaterials;
 			shareMeshes = Settings.settings.shareMeshes;
