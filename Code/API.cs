@@ -3,7 +3,7 @@ using ColossalFramework.Packaging;
 using LoadingScreenMod;
 
 
-namespace LoadingScreenModRevisited
+namespace LSM
 {
     /// <summary>
     /// Static API class for use by other mods.
