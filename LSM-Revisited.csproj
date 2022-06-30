@@ -58,6 +58,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Code\API.cs" />
     <Compile Include="Code\Legacy\AssetDeserializer.cs" />
     <Compile Include="Code\Legacy\AssetError.cs" />
     <Compile Include="Code\Legacy\AssetLoader.cs" />
@@ -109,7 +110,6 @@
     <Compile Include="Code\Legacy\Util.cs" />
     <Compile Include="Code\Mod.cs" />
     <Compile Include="Code\Patches\Patcher.cs" />
-    <Compile Include="Code\Sharing.cs" />
     <Compile Include="Code\Utils\Logging.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

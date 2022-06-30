@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace LoadingScreenMod
 {
-	internal sealed class CustomDeserializer : Instance<CustomDeserializer>
+	public sealed class CustomDeserializer : Instance<CustomDeserializer>
 	{
 		internal const string SKIP_PREFIX = "lsm___";
 
@@ -980,7 +980,7 @@ namespace LoadingScreenMod
 			return null;
 		}
 
-		internal static Package.Asset FindAsset(string fullName)
+		public static Package.Asset FindAsset(string fullName)
 		{
 			if (Instance<LevelLoader>.instance.HasFailed(fullName))
 			{

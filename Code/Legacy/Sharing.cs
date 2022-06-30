@@ -819,7 +819,6 @@ namespace LoadingScreenMod
 
 		private Sharing()
 		{
-			LoadingScreenModRevisited.Sharing.inst = instance;
 			shareTextures = Settings.settings.shareTextures;
 			shareMaterials = Settings.settings.shareMaterials;
 			shareMeshes = Settings.settings.shareMeshes;
