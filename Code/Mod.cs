@@ -16,9 +16,6 @@ namespace LoadingScreenModRevisited
 		public string Name => "Loading Screen Mod Revisited " + Version;
 		public string Description => "Optimizes game loading";
 
-		// Status flag.
-		private bool created = false;
-
 
 		/// <summary>
 		/// Called by the game when the mod is enabled.
@@ -29,19 +26,8 @@ namespace LoadingScreenModRevisited
 			// Called here instead of OnCreated to allow the auto-downloader to do its work prior to launch.
 			HarmonyHelper.DoOnHarmonyReady(() => Patcher.PatchAll());
 
+			// Set legacy L10n.
 			L10n.SetCurrent();
-			if (!created)
-			{
-				if (BuildConfig.applicationVersion.StartsWith("1.14"))
-				{
-					Instance<LevelLoader>.Create().Deploy();
-					created = true;
-				}
-				else
-				{
-					Util.DebugPrint(L10n.Get(9));
-				}
-			}
 		}
 
 		public void OnDisabled()
@@ -51,9 +37,9 @@ namespace LoadingScreenModRevisited
 			{
 				Patcher.UnpatchAll();
 			}
-			Instance<LevelLoader>.instance?.Dispose();
+
+			// Remove legacy settings helper.
 			LoadingScreenMod.Settings.settings.helper = null;
-			created = false;
 		}
 
 
@@ -62,6 +48,7 @@ namespace LoadingScreenModRevisited
 		/// </summary>
 		public void OnSettingsUI(UIHelperBase helper)
 		{
+			// Execute legacy settings.
 			LoadingScreenMod.Settings.settings.OnSettingsUI(helper);
 		}
 	}

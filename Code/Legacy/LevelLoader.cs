@@ -34,11 +34,11 @@ namespace LoadingScreenMod
 
 		private int startMillis;
 
-		private bool simulationFailed;
+		internal bool simulationFailed;
 
 		private bool fastLoad;
 
-		private bool optimizeThumbs;
+		internal bool optimizeThumbs;
 
 		internal bool assetsStarted;
 
@@ -74,11 +74,6 @@ namespace LoadingScreenMod
 			new KeyValuePair<string, int>("Station13Prefabs", 1726384),
 			new KeyValuePair<string, int>("ModderPack10Prefabs", 1726381)
 		};
-
-		private LevelLoader()
-		{
-			init(typeof(LoadingManager), "LoadLevel", 5, 0, typeof(Package.Asset));
-		}
 
 		internal void SetSkippedPrefabs(HashSet<string>[] prefabs)
 		{
@@ -116,60 +111,6 @@ namespace LoadingScreenMod
 			base.Dispose();
 			Reset();
 			Array.Clear(skippedPrefabs, 0, skippedPrefabs.Length);
-		}
-
-		/*[HarmonyPatch(typeof(LoadingManager), nameof(LoadingManager.LoadLevel),
-			new Type[] { typeof(Package.Asset), typeof(string), typeof(string), typeof(SimulationMetaData), typeof(bool) },
-			new ArgumentType[] { ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal })]
-		[HarmonyPrefix]*/
-		public static bool LoadLevel(ref Coroutine __result, LoadingManager __instance, Package.Asset asset, string playerScene, string uiScene, SimulationMetaData ngs, bool forceEnvironmentReload = false)
-		{
-			L10n.SetCurrent();
-			LoadingManager loadingManager = Singleton<LoadingManager>.instance;
-			bool flag = ngs.m_updateMode == SimulationManager.UpdateMode.LoadGame || ngs.m_updateMode == SimulationManager.UpdateMode.NewGameFromMap || ngs.m_updateMode == SimulationManager.UpdateMode.NewGameFromScenario || Input.GetKey(KeyCode.LeftControl);
-			Instance<LevelLoader>.instance.simulationFailed = (Instance<LevelLoader>.instance.assetsStarted = (Instance<LevelLoader>.instance.assetsFinished = false));
-			if (!loadingManager.m_currentlyLoading && !loadingManager.m_applicationQuitting)
-			{
-				if (loadingManager.m_LoadingWrapper != null)
-				{
-					loadingManager.m_LoadingWrapper.OnLevelUnloading();
-				}
-				if (flag)
-				{
-					Settings settings = Settings.settings;
-					Util.DebugPrint("Options: 2205", settings.loadEnabled, settings.loadUsed, settings.shareTextures, settings.shareMaterials, settings.shareMeshes, settings.optimizeThumbs, settings.reportAssets, settings.checkAssets, settings.skipPrefabs, settings.hideAssets, settings.useReportDate);
-					Instance<LevelLoader>.instance.optimizeThumbs = settings.optimizeThumbs;
-					settings.enableDisable = settings.loadUsed && ShiftE();
-					loadingManager.SetSceneProgress(0f);
-					Instance<LevelLoader>.instance.cityName = ((asset != null) ? asset.name : null) ?? "NewGame";
-					Profiling.Init();
-					Instance<CustomDeserializer>.Create();
-					Instance<Fixes>.Create().Deploy();
-					Instance<LoadingScreen>.Create().Setup();
-				}
-				loadingManager.LoadingAnimationComponent.enabled = true;
-				loadingManager.m_currentlyLoading = true;
-				loadingManager.m_metaDataLoaded = false;
-				loadingManager.m_simulationDataLoaded = false;
-				loadingManager.m_loadingComplete = false;
-				loadingManager.m_renderDataReady = false;
-				loadingManager.m_essentialScenesLoaded = false;
-				loadingManager.m_brokenAssets = string.Empty;
-				Util.Set(loadingManager, "m_sceneProgress", 0f);
-				Util.Set(loadingManager, "m_simulationProgress", 0f);
-				if (flag)
-				{
-					Profiling.Start();
-				}
-				loadingManager.m_loadingProfilerMain.Reset();
-				loadingManager.m_loadingProfilerSimulation.Reset();
-				loadingManager.m_loadingProfilerScenes.Reset();
-				IEnumerator routine = (flag ? Instance<LevelLoader>.instance.LoadLevelCoroutine(asset, playerScene, uiScene, ngs, forceEnvironmentReload) : ((IEnumerator)Util.Invoke(loadingManager, "LoadLevelCoroutine", asset, playerScene, uiScene, ngs, forceEnvironmentReload)));
-				__result = loadingManager.StartCoroutine(routine);
-				return false;
-			}
-			__result = null;
-			return false;
 		}
 
 		public IEnumerator LoadLevelCoroutine(Package.Asset asset, string playerScene, string uiScene, SimulationMetaData ngs, bool forceEnvironmentReload)
@@ -725,15 +666,6 @@ namespace LoadingScreenMod
 				Debug.LogException(exception);
 			}
 			return true;
-		}
-
-		private static bool ShiftE()
-		{
-			if (Input.GetKey(KeyCode.LeftShift))
-			{
-				return Input.GetKey(KeyCode.E);
-			}
-			return false;
 		}
 
 		private static void DestroyLoadedPrefabs()
