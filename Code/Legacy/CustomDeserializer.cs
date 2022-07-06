@@ -966,7 +966,7 @@ namespace LoadingScreenMod
 			{
 				return value.m_prefab;
 			}
-			if (tryName && fullName.IndexOf('.') < 0 && !Instance<LevelLoader>.instance.HasFailed(fullName))
+			if (tryName && fullName.IndexOf('.') < 0 && !LoadingScreenModRevisited.LevelLoader.HasAssetFailed(fullName))
 			{
 				Package.Asset[] array = Assets;
 				for (int i = 0; i < array.Length; i++)
@@ -982,7 +982,7 @@ namespace LoadingScreenMod
 
 		public static Package.Asset FindAsset(string fullName)
 		{
-			if (Instance<LevelLoader>.instance.HasFailed(fullName))
+			if (LoadingScreenModRevisited.LevelLoader.HasAssetFailed(fullName))
 			{
 				return null;
 			}
@@ -1031,7 +1031,7 @@ namespace LoadingScreenMod
 					try
 					{
 						fullName = data.fullName;
-						if (fullName != Instance<AssetLoader>.instance.Current.fullName && !Instance<LevelLoader>.instance.HasFailed(fullName))
+						if (fullName != Instance<AssetLoader>.instance.Current.fullName && !LoadingScreenModRevisited.LevelLoader.HasAssetFailed(fullName))
 						{
 							if (recordUsed)
 							{
@@ -1053,7 +1053,7 @@ namespace LoadingScreenMod
 			}
 			else
 			{
-				Instance<LevelLoader>.instance.AddFailed(fullName);
+				LoadingScreenModRevisited.LevelLoader.AddFailed(fullName);
 			}
 			return false;
 		}
@@ -1130,7 +1130,7 @@ namespace LoadingScreenMod
 		//[HarmonyPrefix]
 		private static bool ResolveCustomAssetName(ref string __result, string name)
 		{
-			if (name.IndexOf('.') < 0 && !name.StartsWith("lsm___") && !Instance<LevelLoader>.instance.HasFailed(name))
+			if (name.IndexOf('.') < 0 && !name.StartsWith("lsm___") && !LoadingScreenModRevisited.LevelLoader.HasAssetFailed(name))
 			{
 				Package.Asset[] array = Assets;
 				for (int i = 0; i < array.Length; i++)

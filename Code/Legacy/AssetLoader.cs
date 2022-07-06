@@ -184,7 +184,7 @@ namespace LoadingScreenMod
 			Singleton<LoadingManager>.instance.m_loadingProfilerCustomAsset.Reset();
 			Singleton<LoadingManager>.instance.m_loadingProfilerCustomContent.BeginLoading("District Styles");
 			Singleton<LoadingManager>.instance.m_loadingProfilerCustomAsset.PauseLoading();
-			Instance<LevelLoader>.instance.assetsStarted = true;
+			LoadingScreenModRevisited.LevelLoader.assetLoadingStarted = true;
 			List<DistrictStyle> districtStyles = new List<DistrictStyle>();
 			HashSet<string> hashSet = new HashSet<string>();
 			FastList<DistrictStyleMetaData> districtStyleMetaDatas = new FastList<DistrictStyleMetaData>();
@@ -201,7 +201,7 @@ namespace LoadingScreenMod
 				}
 				districtStyles.Add(districtStyle);
 			}
-			if (LevelLoader.Check(715190))
+			if (LoadingScreenModRevisited.LevelLoader.Check(715190))
 			{
 				Package.Asset asset2 = PackageManager.FindAssetByName("System." + DistrictStyle.kEuropeanSuburbiaStyleName);
 				if (asset2 != null && asset2.isEnabled)
@@ -215,7 +215,7 @@ namespace LoadingScreenMod
 					districtStyles.Add(districtStyle);
 				}
 			}
-			if (LevelLoader.Check(1148020))
+			if (LoadingScreenModRevisited.LevelLoader.Check(1148020))
 			{
 				Package.Asset asset3 = PackageManager.FindAssetByName("System." + DistrictStyle.kModderPack5StyleName);
 				if (asset3 != null && asset3.isEnabled)
@@ -363,7 +363,7 @@ namespace LoadingScreenMod
 			Singleton<LoadingManager>.instance.m_loadingProfilerCustomAsset.ContinueLoading();
 			Singleton<LoadingManager>.instance.m_loadingProfilerCustomContent.EndLoading();
 			Singleton<LoadingManager>.instance.m_loadingProfilerMain.EndLoading();
-			Instance<LevelLoader>.instance.assetsFinished = true;
+			LoadingScreenModRevisited.LevelLoader.assetsFinished = true;
 		}
 
 		internal static void PrintMem(int i = -1)
@@ -977,7 +977,7 @@ namespace LoadingScreenMod
 				assetRef = FindMainAssetRef(p);
 				text = assetRef?.fullName;
 			}
-			if (text != null && Instance<LevelLoader>.instance.AddFailed(text))
+			if (text != null && LoadingScreenModRevisited.LevelLoader.AddFailed(text))
 			{
 				if (recordAssets)
 				{
@@ -994,7 +994,7 @@ namespace LoadingScreenMod
 
 		internal void NotFound(string fullName)
 		{
-			if (fullName != null && Instance<LevelLoader>.instance.AddFailed(fullName))
+			if (fullName != null && LoadingScreenModRevisited.LevelLoader.AddFailed(fullName))
 			{
 				Util.DebugPrint("Missing:", fullName);
 				if (!hiddenAssets.Contains(fullName))

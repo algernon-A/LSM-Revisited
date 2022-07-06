@@ -78,7 +78,6 @@
     <Compile Include="Code\Legacy\Instance.cs" />
     <Compile Include="Code\Legacy\Item.cs" />
     <Compile Include="Code\Legacy\L10n.cs" />
-    <Compile Include="Code\Legacy\LevelLoader.cs" />
     <Compile Include="Code\Legacy\LineSource.cs" />
     <Compile Include="Code\Legacy\LinkedHashMap.cs" />
     <Compile Include="Code\Legacy\LoadingScreen.cs" />
@@ -108,6 +107,7 @@
     <Compile Include="Code\Legacy\Triple.cs" />
     <Compile Include="Code\Legacy\UsedAssets.cs" />
     <Compile Include="Code\Legacy\Util.cs" />
+    <Compile Include="Code\Loading\LevelLoader.cs" />
     <Compile Include="Code\Mod.cs" />
     <Compile Include="Code\Patches\LoadLevel.cs" />
     <Compile Include="Code\Patches\Patcher.cs" />

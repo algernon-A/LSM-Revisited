@@ -37,12 +37,12 @@ namespace LoadingScreenMod
 		protected internal override string CreateText()
 		{
 			string result = ((state == 1) ? assets.CreateText() : scenes.CreateText());
-			if (state == 0 && Instance<LevelLoader>.instance.assetsStarted)
+			if (state == 0 && LoadingScreenModRevisited.LevelLoader.assetLoadingStarted)
 			{
 				state = 1;
 				return result;
 			}
-			if (state == 1 && Instance<LevelLoader>.instance.assetsFinished)
+			if (state == 1 && LoadingScreenModRevisited.LevelLoader.assetsFinished)
 			{
 				state = 2;
 			}

@@ -314,13 +314,13 @@ namespace LoadingScreenMod
 			Check(group, L10n.Get(89), L10n.Get(90), loadEnabled, delegate(bool b)
 			{
 				loadEnabled = b;
-				Instance<LevelLoader>.instance?.Reset();
+				LoadingScreenModRevisited.LevelLoader.Reset();
 				Save();
 			});
 			Check(group, L10n.Get(91), L10n.Get(92), loadUsed, delegate(bool b)
 			{
 				loadUsed = b;
-				Instance<LevelLoader>.instance?.Reset();
+				LoadingScreenModRevisited.LevelLoader.Reset();
 				Save();
 			});
 			Check(group, L10n.Get(93), tooltip, shareTextures, delegate(bool b)

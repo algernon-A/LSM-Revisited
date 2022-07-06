@@ -79,7 +79,7 @@ namespace LoadingScreenMod
 			skipMatcher = (exceptMatcher = null);
 			simulationPrefabs?.Clear();
 			simulationPrefabs = null;
-			Instance<LevelLoader>.instance.SetSkippedPrefabs(skippedPrefabs);
+			LoadingScreenModRevisited.LevelLoader.SetSkippedPrefabs(skippedPrefabs);
 			Array.Clear(skippedPrefabs, 0, skippedPrefabs.Length);
 		}
 
@@ -103,13 +103,13 @@ namespace LoadingScreenMod
 			}
 			if (num >= 0 && !Instance<PrefabLoader>.instance.saveDeserialized)
 			{
-				while (!Instance<LevelLoader>.instance.IsSaveDeserialized())
+				while (!LoadingScreenModRevisited.LevelLoader.IsSaveDeserialized)
 				{
 					Thread.Sleep(60);
 				}
 				Instance<PrefabLoader>.instance.saveDeserialized = true;
 			}
-			while (!Monitor.TryEnter(Instance<LevelLoader>.instance.loadingLock, SimulationManager.SYNCHRONIZE_TIMEOUT))
+			while (!Monitor.TryEnter(LoadingScreenModRevisited.LevelLoader.loadingLock, SimulationManager.SYNCHRONIZE_TIMEOUT))
 			{
 			}
 			try
@@ -132,15 +132,15 @@ namespace LoadingScreenMod
 						}
 						break;
 				}
-				Instance<LevelLoader>.instance.mainThreadQueue.Enqueue(action);
-				if (Instance<LevelLoader>.instance.mainThreadQueue.Count < 2)
+				LoadingScreenModRevisited.LevelLoader.mainThreadQueue.Enqueue(action);
+				if (LoadingScreenModRevisited.LevelLoader.mainThreadQueue.Count < 2)
 				{
 					Instance<PrefabLoader>.instance.hasQueuedActionsField.SetValue(__instance, true);
 				}
 			}
 			finally
 			{
-				Monitor.Exit(Instance<LevelLoader>.instance.loadingLock);
+				Monitor.Exit(LoadingScreenModRevisited.LevelLoader.loadingLock);
 			}
 
 			return false;
@@ -179,7 +179,7 @@ namespace LoadingScreenMod
 					if (Skip(val, text, index))
 					{
 						AddToSkipped(val, text, index);
-						Instance<LevelLoader>.instance.skipCounts[index]++;
+						LoadingScreenModRevisited.LevelLoader.skipCounts[index]++;
 						if (list == null)
 						{
 							list = array.ToList(i);
@@ -713,7 +713,7 @@ namespace LoadingScreenMod
 				Instance<PrefabLoader>.instance.keptProps = null;
 				Instance<PrefabLoader>.instance.simulationPrefabs?.Clear();
 				Instance<PrefabLoader>.instance.simulationPrefabs = null;
-				int[] skipCounts = Instance<LevelLoader>.instance.skipCounts;
+				int[] skipCounts = LoadingScreenModRevisited.LevelLoader.skipCounts;
 				if (skipCounts[0] > 0)
 				{
 					Util.DebugPrint("Skipped", skipCounts[0], "building prefabs");

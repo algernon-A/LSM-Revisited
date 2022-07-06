@@ -323,7 +323,7 @@ namespace LoadingScreenMod
 			texturesShared = textures;
 			materialsShared = materials;
 			meshesShared = meshes;
-			string text = AssetLoader.ShortName(Instance<LevelLoader>.instance.cityName);
+			string text = AssetLoader.ShortName(LoadingScreenModRevisited.LevelLoader.cityName);
 			int millis = Profiling.Millis;
 			try
 			{
@@ -508,7 +508,7 @@ namespace LoadingScreenMod
 				Stat(L10n.Get(45), materialsShared, L10n.Get(44));
 				Stat(L10n.Get(46), meshesShared, L10n.Get(44));
 				H3(L10n.Get(47));
-				int[] skipCounts = Instance<LevelLoader>.instance.skipCounts;
+				int[] skipCounts = LoadingScreenModRevisited.LevelLoader.skipCounts;
 				Stat(L10n.Get(48), skipCounts[0], string.Empty);
 				Stat(L10n.Get(49), skipCounts[1], string.Empty);
 				Stat(L10n.Get(50), skipCounts[2], string.Empty);

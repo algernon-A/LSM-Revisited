@@ -44,8 +44,7 @@ namespace LoadingScreenModRevisited
 			}
 
 			// Ensure level loader is active.
-			Instance<LevelLoader>.Create();
-			Instance<LevelLoader>.instance.simulationFailed = (Instance<LevelLoader>.instance.assetsStarted = (Instance<LevelLoader>.instance.assetsFinished = false));
+			LevelLoader.simulationFailed = LevelLoader.assetLoadingStarted = LevelLoader.assetsFinished = false;
 
 			// Handle unloading.
 			if (!__instance.m_currentlyLoading && !__instance.m_applicationQuitting)
@@ -59,12 +58,12 @@ namespace LoadingScreenModRevisited
 				// Reset legacy settings.
 				LoadingScreenMod.Settings settings = LoadingScreenMod.Settings.settings;
 				Util.DebugPrint("Options: 2205", settings.loadEnabled, settings.loadUsed, settings.shareTextures, settings.shareMaterials, settings.shareMeshes, settings.optimizeThumbs, settings.reportAssets, settings.checkAssets, settings.skipPrefabs, settings.hideAssets, settings.useReportDate);
-				Instance<LevelLoader>.instance.optimizeThumbs = settings.optimizeThumbs;
+				LevelLoader.optimizeThumbs = settings.optimizeThumbs;
 				settings.enableDisable = settings.loadUsed && ShiftE;
 
 				// Reset screen progress.
 				__instance.SetSceneProgress(0f);
-				Instance<LevelLoader>.instance.cityName = ((asset != null) ? asset.name : null) ?? "NewGame";
+				LevelLoader.cityName = ((asset != null) ? asset.name : null) ?? "NewGame";
 				Profiling.Init();
 				Instance<CustomDeserializer>.Create();
 				Instance<Fixes>.Create().Deploy();
@@ -93,7 +92,7 @@ namespace LoadingScreenModRevisited
 				__instance.m_loadingProfilerScenes.Reset();
 
 				// Start Unity coroutine.
-				IEnumerator routine = Instance<LevelLoader>.instance.LoadLevelCoroutine(asset, playerScene, uiScene, ngs, forceEnvironmentReload);
+				IEnumerator routine = LevelLoader.LoadLevelCoroutine(__instance, asset, playerScene, uiScene, ngs, forceEnvironmentReload);
 				__result = __instance.StartCoroutine(routine);
 				return false;
 			}
