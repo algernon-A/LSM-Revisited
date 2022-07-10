@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,25 +7,29 @@ using ColossalFramework.Packaging;
 using ColossalFramework.PlatformServices;
 using ICities;
 using UnityEngine;
+using LoadingScreenMod;
 
-namespace LoadingScreenMod
+
+namespace LoadingScreenModRevisited
 {
-	public sealed class AssetLoader : Instance<AssetLoader>
+	/// <summary>
+	/// Custom content loader; called from LevelLoader.
+	/// </summary>
+	public sealed class AssetLoader
 	{
-		private const int OBJ = 1;
+		// Instance reference.
+		private static AssetLoader instance;
 
-		private const int CAM = 103;
 
-		private HashSet<string> loadedIntersections = new HashSet<string>();
+		/// <summary>
+		/// Instance getter.
+		/// </summary>
+		public static AssetLoader Instance => instance;
 
-		private HashSet<string> hiddenAssets = new HashSet<string>();
 
-		private readonly int[] loadQueueIndex = new int[12]
-		{
-			3, 1, 0, 4, 4, 3, 3, 1, 0, 2,
-			2, 2
-		};
-
+		/// <summary>
+		/// Custom asset types.
+		/// </summary>
 		private readonly CustomAssetMetaData.Type[] typeMap = new CustomAssetMetaData.Type[12]
 		{
 			CustomAssetMetaData.Type.Building,
@@ -41,6 +45,24 @@ namespace LoadingScreenMod
 			CustomAssetMetaData.Type.Road,
 			CustomAssetMetaData.Type.Building
 		};
+
+		// Loading order queue index for loading each of the above asset types.
+		// Organized so related and identical assets are close to each other == more texture/mesh cache hits
+		// 0: Tree and citizen
+		// 1: Props
+		// 2: Roads, elevations, and pillars
+		// 3: Buildings and sub-buildings
+		// 4: Vehicles and trailers
+		private readonly int[] loadQueueIndex = new int[12]
+		{
+			3, 1, 0, 4, 4, 3, 3, 1, 0, 2, 2, 2
+		};
+
+
+		private HashSet<string> loadedIntersections = new HashSet<string>();
+
+		private HashSet<string> hiddenAssets = new HashSet<string>();
+
 
 		private Dictionary<Package, CustomAssetMetaData.Type> packageTypes = new Dictionary<Package, CustomAssetMetaData.Type>(256);
 
@@ -62,9 +84,9 @@ namespace LoadingScreenMod
 
 		private float progress;
 
-		private readonly bool recordAssets = Settings.settings.RecordAssets;
+		private readonly bool recordAssets = LoadingScreenMod.Settings.settings.RecordAssets;
 
-		private readonly bool checkAssets = Settings.settings.checkAssets;
+		private readonly bool checkAssets = LoadingScreenMod.Settings.settings.checkAssets;
 
 		private readonly bool hasAssetDataExtensions;
 
@@ -87,18 +109,24 @@ namespace LoadingScreenMod
 			return loadedIntersections.Contains(fullName);
 		}
 
+
+		/// <summary>
+		/// Constructor.
+		/// </summary>
 		private AssetLoader()
 		{
-			Dictionary<string, List<Package.Asset>> dictionary = new Dictionary<string, List<Package.Asset>>(4);
-			Dictionary<string, List<Package.Asset>> dictionary2 = new Dictionary<string, List<Package.Asset>>(4);
-			Dictionary<string, List<Package.Asset>> dictionary3 = new Dictionary<string, List<Package.Asset>>(4);
-			Dictionary<string, List<Package.Asset>> dictionary4 = new Dictionary<string, List<Package.Asset>>(4);
-			Dictionary<string, List<Package.Asset>> dictionary5 = new Dictionary<string, List<Package.Asset>>(4);
-			Dictionary<string, List<Package.Asset>> dictionary6 = new Dictionary<string, List<Package.Asset>>(4);
+			// Loading queues.
+			Dictionary<string, List<Package.Asset>> buildingQueue = new Dictionary<string, List<Package.Asset>>(4);
+			Dictionary<string, List<Package.Asset>> propQueue = new Dictionary<string, List<Package.Asset>>(4);
+			Dictionary<string, List<Package.Asset>> treeQueue = new Dictionary<string, List<Package.Asset>>(4);
+			Dictionary<string, List<Package.Asset>> vehicleQueue = new Dictionary<string, List<Package.Asset>>(4);
+			Dictionary<string, List<Package.Asset>> citizenQueue = new Dictionary<string, List<Package.Asset>>(4);
+			Dictionary<string, List<Package.Asset>> netQueue = new Dictionary<string, List<Package.Asset>>(4);
+
 			suspects = new Dictionary<string, List<Package.Asset>>[12]
 			{
-				dictionary, dictionary2, dictionary3, dictionary4, dictionary4, dictionary, dictionary, dictionary2, dictionary5, dictionary6,
-				dictionary6, dictionary
+				buildingQueue, propQueue, treeQueue, vehicleQueue, vehicleQueue, buildingQueue, buildingQueue, propQueue, citizenQueue, netQueue,
+				netQueue, buildingQueue
 			};
 			SettingsFile settingsFile = GameSettings.FindSettingsFileByName(PackageManager.assetStateSettingsFile);
 			boolValues = (Dictionary<string, bool>)Util.Get(settingsFile, "m_SettingsBoolValues");
@@ -108,131 +136,156 @@ namespace LoadingScreenMod
 			{
 				Util.DebugPrint("IAssetDataExtensions:", list.Count);
 			}
-		}
 
-		public void Setup()
-		{
 			Instance<CustomDeserializer>.instance.Setup();
 			Instance<Sharing>.Create();
 			if (recordAssets)
 			{
 				Instance<Reports>.Create();
 			}
-			if (Settings.settings.hideAssets)
+			if (LoadingScreenMod.Settings.settings.hideAssets)
 			{
-				Settings.settings.LoadHiddenAssets(hiddenAssets);
+				LoadingScreenMod.Settings.settings.LoadHiddenAssets(hiddenAssets);
 			}
 		}
 
-		public void Dispose()
+
+		/// <summary>
+		/// Creates the instance.
+		/// </summary>
+		public static void Create()
 		{
-			if (Settings.settings.reportAssets)
+			// Dispose of any existing instance.
+			Dispose();
+
+			// Create new instance.
+			instance = new AssetLoader();
+		}
+
+
+		/// <summary>
+		/// Clears all data and disposes of the instance.
+		/// </summary>
+		public static void Dispose()
+		{
+			// Safety check.
+			if (instance == null)
+			{
+				return;
+			}
+
+			// Save assets report if set to do so.
+			if (LoadingScreenMod.Settings.settings.reportAssets)
 			{
 				Instance<Reports>.instance.SaveStats();
 			}
-			if (recordAssets)
+
+			// Dispost of any asset reporting instance.
+			if (instance.recordAssets)
 			{
 				Instance<Reports>.instance.Dispose();
 			}
+
+			// Dispose of instances.
 			Instance<UsedAssets>.instance?.Dispose();
 			Instance<Sharing>.instance?.Dispose();
-			loadedIntersections.Clear();
-			hiddenAssets.Clear();
-			packageTypes.Clear();
-			metaDatas.Clear();
-			citizenMetaDatas.Clear();
-			loadedIntersections = null;
-			hiddenAssets = null;
-			packageTypes = null;
-			metaDatas = null;
-			citizenMetaDatas = null;
-			Array.Clear(suspects, 0, suspects.Length);
-			suspects = null;
-			boolValues = null;
-			Instance<AssetLoader>.instance = null;
+
+			// Clear collections.
+			instance.loadedIntersections.Clear();
+			instance.hiddenAssets.Clear();
+			instance.packageTypes.Clear();
+			instance.metaDatas.Clear();
+			instance.citizenMetaDatas.Clear();
+			instance.loadedIntersections = null;
+			instance.hiddenAssets = null;
+			instance.packageTypes = null;
+			instance.metaDatas = null;
+			instance.citizenMetaDatas = null;
+			Array.Clear(instance.suspects, 0, instance.suspects.Length);
+			instance.suspects = null;
+			instance.boolValues = null;
+
+			// Finally, clear this instance.
+			instance = null;
 		}
 
-		private void Report()
-		{
-			Settings settings = Settings.settings;
-			if (settings.loadUsed)
-			{
-				Instance<UsedAssets>.instance.ReportMissingAssets();
-			}
-			if (recordAssets)
-			{
-				if (settings.reportAssets)
-				{
-					Instance<Reports>.instance.Save(hiddenAssets, Instance<Sharing>.instance.texhit, Instance<Sharing>.instance.mathit, Instance<Sharing>.instance.meshit);
-				}
-				if (settings.hideAssets)
-				{
-					settings.SaveHiddenAssets(hiddenAssets, Instance<Reports>.instance.GetMissing(), Instance<Reports>.instance.GetDuplicates());
-				}
-				if (!settings.enableDisable)
-				{
-					Instance<Reports>.instance.ClearAssets();
-				}
-			}
-			Instance<Sharing>.instance.Dispose();
-		}
 
+		/// <summary>
+		/// The custom content loader iteslf.
+		/// </summary>
+		/// <returns></returns>
 		public IEnumerator LoadCustomContent()
 		{
-			Singleton<LoadingManager>.instance.m_loadingProfilerMain.BeginLoading("LoadCustomContent");
-			Singleton<LoadingManager>.instance.m_loadingProfilerCustomContent.Reset();
-			Singleton<LoadingManager>.instance.m_loadingProfilerCustomAsset.Reset();
-			Singleton<LoadingManager>.instance.m_loadingProfilerCustomContent.BeginLoading("District Styles");
-			Singleton<LoadingManager>.instance.m_loadingProfilerCustomAsset.PauseLoading();
-			LoadingScreenModRevisited.LevelLoader.assetLoadingStarted = true;
+			// Local reference.
+			LoadingManager loadingManager = Singleton<LoadingManager>.instance;
+
+
+			// Gamecode.
+			loadingManager.m_loadingProfilerMain.BeginLoading("LoadCustomContent");
+			loadingManager.m_loadingProfilerCustomContent.Reset();
+			loadingManager.m_loadingProfilerCustomAsset.Reset();
+			loadingManager.m_loadingProfilerCustomContent.BeginLoading("District Styles");
+			loadingManager.m_loadingProfilerCustomAsset.PauseLoading();
+
+			// LSM.
+			LevelLoader.assetLoadingStarted = true;
+
+			// Gamecode.
 			List<DistrictStyle> districtStyles = new List<DistrictStyle>();
 			HashSet<string> hashSet = new HashSet<string>();
-			FastList<DistrictStyleMetaData> districtStyleMetaDatas = new FastList<DistrictStyleMetaData>();
-			FastList<Package> districtStylePackages = new FastList<Package>();
-			Package.Asset asset = PackageManager.FindAssetByName("System." + DistrictStyle.kEuropeanStyleName);
-			if (asset != null && asset.isEnabled)
+			FastList<DistrictStyleMetaData> cachedStyles = new FastList<DistrictStyleMetaData>();
+			FastList<Package> cachedStylePackages = new FastList<Package>();
+
+			// Gamecode equivalent.
+			Package.Asset europeanStyles = PackageManager.FindAssetByName("System." + DistrictStyle.kEuropeanStyleName);
+			if (europeanStyles != null && europeanStyles.isEnabled)
 			{
 				DistrictStyle districtStyle = new DistrictStyle(DistrictStyle.kEuropeanStyleName, builtIn: true);
 				Util.InvokeVoid(Singleton<LoadingManager>.instance, "AddChildrenToBuiltinStyle", GameObject.Find("European Style new"), districtStyle, false);
 				Util.InvokeVoid(Singleton<LoadingManager>.instance, "AddChildrenToBuiltinStyle", GameObject.Find("European Style others"), districtStyle, true);
-				if (Settings.settings.SkipPrefabs)
+				if (LoadingScreenMod.Settings.settings.SkipPrefabs)
 				{
 					PrefabLoader.RemoveSkippedFromStyle(districtStyle);
 				}
 				districtStyles.Add(districtStyle);
 			}
-			if (LoadingScreenModRevisited.LevelLoader.Check(715190))
+			if (LevelLoader.Check(715190))
 			{
-				Package.Asset asset2 = PackageManager.FindAssetByName("System." + DistrictStyle.kEuropeanSuburbiaStyleName);
-				if (asset2 != null && asset2.isEnabled)
+				Package.Asset europeanSuburbiaStyle = PackageManager.FindAssetByName("System." + DistrictStyle.kEuropeanSuburbiaStyleName);
+				if (europeanSuburbiaStyle != null && europeanSuburbiaStyle.isEnabled)
 				{
 					DistrictStyle districtStyle = new DistrictStyle(DistrictStyle.kEuropeanSuburbiaStyleName, builtIn: true);
 					Util.InvokeVoid(Singleton<LoadingManager>.instance, "AddChildrenToBuiltinStyle", GameObject.Find("Modder Pack 3"), districtStyle, false);
-					if (Settings.settings.SkipPrefabs)
+					if (LoadingScreenMod.Settings.settings.SkipPrefabs)
 					{
 						PrefabLoader.RemoveSkippedFromStyle(districtStyle);
 					}
 					districtStyles.Add(districtStyle);
 				}
 			}
-			if (LoadingScreenModRevisited.LevelLoader.Check(1148020))
+			if (LevelLoader.Check(1148020))
 			{
-				Package.Asset asset3 = PackageManager.FindAssetByName("System." + DistrictStyle.kModderPack5StyleName);
-				if (asset3 != null && asset3.isEnabled)
+				Package.Asset cityCenterStyle = PackageManager.FindAssetByName("System." + DistrictStyle.kModderPack5StyleName);
+				if (cityCenterStyle != null && cityCenterStyle.isEnabled)
 				{
 					DistrictStyle districtStyle = new DistrictStyle(DistrictStyle.kModderPack5StyleName, builtIn: true);
 					Util.InvokeVoid(Singleton<LoadingManager>.instance, "AddChildrenToBuiltinStyle", GameObject.Find("Modder Pack 5"), districtStyle, false);
-					if (Settings.settings.SkipPrefabs)
+					if (LoadingScreenMod.Settings.settings.SkipPrefabs)
 					{
 						PrefabLoader.RemoveSkippedFromStyle(districtStyle);
 					}
 					districtStyles.Add(districtStyle);
 				}
 			}
-			if (Settings.settings.SkipPrefabs)
+
+			// LSM insert.
+			// Unload any skipped assets.
+			if (LoadingScreenMod.Settings.settings.SkipPrefabs)
 			{
 				PrefabLoader.UnloadSkipped();
 			}
+
+			// Gamecode.
 			foreach (Package.Asset item in PackageManager.FilterAssets(UserAssetType.DistrictStyleMetaData))
 			{
 				try
@@ -246,13 +299,13 @@ namespace LoadingScreenMod
 					{
 						continue;
 					}
-					districtStyleMetaDatas.Add(districtStyleMetaData);
-					districtStylePackages.Add(item.package);
+					cachedStyles.Add(districtStyleMetaData);
+					cachedStylePackages.Add(item.package);
 					if (districtStyleMetaData.assets != null)
 					{
-						for (int k = 0; k < districtStyleMetaData.assets.Length; k++)
+						for (int l = 0; l < districtStyleMetaData.assets.Length; l++)
 						{
-							hashSet.Add(districtStyleMetaData.assets[k]);
+							hashSet.Add(districtStyleMetaData.assets[l]);
 						}
 					}
 				}
@@ -261,19 +314,30 @@ namespace LoadingScreenMod
 					CODebugBase<LogChannel>.Warn(LogChannel.Modding, string.Concat(ex.GetType(), ": Loading custom district style failed[", item, "]\n", ex.Message));
 				}
 			}
-			Singleton<LoadingManager>.instance.m_loadingProfilerCustomAsset.ContinueLoading();
-			Singleton<LoadingManager>.instance.m_loadingProfilerCustomContent.EndLoading();
-			if (Settings.settings.loadUsed)
+			loadingManager.m_loadingProfilerCustomAsset.ContinueLoading();
+			loadingManager.m_loadingProfilerCustomContent.EndLoading();
+
+			// LSM insert.
+			// Create used asset instance if required.
+			if (LoadingScreenMod.Settings.settings.loadUsed)
 			{
 				Instance<UsedAssets>.Create();
 			}
 			Instance<LoadingScreen>.instance.DualSource.Add(L10n.Get(136));
-			Singleton<LoadingManager>.instance.m_loadingProfilerCustomContent.BeginLoading("Calculating asset load order");
+
+			// Gamecode.
+			loadingManager.m_loadingProfilerCustomContent.BeginLoading("Calculating asset load order");
+
+			// LSM - replaces game loading queue calculation.
 			PrintMem();
 			Package.Asset[] queue = GetLoadQueue(hashSet);
 			Util.DebugPrint("LoadQueue", queue.Length, Profiling.Millis);
-			Singleton<LoadingManager>.instance.m_loadingProfilerCustomContent.EndLoading();
-			Singleton<LoadingManager>.instance.m_loadingProfilerCustomContent.BeginLoading("Loading Custom Assets");
+
+			// Gamecode.
+			loadingManager.m_loadingProfilerCustomContent.EndLoading();
+			loadingManager.m_loadingProfilerCustomContent.BeginLoading("Loading Custom Assets");
+
+			// LSM - repalce game custom asset loading.
 			Instance<Sharing>.instance.Start(queue);
 			beginMillis = (lastMillis = Profiling.Millis);
 			for (int k = 0; k < queue.Length; k++)
@@ -303,23 +367,25 @@ namespace LoadingScreenMod
 			}
 			lastMillis = Profiling.Millis;
 			Instance<LoadingScreen>.instance.SetProgress(0.85f, 1f, assetCount, assetCount, beginMillis, lastMillis);
-			Singleton<LoadingManager>.instance.m_loadingProfilerCustomContent.EndLoading();
+			loadingManager.m_loadingProfilerCustomContent.EndLoading();
 			Util.DebugPrint(assetCount, "custom assets loaded in", lastMillis - beginMillis);
 			Instance<CustomDeserializer>.instance.SetCompleted();
 			PrintMem();
 			stack.Clear();
 			Report();
-			Singleton<LoadingManager>.instance.m_loadingProfilerCustomContent.BeginLoading("Finalizing District Styles");
-			Singleton<LoadingManager>.instance.m_loadingProfilerCustomAsset.PauseLoading();
-			for (int k = 0; k < districtStyleMetaDatas.m_size; k++)
+
+			// Gamecode.
+			loadingManager.m_loadingProfilerCustomContent.BeginLoading("Finalizing District Styles");
+			loadingManager.m_loadingProfilerCustomAsset.PauseLoading();
+			for (int k = 0; k < cachedStyles.m_size; k++)
 			{
 				try
 				{
-					DistrictStyleMetaData districtStyleMetaData = districtStyleMetaDatas.m_buffer[k];
+					DistrictStyleMetaData districtStyleMetaData = cachedStyles.m_buffer[k];
 					DistrictStyle districtStyle = new DistrictStyle(districtStyleMetaData.name, builtIn: false);
-					if (districtStylePackages.m_buffer[k].GetPublishedFileID() != PublishedFileId.invalid)
+					if (cachedStylePackages.m_buffer[k].GetPublishedFileID() != PublishedFileId.invalid)
 					{
-						districtStyle.PackageName = districtStylePackages.m_buffer[k].packageName;
+						districtStyle.PackageName = cachedStylePackages.m_buffer[k].packageName;
 					}
 					if (districtStyleMetaData.assets == null)
 					{
@@ -353,17 +419,50 @@ namespace LoadingScreenMod
 			{
 				Singleton<BuildingManager>.instance.InitializeStyleArray(districtStyles.Count);
 			}
-			if (Settings.settings.enableDisable)
+
+			// LSM insert.
+			if (LoadingScreenMod.Settings.settings.enableDisable)
 			{
 				Util.DebugPrint("Going to enable and disable assets");
 				Instance<LoadingScreen>.instance.DualSource.Add(L10n.Get(137));
 				yield return null;
 				EnableDisableAssets();
 			}
-			Singleton<LoadingManager>.instance.m_loadingProfilerCustomAsset.ContinueLoading();
-			Singleton<LoadingManager>.instance.m_loadingProfilerCustomContent.EndLoading();
-			Singleton<LoadingManager>.instance.m_loadingProfilerMain.EndLoading();
-			LoadingScreenModRevisited.LevelLoader.assetsFinished = true;
+
+			// Gamecode.
+			loadingManager.m_loadingProfilerCustomAsset.ContinueLoading();
+			loadingManager.m_loadingProfilerCustomContent.EndLoading();
+			loadingManager.m_loadingProfilerMain.EndLoading();
+
+			// LSM insert.
+			LevelLoader.assetsFinished = true;
+		}
+
+
+
+		private void Report()
+		{
+			LoadingScreenMod.Settings settings = LoadingScreenMod.Settings.settings;
+			if (settings.loadUsed)
+			{
+				Instance<UsedAssets>.instance.ReportMissingAssets();
+			}
+			if (recordAssets)
+			{
+				if (settings.reportAssets)
+				{
+					Instance<Reports>.instance.Save(hiddenAssets, Instance<Sharing>.instance.texhit, Instance<Sharing>.instance.mathit, Instance<Sharing>.instance.meshit);
+				}
+				if (settings.hideAssets)
+				{
+					settings.SaveHiddenAssets(hiddenAssets, Instance<Reports>.instance.GetMissing(), Instance<Reports>.instance.GetDuplicates());
+				}
+				if (!settings.enableDisable)
+				{
+					Instance<Reports>.instance.ClearAssets();
+				}
+			}
+			Instance<Sharing>.instance.Dispose();
 		}
 
 		internal static void PrintMem(int i = -1)
@@ -388,6 +487,8 @@ namespace LoadingScreenMod
 			Console.WriteLine(text);
 		}
 
+
+		// Transpiled by Intersection Marking Tool - leave for now!
 		internal void LoadImpl(Package.Asset assetRef)
 		{
 			try
@@ -566,8 +667,8 @@ namespace LoadingScreenMod
 			HashSet<string> hashSet = new HashSet<string>();
 			string text = string.Empty;
 			SteamHelper.DLC_BitMask dLC_BitMask = ~SteamHelper.GetOwnedDLCMask();
-			bool flag = Settings.settings.loadEnabled & !Settings.settings.enableDisable;
-			bool loadUsed = Settings.settings.loadUsed;
+			bool flag = LoadingScreenMod.Settings.settings.loadEnabled & !LoadingScreenMod.Settings.settings.enableDisable;
+			bool loadUsed = LoadingScreenMod.Settings.settings.loadUsed;
 			Package[] array3 = array;
 			foreach (Package package in array3)
 			{
@@ -1021,7 +1122,7 @@ namespace LoadingScreenMod
 		{
 			try
 			{
-				if (!Settings.settings.reportAssets)
+				if (!LoadingScreenMod.Settings.settings.reportAssets)
 				{
 					Instance<Reports>.instance.SetIndirectUsages();
 				}

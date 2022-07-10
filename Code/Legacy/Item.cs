@@ -77,7 +77,7 @@ namespace LoadingScreenMod
 		protected Item(string packageName, string name_Data, CustomAssetMetaData.Type type, int usage)
 		{
 			this.packageName = packageName;
-			name = AssetLoader.ShortName(name_Data);
+			name = LoadingScreenModRevisited.AssetLoader.ShortName(name_Data);
 			this.type = type;
 			this.usage = (byte)usage;
 		}
@@ -88,12 +88,12 @@ namespace LoadingScreenMod
 			if (num >= 0)
 			{
 				packageName = fullName.Substring(0, num);
-				name = AssetLoader.ShortName(fullName.Substring(num + 1));
+				name = LoadingScreenModRevisited.AssetLoader.ShortName(fullName.Substring(num + 1));
 			}
 			else
 			{
 				packageName = string.Empty;
-				name = AssetLoader.ShortName(fullName);
+				name = LoadingScreenModRevisited.AssetLoader.ShortName(fullName);
 			}
 			this.type = type;
 			this.usage = (byte)usage;

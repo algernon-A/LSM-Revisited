@@ -330,8 +330,8 @@ namespace LoadingScreenModRevisited
 				while (i > 0);
 
 				// LSM equivalents of gamecode, just queing LSM loading actions.
-				Instance<AssetLoader>.Create().Setup();
-				loadingManager.QueueLoadingAction(Instance<AssetLoader>.instance.LoadCustomContent());
+				AssetLoader.Create();
+				loadingManager.QueueLoadingAction(AssetLoader.Instance.LoadCustomContent());
 
 				// LSM Safenets insert.
 				if (LoadingScreenMod.Settings.settings.recover)
@@ -608,7 +608,7 @@ namespace LoadingScreenModRevisited
 		/// <returns>True if asset loading is stil in progress, false otherwise</returns>
 		internal static bool AssetLoadingActive()
 		{
-			if (Instance<AssetLoader>.HasInstance && assetLoadingStarted)
+			if (AssetLoader.Instance != null && assetLoadingStarted)
 			{
 				return !assetsFinished;
 			}
@@ -632,7 +632,7 @@ namespace LoadingScreenModRevisited
 			AssetLoader.PrintMem();
 
 			// Dispose of loader instances.
-			Instance<AssetLoader>.instance?.Dispose();
+			AssetLoader.Dispose();
 			Instance<Fixes>.instance.Dispose();
 			Instance<CustomDeserializer>.instance.Dispose();
 

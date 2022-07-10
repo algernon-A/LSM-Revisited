@@ -61,7 +61,6 @@
     <Compile Include="Code\API.cs" />
     <Compile Include="Code\Legacy\AssetDeserializer.cs" />
     <Compile Include="Code\Legacy\AssetError.cs" />
-    <Compile Include="Code\Legacy\AssetLoader.cs" />
     <Compile Include="Code\Legacy\AtlasObj.cs" />
     <Compile Include="Code\Legacy\Atomic.cs" />
     <Compile Include="Code\Legacy\Available.cs" />
@@ -107,6 +106,7 @@
     <Compile Include="Code\Legacy\Triple.cs" />
     <Compile Include="Code\Legacy\UsedAssets.cs" />
     <Compile Include="Code\Legacy\Util.cs" />
+    <Compile Include="Code\Loading\AssetLoader.cs" />
     <Compile Include="Code\Loading\LevelLoader.cs" />
     <Compile Include="Code\Mod.cs" />
     <Compile Include="Code\Patches\LoadLevel.cs" />

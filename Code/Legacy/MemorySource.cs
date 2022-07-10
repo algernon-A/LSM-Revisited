@@ -32,7 +32,7 @@ namespace LoadingScreenMod
 			try
 			{
 				MemoryAPI.GetUsage(out var pfMegas, out var wsMegas);
-				string text = ((float)wsMegas / 1024f).ToString("F1") + " GB\n" + ((float)pfMegas / 1024f).ToString("F1") + " GB";
+				string text = ((float)wsMegas / 1024f).ToString("F1") + " GB RAM\n" + ((float)pfMegas / 1024f).ToString("F1") + " GB Page";
 				orange |= (wsMegas > wsOrange) | (pfMegas > pfOrange);
 				red |= (wsMegas > wsRed) | (pfMegas > pfRed);
 				if (red)

@@ -415,7 +415,7 @@ namespace LoadingScreenMod
 
 		private object ReadUITextureAtlas(Package p, PackageReader r)
 		{
-			Package.Asset current = Instance<AssetLoader>.instance.Current;
+			Package.Asset current = LoadingScreenModRevisited.AssetLoader.Instance.Current;
 			if ((object)current == prevAtlasObj?.asset)
 			{
 				ReadOutUITextureAtlas(p, r);
@@ -561,7 +561,7 @@ namespace LoadingScreenMod
 		private static object ReadNetInfo(Package p, PackageReader r)
 		{
 			string text = r.ReadString();
-			if (Instance<AssetLoader>.instance.GetPackageTypeFor(p) == CustomAssetMetaData.Type.Road)
+			if (LoadingScreenModRevisited.AssetLoader.Instance.GetPackageTypeFor(p) == CustomAssetMetaData.Type.Road)
 			{
 				return Get<NetInfo>(p, text);
 			}
@@ -636,7 +636,7 @@ namespace LoadingScreenMod
 		private static object ReadBuildingInfo(Package p, PackageReader r)
 		{
 			string text = r.ReadString();
-			if (Instance<AssetLoader>.instance.GetPackageTypeFor(p) == CustomAssetMetaData.Type.Road)
+			if (LoadingScreenModRevisited.AssetLoader.Instance.GetPackageTypeFor(p) == CustomAssetMetaData.Type.Road)
 			{
 				return Get<BuildingInfo>(p, text);
 			}
@@ -648,7 +648,7 @@ namespace LoadingScreenMod
 			string text = r.ReadString();
 			string text2 = p.packageName + "." + text;
 			BuildingInfo buildingInfo = null;
-			if (text2 == Instance<AssetLoader>.instance.Current.fullName || text == Instance<AssetLoader>.instance.Current.fullName)
+			if (text2 == LoadingScreenModRevisited.AssetLoader.Instance.Current.fullName || text == LoadingScreenModRevisited.AssetLoader.Instance.Current.fullName)
 			{
 				Util.DebugPrint("Warning:", text2, "wants to be a sub-building for itself");
 			}
@@ -687,7 +687,7 @@ namespace LoadingScreenMod
 			string text = r.ReadString();
 			string text2 = p.packageName + "." + text;
 			PropInfo prop = null;
-			if (text2 == Instance<AssetLoader>.instance.Current.fullName)
+			if (text2 == LoadingScreenModRevisited.AssetLoader.Instance.Current.fullName)
 			{
 				Util.DebugPrint("Warning:", text2, "wants to be a prop variation for itself");
 			}
@@ -765,7 +765,7 @@ namespace LoadingScreenMod
 			string text = r.ReadString();
 			string text2 = p.packageName + "." + text;
 			TreeInfo tree = null;
-			if (text2 == Instance<AssetLoader>.instance.Current.fullName)
+			if (text2 == LoadingScreenModRevisited.AssetLoader.Instance.Current.fullName)
 			{
 				Util.DebugPrint("Warning:", text2, "wants to be a tree variation for itself");
 			}
@@ -1031,24 +1031,24 @@ namespace LoadingScreenMod
 					try
 					{
 						fullName = data.fullName;
-						if (fullName != Instance<AssetLoader>.instance.Current.fullName && !LoadingScreenModRevisited.LevelLoader.HasAssetFailed(fullName))
+						if (fullName != LoadingScreenModRevisited.AssetLoader.Instance.Current.fullName && !LoadingScreenModRevisited.LevelLoader.HasAssetFailed(fullName))
 						{
 							if (recordUsed)
 							{
 								Instance<Reports>.instance.AddPackage(data.package);
 							}
-							Instance<AssetLoader>.instance.LoadImpl(data);
+							LoadingScreenModRevisited.AssetLoader.Instance.LoadImpl(data);
 							return true;
 						}
 					}
 					catch (Exception e)
 					{
-						Instance<AssetLoader>.instance.AssetFailed(data, data.package, e);
+						LoadingScreenModRevisited.AssetLoader.Instance.AssetFailed(data, data.package, e);
 					}
 				}
 				else
 				{
-					Instance<AssetLoader>.instance.NotFound(fullName);
+					LoadingScreenModRevisited.AssetLoader.Instance.NotFound(fullName);
 				}
 			}
 			else
@@ -1094,7 +1094,7 @@ namespace LoadingScreenMod
 
 		private static Package.Asset FindContainer()
 		{
-			Package.Asset current = Instance<AssetLoader>.instance.Current;
+			Package.Asset current = LoadingScreenModRevisited.AssetLoader.Instance.Current;
 			if (Instance<Reports>.instance.IsKnown(current))
 			{
 				return current;
@@ -1118,7 +1118,7 @@ namespace LoadingScreenMod
 
 		private static Package.Asset KnownMainAssetRef(Package p)
 		{
-			Package.Asset asset = AssetLoader.FindMainAssetRef(p);
+			Package.Asset asset = LoadingScreenModRevisited.AssetLoader.FindMainAssetRef(p);
 			if (string.IsNullOrEmpty(asset?.fullName) || !Instance<Reports>.instance.IsKnown(asset))
 			{
 				return null;

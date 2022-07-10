@@ -156,7 +156,7 @@ namespace LoadingScreenMod
 
 		internal void AddPackage(Package p)
 		{
-			Package.Asset asset = AssetLoader.FindMainAssetRef(p);
+			Package.Asset asset = LoadingScreenModRevisited.AssetLoader.FindMainAssetRef(p);
 			string text = asset?.fullName;
 			if (!string.IsNullOrEmpty(text) && !IsKnown(text))
 			{
@@ -323,7 +323,7 @@ namespace LoadingScreenMod
 			texturesShared = textures;
 			materialsShared = materials;
 			meshesShared = meshes;
-			string text = AssetLoader.ShortName(LoadingScreenModRevisited.LevelLoader.cityName);
+			string text = LoadingScreenModRevisited.AssetLoader.ShortName(LoadingScreenModRevisited.LevelLoader.cityName);
 			int millis = Profiling.Millis;
 			try
 			{
@@ -446,7 +446,7 @@ namespace LoadingScreenMod
 					SecOff();
 					Sec("#c9c6ba");
 					H2(L10n.Get(27));
-					Item[] array5 = assets.Values.Where((Item item) => item.Enabled && !item.Used && !Instance<AssetLoader>.instance.IsIntersection(item.FullName)).ToArray();
+					Item[] array5 = assets.Values.Where((Item item) => item.Enabled && !item.Used && !LoadingScreenModRevisited.AssetLoader.Instance.IsIntersection(item.FullName)).ToArray();
 					if (array5.Length != 0)
 					{
 						Italics(L10n.Get(28));
@@ -489,11 +489,11 @@ namespace LoadingScreenMod
 				w = new StreamWriter(reportFilePath, append: true);
 				H2(L10n.Get(31));
 				H3(L10n.Get(32));
-				Stat(L10n.Get(33), Instance<AssetLoader>.instance.assetCount, L10n.Get(34));
-				int num = Instance<AssetLoader>.instance.lastMillis - Instance<AssetLoader>.instance.beginMillis;
+				Stat(L10n.Get(33), LoadingScreenModRevisited.AssetLoader.Instance.assetCount, L10n.Get(34));
+				int num = LoadingScreenModRevisited.AssetLoader.Instance.lastMillis - LoadingScreenModRevisited.AssetLoader.Instance.beginMillis;
 				if (num > 0)
 				{
-					Stat(L10n.Get(35), ((float)Instance<AssetLoader>.instance.assetCount * 1000f / (float)num).ToString("F1"), L10n.Get(36));
+					Stat(L10n.Get(35), ((float)LoadingScreenModRevisited.AssetLoader.Instance.assetCount * 1000f / (float)num).ToString("F1"), L10n.Get(36));
 				}
 				Stat(L10n.Get(37), Profiling.TimeString(num + 500), L10n.Get(38));
 				Stat(L10n.Get(39), Profiling.TimeString(Profiling.Millis + 500), L10n.Get(38));
@@ -801,8 +801,8 @@ namespace LoadingScreenMod
 		private static string GetNameChangedDesc(Item missing)
 		{
 			List<Package> packages = Instance<CustomDeserializer>.instance.GetPackages(missing.packageName);
-			Package.Asset asset = ((packages.Count == 1) ? AssetLoader.FindMainAssetRef(packages[0]) : null);
-			string text = ((asset != null) ? Ref(asset.package.packageName, AssetLoader.ShortName(asset.name)) : Ref(missing.packageName));
+			Package.Asset asset = ((packages.Count == 1) ? LoadingScreenModRevisited.AssetLoader.FindMainAssetRef(packages[0]) : null);
+			string text = ((asset != null) ? Ref(asset.package.packageName, LoadingScreenModRevisited.AssetLoader.ShortName(asset.name)) : Ref(missing.packageName));
 			return L10n.Get(65) + " " + text + " " + L10n.Get(66) + " " + Enc(missing.name) + ".<br><a target=\"_blank\" href=\"https://steamcommunity.com/workshop/filedetails/discussion/667342976/141136086940263481/\">" + L10n.Get(67) + "</a> " + L10n.Get(68);
 		}
 
@@ -1007,7 +1007,7 @@ namespace LoadingScreenMod
 
 		private Item FindItem(Package package)
 		{
-			string text = AssetLoader.FindMainAssetRef(package)?.fullName;
+			string text = LoadingScreenModRevisited.AssetLoader.FindMainAssetRef(package)?.fullName;
 			if (string.IsNullOrEmpty(text) || !assets.TryGetValue(text, out var value))
 			{
 				return null;

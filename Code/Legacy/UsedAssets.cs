@@ -106,7 +106,7 @@ namespace LoadingScreenMod
 				{
 					if ((UnityEngine.Object)CustomDeserializer.FindLoaded<P>(customAsset, tryName: false) == (UnityEngine.Object)null)
 					{
-						Instance<AssetLoader>.instance.NotFound(customAsset);
+						LoadingScreenModRevisited.AssetLoader.Instance.NotFound(customAsset);
 						if (flag)
 						{
 							Instance<Reports>.instance.AddMissing(customAsset, type);
