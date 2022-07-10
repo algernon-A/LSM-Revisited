@@ -170,6 +170,8 @@ namespace LoadingScreenMod
 			imageLoaded = (animationLoaded = (fontLoaded = (bgLoaded = false)));
 		}
 
+
+		// TODO: this needs to be updated to match gamecode!
 		//[HarmonyPatch(typeof(LoadingAnimation), nameof(LoadingAnimation.SetImage))]
 		//[HarmonyPrefix]
 		public static bool SetImage(Mesh mesh, Material material, float scale, bool showAnimation)
@@ -377,7 +379,7 @@ namespace LoadingScreenMod
 			CreateQuad(-1.35f, 0.75f, 0.86f, 1.5f, list, list2);
 			CreateQuad(-0.38f, -0.47f, 0.75f, 0.28f, list, list2);
 			CreateQuad(-0.17f, 0.75f, 0.34f, 0.2f, list, list2);
-			CreateQuad(-0.17f, 0.48f, 0.34f, 0.3f, list, list2);
+			CreateQuad(-0.17f, 0.48f, 0.47f, 0.3f, list, list2);
 			return new Mesh
 			{
 				name = "BG Quads",

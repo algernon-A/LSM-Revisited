@@ -61,7 +61,7 @@ namespace LoadingScreenModRevisited
 				LevelLoader.optimizeThumbs = settings.optimizeThumbs;
 				settings.enableDisable = settings.loadUsed && ShiftE;
 
-				// Reset screen progress.
+				// Reset progress.
 				__instance.SetSceneProgress(0f);
 				LevelLoader.cityName = ((asset != null) ? asset.name : null) ?? "NewGame";
 				Profiling.Init();
