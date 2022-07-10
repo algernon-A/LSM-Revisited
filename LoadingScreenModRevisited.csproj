@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net35</TargetFramework>
+    <AssemblyVersion>0.0.1.0</AssemblyVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ManagedDLLPath>$(ProgramFiles)/Steam/steamapps/common/Cities_Skylines/Cities_Data/Managed</ManagedDLLPath>
+    <AssemblySearchPaths>
+      $(AssemblySearchPaths);
+      $(ManagedDLLPath)
+    </AssemblySearchPaths>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp" />
+    <Reference Include="ColossalManaged" />
+    <Reference Include="ICities" />
+    <Reference Include="UnityEngine" />
+    <PackageReference Include="CitiesHarmony.API" Version="2.1.0" />
+    <PackageReference Include="CitiesHarmony.Harmony" Version="2.2.0">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+  <Target Name="DeployToModDirectory" AfterTargets="Build">
+    <Message Importance="high" Text="DeployToModDirectory ..." />
+    <PropertyGroup>
+      <DeployDir>$(LOCALAPPDATA)/Colossal Order/Cities_Skylines/Addons/Mods/$(SolutionName)/</DeployDir>
+    </PropertyGroup>
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(DeployDir)" />
+    <Copy SourceFiles="$(TargetDir)/CitiesHarmony.API.dll" DestinationFolder="$(DeployDir)" />
+  </Target>
+</Project>
