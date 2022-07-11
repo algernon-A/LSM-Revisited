@@ -2,7 +2,10 @@
   <PropertyGroup>
     <TargetFramework>net35</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Description>A Cities: Skylines mod.</Description>
+	<Version>0.1</Version>
     <ManagedDLLPath>$(ProgramFiles)/Steam/steamapps/common/Cities_Skylines/Cities_Data/Managed</ManagedDLLPath>
+	<ManagedDLLPath>$(MSBuildProgramFiles32)/Steam/steamapps/common/Cities_Skylines/Cities_Data/Managed</ManagedDLLPath>
     <AssemblySearchPaths>
       $(AssemblySearchPaths);
       $(ManagedDLLPath)
