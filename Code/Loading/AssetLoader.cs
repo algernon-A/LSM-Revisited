@@ -249,7 +249,7 @@ namespace LoadingScreenModRevisited
 				}
 				districtStyles.Add(districtStyle);
 			}
-			if (LevelLoader.Check(715190))
+			if (LevelLoader.DLC(715190))
 			{
 				Package.Asset europeanSuburbiaStyle = PackageManager.FindAssetByName("System." + DistrictStyle.kEuropeanSuburbiaStyleName);
 				if (europeanSuburbiaStyle != null && europeanSuburbiaStyle.isEnabled)
@@ -263,7 +263,7 @@ namespace LoadingScreenModRevisited
 					districtStyles.Add(districtStyle);
 				}
 			}
-			if (LevelLoader.Check(1148020))
+			if (LevelLoader.DLC(1148020))
 			{
 				Package.Asset cityCenterStyle = PackageManager.FindAssetByName("System." + DistrictStyle.kModderPack5StyleName);
 				if (cityCenterStyle != null && cityCenterStyle.isEnabled)

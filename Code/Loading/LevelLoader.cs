@@ -17,7 +17,7 @@ namespace LoadingScreenModRevisited
 	/// <summary>
 	/// Custom level loader to implement mod loading.
 	/// </summary>
-    public static class LevelLoader
+	public static class LevelLoader
 	{
 		// Used by PrefabLoader.
 		internal static readonly int[] skipCounts = new int[3];
@@ -516,7 +516,7 @@ namespace LoadingScreenModRevisited
 					}
 
 					// Check for deserialization against simulation progress, with a 12-minute timeout.
-					bool isDeserialized = SimulationProgress > 54 || Profiling.Millis - startMillis > 12000 ;
+					bool isDeserialized = SimulationProgress > 54 || Profiling.Millis - startMillis > 12000;
 
 					// Reset start time if deserialization is complete.
 					if (isDeserialized)
@@ -657,7 +657,26 @@ namespace LoadingScreenModRevisited
 		/// </summary>
 		/// <param name="fullName">Full name of asset</param>
 		/// <returns>True if the asset has failed, false otherwise</returns>
-		internal static bool HasAssetFailed(string fullName) =>  knownFailedAssets.Contains(fullName);
+		internal static bool HasAssetFailed(string fullName) => knownFailedAssets.Contains(fullName);
+
+
+		/// <summary>
+		/// Checks DLC activation.
+		/// </summary>
+		/// <param name="dlc">DLC to check</param>
+		/// <returns>True if DLC activated, false otherwise</returns>
+		internal static bool DLC(uint dlc)
+		{
+			if (SteamHelper.IsDLCOwned((SteamHelper.DLC)dlc))
+			{
+				if (LoadingScreenMod.Settings.settings.SkipPrefabs)
+				{
+					return !LoadingScreenMod.Settings.settings.SkipMatcher.Matches((int)dlc);
+				}
+				return true;
+			}
+			return false;
+		}
 
 
 		/// <summary>
@@ -826,194 +845,246 @@ namespace LoadingScreenModRevisited
 		}
 
 
-		//---- Refactored end.
-
-
-		private static KeyValuePair<string, int>[] levelStrings = new KeyValuePair<string, int>[20]
-		{
-			new KeyValuePair<string, int>("FootballPrefabs", 456200),
-			new KeyValuePair<string, int>("Football2Prefabs", 525940),
-			new KeyValuePair<string, int>("Football3Prefabs", 526610),
-			new KeyValuePair<string, int>("Football4Prefabs", 526611),
-			new KeyValuePair<string, int>("Football5Prefabs", 526612),
-			new KeyValuePair<string, int>("Station1Prefabs", 547501),
-			new KeyValuePair<string, int>("Station2Prefabs", 614582),
-			new KeyValuePair<string, int>("Station3Prefabs", 715193),
-			new KeyValuePair<string, int>("Station4Prefabs", 815380),
-			new KeyValuePair<string, int>("Station5Prefabs", 944070),
-			new KeyValuePair<string, int>("Station6Prefabs", 1065490),
-			new KeyValuePair<string, int>("Station7Prefabs", 1065491),
-			new KeyValuePair<string, int>("Station8Prefabs", 1148021),
-			new KeyValuePair<string, int>("Station9Prefabs", 1196100),
-			new KeyValuePair<string, int>("Station10Prefabs", 1531472),
-			new KeyValuePair<string, int>("Station11Prefabs", 1531473),
-			new KeyValuePair<string, int>("FestivalPrefabs", 614581),
-			new KeyValuePair<string, int>("ChristmasPrefabs", 715192),
-			new KeyValuePair<string, int>("ModderPack1Prefabs", 515190),
-			new KeyValuePair<string, int>("ModderPack2Prefabs", 547500)
-		};
-
-		private static KeyValuePair<string, int>[] levelStringsAiportDLC = new KeyValuePair<string, int>[3]
-		{
-			new KeyValuePair<string, int>("Station12Prefabs", 1726383),
-			new KeyValuePair<string, int>("Station13Prefabs", 1726384),
-			new KeyValuePair<string, int>("ModderPack10Prefabs", 1726381)
-		};
-
-
+		/// <summary>
+		/// Calculates the scene levels to load.
+		/// </summary>
+		/// <returns>List of scene levels and corresponding progress values</returns>
 		private static KeyValuePair<string, float>[] SetLevels()
 		{
 			LoadingManager loadingManager = Singleton<LoadingManager>.instance;
-			loadingManager.m_supportsExpansion[0] = Check(369150);
-			loadingManager.m_supportsExpansion[1] = Check(420610);
-			loadingManager.m_supportsExpansion[2] = Check(515191);
-			loadingManager.m_supportsExpansion[3] = Check(547502);
-			loadingManager.m_supportsExpansion[4] = Check(614580);
-			loadingManager.m_supportsExpansion[5] = Check(715191);
-			loadingManager.m_supportsExpansion[6] = Check(715194);
-			loadingManager.m_supportsExpansion[7] = Check(944071);
-			loadingManager.m_supportsExpansion[8] = Check(1146930);
-			loadingManager.m_supportsExpansion[9] = Check(1726380);
-			bool flag = Singleton<SimulationManager>.instance.m_metaData.m_environment == "Winter";
-			if (flag && !loadingManager.m_supportsExpansion[1])
+			loadingManager.m_supportsExpansion[0] = DLC(369150u);
+			loadingManager.m_supportsExpansion[1] = DLC(420610u);
+			loadingManager.m_supportsExpansion[2] = DLC(515191u);
+			loadingManager.m_supportsExpansion[3] = DLC(547502u);
+			loadingManager.m_supportsExpansion[4] = DLC(614580u);
+			loadingManager.m_supportsExpansion[5] = DLC(715191u);
+			loadingManager.m_supportsExpansion[6] = DLC(715194u);
+			loadingManager.m_supportsExpansion[7] = DLC(944071u);
+			loadingManager.m_supportsExpansion[8] = DLC(1146930u);
+			loadingManager.m_supportsExpansion[9] = DLC(1726380u);
+			bool isWinter = Singleton<SimulationManager>.instance.m_metaData.m_environment == "Winter";
+			if (isWinter && !loadingManager.m_supportsExpansion[1])
 			{
 				Singleton<SimulationManager>.instance.m_metaData.m_environment = "Sunny";
-				flag = false;
+				isWinter = false;
 			}
-			List<KeyValuePair<string, float>> list = new List<KeyValuePair<string, float>>(20);
+
+			// Cut.
+
+			List<KeyValuePair<string, float>> prefabScenes = new List<KeyValuePair<string, float>>(32);
 			string text = (string)Util.Invoke(loadingManager, "GetLoadingScene");
+
+			// LSM insert.
 			if (!string.IsNullOrEmpty(text))
 			{
-				list.Add(new KeyValuePair<string, float>(text, 0.015f));
+				prefabScenes.Add(new KeyValuePair<string, float>(text, 0.015f));
 			}
-			list.Add(new KeyValuePair<string, float>(Singleton<SimulationManager>.instance.m_metaData.m_environment + "Prefabs", 0.12f));
+
+			// Gamecode equivalent.
+			prefabScenes.Add(new KeyValuePair<string, float>(Singleton<SimulationManager>.instance.m_metaData.m_environment + "Prefabs", 0.12f));
 			if ((bool)Util.Invoke(loadingManager, "LoginUsed"))
 			{
-				list.Add(new KeyValuePair<string, float>(flag ? "WinterLoginPackPrefabs" : "LoginPackPrefabs", 0.121f));
+				prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "LoginPackPrefabs" : "WinterLoginPackPrefabs", 0.121f));
 			}
-			list.Add(new KeyValuePair<string, float>(flag ? "WinterPreorderPackPrefabs" : "PreorderPackPrefabs", 0.122f));
-			list.Add(new KeyValuePair<string, float>(flag ? "WinterSignupPackPrefabs" : "SignupPackPrefabs", 0.123f));
-			if (Check(346791))
+			prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "PreorderPackPrefabs" : "WinterPreorderPackPrefabs", 0.122f));
+			prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "SignupPackPrefabs" : "WinterSignupPackPrefabs", 0.123f));
+			if (DLC(346791u))
 			{
-				list.Add(new KeyValuePair<string, float>("DeluxePackPrefabs", 0.124f));
+				prefabScenes.Add(new KeyValuePair<string, float>("DeluxePackPrefabs", 0.124f));
 			}
-			if (PlatformService.IsAppOwned(238370u))
+			if (APP(238370u))
 			{
-				list.Add(new KeyValuePair<string, float>("MagickaPackPrefabs", 0.125f));
+				prefabScenes.Add(new KeyValuePair<string, float>("MagickaPackPrefabs", 0.125f));
 			}
 			if (loadingManager.m_supportsExpansion[0])
 			{
-				list.Add(new KeyValuePair<string, float>(flag ? "WinterExpansion1Prefabs" : "Expansion1Prefabs", 0.126f));
+				prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "Expansion1Prefabs" : "WinterExpansion1Prefabs", 0.126f));
 			}
 			if (loadingManager.m_supportsExpansion[1])
 			{
-				list.Add(new KeyValuePair<string, float>("Expansion2Prefabs", 0.127f));
+				prefabScenes.Add(new KeyValuePair<string, float>("Expansion2Prefabs", 0.127f));
 			}
 			if (loadingManager.m_supportsExpansion[2])
 			{
-				list.Add(new KeyValuePair<string, float>("Expansion3Prefabs", 0.128f));
+				prefabScenes.Add(new KeyValuePair<string, float>("Expansion3Prefabs", 0.128f));
 			}
 			if (loadingManager.m_supportsExpansion[3])
 			{
-				list.Add(new KeyValuePair<string, float>("Expansion4Prefabs", 0.129f));
+				prefabScenes.Add(new KeyValuePair<string, float>("Expansion4Prefabs", 0.129f));
 			}
 			if (loadingManager.m_supportsExpansion[4])
 			{
-				list.Add(new KeyValuePair<string, float>(flag ? "WinterExpansion5Prefabs" : "Expansion5Prefabs", 0.13f));
+				prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "Expansion5Prefabs" : "WinterExpansion5Prefabs", 0.13f));
 			}
 			if (loadingManager.m_supportsExpansion[5])
 			{
-				list.Add(new KeyValuePair<string, float>(Singleton<SimulationManager>.instance.m_metaData.m_environment + "Expansion6Prefabs", 0.131f));
+				prefabScenes.Add(new KeyValuePair<string, float>(Singleton<SimulationManager>.instance.m_metaData.m_environment + "Expansion6Prefabs", 0.131f));
 			}
 			if (loadingManager.m_supportsExpansion[6])
 			{
-				list.Add(new KeyValuePair<string, float>(flag ? "WinterExpansion7Prefabs" : "Expansion7Prefabs", 0.132f));
+				prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "Expansion7Prefabs" : "WinterExpansion7Prefabs", 0.132f));
 			}
 			if (loadingManager.m_supportsExpansion[7])
 			{
-				list.Add(new KeyValuePair<string, float>(flag ? "WinterExpansion8Prefabs" : "Expansion8Prefabs", 0.1325f));
+				prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "Expansion8Prefabs" : "WinterExpansion8Prefabs", 0.1325f));
 			}
 			if (loadingManager.m_supportsExpansion[8])
 			{
-				list.Add(new KeyValuePair<string, float>(flag ? "WinterExpansion9Prefabs" : "Expansion9Prefabs", 0.133f));
+				prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "Expansion9Prefabs" : "WinterExpansion9Prefabs", 0.133f));
 			}
 			if (loadingManager.m_supportsExpansion[9])
 			{
-				list.Add(new KeyValuePair<string, float>("Expansion10Prefabs", 0.1335f));
+				prefabScenes.Add(new KeyValuePair<string, float>("Expansion10Prefabs", 0.1335f));
 			}
-			for (int i = 0; i < levelStrings.Length; i++)
+			if (DLC(456200u))
 			{
-				if (Check(levelStrings[i].Value))
-				{
-					list.Add(new KeyValuePair<string, float>(levelStrings[i].Key, 0.134f + (float)i * 0.01f / (float)levelStrings.Length));
-				}
+				prefabScenes.Add(new KeyValuePair<string, float>("FootballPrefabs", 0.134f));
 			}
-			if (Check(715190))
+			if (DLC(525940u))
 			{
-				Package.Asset asset = PackageManager.FindAssetByName("System." + DistrictStyle.kEuropeanSuburbiaStyleName);
-				if (asset != null && asset.isEnabled)
-				{
-					list.Add(new KeyValuePair<string, float>("ModderPack3Prefabs", 0.144f));
-				}
+				prefabScenes.Add(new KeyValuePair<string, float>("Football2Prefabs", 0.1345f));
 			}
-			if (Check(1059820))
+			if (DLC(526610u))
 			{
-				list.Add(new KeyValuePair<string, float>("ModderPack4Prefabs", 0.145f));
+				prefabScenes.Add(new KeyValuePair<string, float>("Football3Prefabs", 0.135f));
 			}
-			if (Check(1148020))
+			if (DLC(526611u))
 			{
-				Package.Asset asset2 = PackageManager.FindAssetByName("System." + DistrictStyle.kModderPack5StyleName);
+				prefabScenes.Add(new KeyValuePair<string, float>("Football4Prefabs", 0.1355f));
+			}
+			if (DLC(526612u))
+			{
+				prefabScenes.Add(new KeyValuePair<string, float>("Football5Prefabs", 0.136f));
+			}
+			if (DLC(547501u))
+			{
+				prefabScenes.Add(new KeyValuePair<string, float>("Station1Prefabs", 0.1364f));
+			}
+			if (DLC(614582u))
+			{
+				prefabScenes.Add(new KeyValuePair<string, float>("Station2Prefabs", 0.1368f));
+			}
+			if (DLC(715193u))
+			{
+				prefabScenes.Add(new KeyValuePair<string, float>("Station3Prefabs", 0.1372f));
+			}
+			if (DLC(815380u))
+			{
+				prefabScenes.Add(new KeyValuePair<string, float>("Station4Prefabs", 0.1376f));
+			}
+			if (DLC(944070u))
+			{
+				prefabScenes.Add(new KeyValuePair<string, float>("Station5Prefabs", 0.1380f));
+			}
+			if (DLC(1065490u))
+			{
+				prefabScenes.Add(new KeyValuePair<string, float>("Station6Prefabs", 0.1384f));
+			}
+			if (DLC(1065491u))
+			{
+				prefabScenes.Add(new KeyValuePair<string, float>("Station7Prefabs", 0.1388f));
+			}
+			if (DLC(1148021u))
+			{
+				prefabScenes.Add(new KeyValuePair<string, float>("Station8Prefabs", 0.1392f));
+			}
+			if (DLC(1196100u))
+			{
+				prefabScenes.Add(new KeyValuePair<string, float>("Station9Prefabs", 0.1396f));
+			}
+			if (DLC(1531472u))
+			{
+				prefabScenes.Add(new KeyValuePair<string, float>("Station10Prefabs", 0.1400f));
+			}
+			if (DLC(1531473u))
+			{
+				prefabScenes.Add(new KeyValuePair<string, float>("Station11Prefabs", 0.1404f));
+			}
+			if (DLC(1726383u))
+			{
+				prefabScenes.Add(new KeyValuePair<string, float>("Station12Prefabs", 0.1408f));
+			}
+			if (DLC(1726384u))
+			{
+				prefabScenes.Add(new KeyValuePair<string, float>("Station13Prefabs", 0.1412f));
+			}
+			if (DLC(614581u))
+			{
+				prefabScenes.Add(new KeyValuePair<string, float>("FestivalPrefabs", 0.1415f));
+			}
+			if (DLC(715192u))
+			{
+				prefabScenes.Add(new KeyValuePair<string, float>("ChristmasPrefabs", 0.142f));
+			}
+			if (DLC(515190u))
+			{
+				prefabScenes.Add(new KeyValuePair<string, float>("ModderPack1Prefabs", 0.1425f));
+			}
+			if (DLC(547500u))
+			{
+				prefabScenes.Add(new KeyValuePair<string, float>("ModderPack2Prefabs", 0.143f));
+			}
+			if (DLC(715190u))
+			{
+				Package.Asset asset2 = PackageManager.FindAssetByName("System." + DistrictStyle.kEuropeanSuburbiaStyleName);
 				if (asset2 != null && asset2.isEnabled)
 				{
-					list.Add(new KeyValuePair<string, float>("ModderPack5Prefabs", 0.1455f));
+					prefabScenes.Add(new KeyValuePair<string, float>("ModderPack3Prefabs", 0.144f));
 				}
 			}
-			if (Check(1148022))
+			if (DLC(1059820u))
 			{
-				list.Add(new KeyValuePair<string, float>("ModderPack6Prefabs", 0.146f));
+				prefabScenes.Add(new KeyValuePair<string, float>("ModderPack4Prefabs", 0.145f));
 			}
-			if (Check(1531470))
+			if (DLC(1148020u))
 			{
-				list.Add(new KeyValuePair<string, float>("ModderPack7Prefabs", 0.1462f));
-			}
-			if (Check(1531471))
-			{
-				list.Add(new KeyValuePair<string, float>("ModderPack8Prefabs", 0.1464f));
-			}
-
-			// Modder Pack 9 is Content Creator Pack: Map Pack
-			for (int j = 0; j < levelStringsAiportDLC.Length; j++)
-			{
-				if (Check(levelStringsAiportDLC[j].Value))
+				Package.Asset asset3 = PackageManager.FindAssetByName("System." + DistrictStyle.kModderPack5StyleName);
+				if (asset3 != null && asset3.isEnabled)
 				{
-					list.Add(new KeyValuePair<string, float>(levelStringsAiportDLC[j].Key, 0.1464f + (float)j * 0.00019f / (float)levelStringsAiportDLC.Length));
+					prefabScenes.Add(new KeyValuePair<string, float>("ModderPack5Prefabs", 0.1455f));
 				}
 			}
-			if (Check(563850))
+			if (DLC(1148022u))
 			{
-				list.Add(new KeyValuePair<string, float>("ChinaPackPrefabs", 0.1466f));
+				prefabScenes.Add(new KeyValuePair<string, float>("ModderPack6Prefabs", 0.146f));
 			}
-			Package.Asset asset3 = PackageManager.FindAssetByName("System." + DistrictStyle.kEuropeanStyleName);
-			if (asset3 != null && asset3.isEnabled)
+			if (DLC(1531470u))
 			{
-				list.Add(new KeyValuePair<string, float>(Singleton<SimulationManager>.instance.m_metaData.m_environment.Equals("Europe") ? "EuropeNormalPrefabs" : "EuropeStylePrefabs", 0.15f));
+				prefabScenes.Add(new KeyValuePair<string, float>("ModderPack7Prefabs", 0.1462f));
 			}
-			return list.ToArray();
+			if (DLC(1531471u))
+			{
+				prefabScenes.Add(new KeyValuePair<string, float>("ModderPack8Prefabs", 0.1464f));
+			}
+			if (DLC(1726381u))
+			{
+				prefabScenes.Add(new KeyValuePair<string, float>("ModderPack10Prefabs", 0.1466f));
+			}
+			if (DLC(563850u))
+			{
+				prefabScenes.Add(new KeyValuePair<string, float>("ChinaPackPrefabs", 0.1468f));
+			}
+			Package.Asset europeanStyles = PackageManager.FindAssetByName("System." + DistrictStyle.kEuropeanStyleName);
+			if (europeanStyles != null && europeanStyles.isEnabled)
+			{
+				if (Singleton<SimulationManager>.instance.m_metaData.m_environment.Equals("Europe"))
+				{
+					prefabScenes.Add(new KeyValuePair<string, float>("EuropeNormalPrefabs", 0.15f));
+				}
+				else
+				{
+					prefabScenes.Add(new KeyValuePair<string, float>("EuropeStylePrefabs", 0.15f));
+				}
+			}
+			return prefabScenes.ToArray();
 		}
 
 
-		// Equivalent to GameCode DLC.
-		internal static bool Check(int dlc)
-		{
-			if (SteamHelper.IsDLCOwned((SteamHelper.DLC)dlc))
-			{
-				if (LoadingScreenMod.Settings.settings.SkipPrefabs)
-				{
-					return !LoadingScreenMod.Settings.settings.SkipMatcher.Matches(dlc);
-				}
-				return true;
-			}
-			return false;
-		}
+		/// <summary>
+		/// Checks for app ownership.
+		/// </summary>
+		/// <param name="id">App id to check</param>
+		/// <returns>True if app owned, false otherwise</returns>
+		private static bool APP(uint id) => SteamHelper.IsAppOwned(id);
 	}
 }
