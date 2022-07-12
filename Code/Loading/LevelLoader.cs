@@ -8,7 +8,6 @@ using UnityEngine.SceneManagement;
 using ColossalFramework;
 using ColossalFramework.UI;
 using ColossalFramework.Packaging;
-using ColossalFramework.PlatformServices;
 using LoadingScreenMod;
 
 
@@ -281,18 +280,24 @@ namespace LoadingScreenModRevisited
 				}
 
 				// LSM levels check.
-				KeyValuePair<string, float>[] levels = SetLevels();
+				List<KeyValuePair<string, float>> levels = SetLevels();
+				float levelProgressTotal = 0f;
+				foreach (KeyValuePair<string, float> level in levels)
+				{
+					levelProgressTotal += level.Value;
+				}
+				float levelProgressMult = 0.15f / levelProgressTotal;
 
 				// LSM progress is 0.1 vs game 0.
 				// LSM skips game totalprogress.
-				float currentProgress = 0.1f;
+				float currentProgress = 0f;
 				string key;
 
 				// LSM calls 'levels' what the game calls 'prefabScenes'.
 				// LSM progress is already calculated by level, game calculates progress made against total.
-				for (i = 0; i < levels.Length; i++)
+				foreach (KeyValuePair<string, float> level in levels)
 				{
-					key = levels[i].Key;
+					key = level.Key;
 					// LSM skips progress update.
 
 					loadingManager.m_loadingProfilerScenes.BeginLoading(key);
@@ -300,11 +305,11 @@ namespace LoadingScreenModRevisited
 					while (!op.isDone)
 					{
 						// Different progress count by LSM.
-						loadingManager.SetSceneProgress(currentProgress + op.progress * (levels[i].Value - currentProgress));
+						loadingManager.SetSceneProgress(currentProgress + op.progress * (level.Value * levelProgressMult));
 						yield return null;
 					}
 					loadingManager.m_loadingProfilerScenes.EndLoading();
-					currentProgress = levels[i].Value;
+					currentProgress += (level.Value * levelProgressMult);
 				}
 
 				// LSM inserts.
@@ -849,7 +854,7 @@ namespace LoadingScreenModRevisited
 		/// Calculates the scene levels to load.
 		/// </summary>
 		/// <returns>List of scene levels and corresponding progress values</returns>
-		private static KeyValuePair<string, float>[] SetLevels()
+		private static List<KeyValuePair<string, float>> SetLevels()
 		{
 			LoadingManager loadingManager = Singleton<LoadingManager>.instance;
 			loadingManager.m_supportsExpansion[0] = DLC(369150u);
@@ -881,202 +886,202 @@ namespace LoadingScreenModRevisited
 			}
 
 			// Gamecode equivalent.
-			prefabScenes.Add(new KeyValuePair<string, float>(Singleton<SimulationManager>.instance.m_metaData.m_environment + "Prefabs", 0.12f));
+			prefabScenes.Add(new KeyValuePair<string, float>(Singleton<SimulationManager>.instance.m_metaData.m_environment + "Prefabs", 1.27f));
 			if ((bool)Util.Invoke(loadingManager, "LoginUsed"))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "LoginPackPrefabs" : "WinterLoginPackPrefabs", 0.121f));
+				prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "LoginPackPrefabs" : "WinterLoginPackPrefabs", 0.01f));
 			}
-			prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "PreorderPackPrefabs" : "WinterPreorderPackPrefabs", 0.122f));
-			prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "SignupPackPrefabs" : "WinterSignupPackPrefabs", 0.123f));
+			prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "PreorderPackPrefabs" : "WinterPreorderPackPrefabs", 0.02f));
+			prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "SignupPackPrefabs" : "WinterSignupPackPrefabs", 0.01f));
 			if (DLC(346791u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("DeluxePackPrefabs", 0.124f));
+				prefabScenes.Add(new KeyValuePair<string, float>("DeluxePackPrefabs", 0.02f));
 			}
 			if (APP(238370u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("MagickaPackPrefabs", 0.125f));
+				prefabScenes.Add(new KeyValuePair<string, float>("MagickaPackPrefabs", 0.01f));
 			}
 			if (loadingManager.m_supportsExpansion[0])
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "Expansion1Prefabs" : "WinterExpansion1Prefabs", 0.126f));
+				prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "Expansion1Prefabs" : "WinterExpansion1Prefabs", 0.17f));
 			}
 			if (loadingManager.m_supportsExpansion[1])
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("Expansion2Prefabs", 0.127f));
+				prefabScenes.Add(new KeyValuePair<string, float>("Expansion2Prefabs", 0.04f));
 			}
 			if (loadingManager.m_supportsExpansion[2])
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("Expansion3Prefabs", 0.128f));
+				prefabScenes.Add(new KeyValuePair<string, float>("Expansion3Prefabs", 0.04f));
 			}
 			if (loadingManager.m_supportsExpansion[3])
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("Expansion4Prefabs", 0.129f));
+				prefabScenes.Add(new KeyValuePair<string, float>("Expansion4Prefabs", 0.04f));
 			}
 			if (loadingManager.m_supportsExpansion[4])
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "Expansion5Prefabs" : "WinterExpansion5Prefabs", 0.13f));
+				prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "Expansion5Prefabs" : "WinterExpansion5Prefabs", 0.2f));
 			}
 			if (loadingManager.m_supportsExpansion[5])
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>(Singleton<SimulationManager>.instance.m_metaData.m_environment + "Expansion6Prefabs", 0.131f));
+				prefabScenes.Add(new KeyValuePair<string, float>(Singleton<SimulationManager>.instance.m_metaData.m_environment + "Expansion6Prefabs", 0.1f));
 			}
 			if (loadingManager.m_supportsExpansion[6])
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "Expansion7Prefabs" : "WinterExpansion7Prefabs", 0.132f));
+				prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "Expansion7Prefabs" : "WinterExpansion7Prefabs", 0.1f));
 			}
 			if (loadingManager.m_supportsExpansion[7])
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "Expansion8Prefabs" : "WinterExpansion8Prefabs", 0.1325f));
+				prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "Expansion8Prefabs" : "WinterExpansion8Prefabs", 0.1f));
 			}
 			if (loadingManager.m_supportsExpansion[8])
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "Expansion9Prefabs" : "WinterExpansion9Prefabs", 0.133f));
+				prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "Expansion9Prefabs" : "WinterExpansion9Prefabs", 0.1f));
 			}
 			if (loadingManager.m_supportsExpansion[9])
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("Expansion10Prefabs", 0.1335f));
+				prefabScenes.Add(new KeyValuePair<string, float>("Expansion10Prefabs", 0.1f));
 			}
 			if (DLC(456200u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("FootballPrefabs", 0.134f));
+				prefabScenes.Add(new KeyValuePair<string, float>("FootballPrefabs", 0.01f));
 			}
 			if (DLC(525940u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("Football2Prefabs", 0.1345f));
+				prefabScenes.Add(new KeyValuePair<string, float>("Football2Prefabs", 0.01f));
 			}
 			if (DLC(526610u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("Football3Prefabs", 0.135f));
+				prefabScenes.Add(new KeyValuePair<string, float>("Football3Prefabs", 0.01f));
 			}
 			if (DLC(526611u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("Football4Prefabs", 0.1355f));
+				prefabScenes.Add(new KeyValuePair<string, float>("Football4Prefabs", 0.01f));
 			}
 			if (DLC(526612u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("Football5Prefabs", 0.136f));
+				prefabScenes.Add(new KeyValuePair<string, float>("Football5Prefabs", 0.01f));
 			}
 			if (DLC(547501u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("Station1Prefabs", 0.1364f));
+				prefabScenes.Add(new KeyValuePair<string, float>("Station1Prefabs", 0.01f));
 			}
 			if (DLC(614582u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("Station2Prefabs", 0.1368f));
+				prefabScenes.Add(new KeyValuePair<string, float>("Station2Prefabs", 0.01f));
 			}
 			if (DLC(715193u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("Station3Prefabs", 0.1372f));
+				prefabScenes.Add(new KeyValuePair<string, float>("Station3Prefabs", 0.01f));
 			}
 			if (DLC(815380u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("Station4Prefabs", 0.1376f));
+				prefabScenes.Add(new KeyValuePair<string, float>("Station4Prefabs", 0.01f));
 			}
 			if (DLC(944070u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("Station5Prefabs", 0.1380f));
+				prefabScenes.Add(new KeyValuePair<string, float>("Station5Prefabs", 0.01f));
 			}
 			if (DLC(1065490u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("Station6Prefabs", 0.1384f));
+				prefabScenes.Add(new KeyValuePair<string, float>("Station6Prefabs", 0.01f));
 			}
 			if (DLC(1065491u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("Station7Prefabs", 0.1388f));
+				prefabScenes.Add(new KeyValuePair<string, float>("Station7Prefabs", 0.01f));
 			}
 			if (DLC(1148021u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("Station8Prefabs", 0.1392f));
+				prefabScenes.Add(new KeyValuePair<string, float>("Station8Prefabs", 0.01f));
 			}
 			if (DLC(1196100u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("Station9Prefabs", 0.1396f));
+				prefabScenes.Add(new KeyValuePair<string, float>("Station9Prefabs", 0.01f));
 			}
 			if (DLC(1531472u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("Station10Prefabs", 0.1400f));
+				prefabScenes.Add(new KeyValuePair<string, float>("Station10Prefabs", 0.01f));
 			}
 			if (DLC(1531473u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("Station11Prefabs", 0.1404f));
+				prefabScenes.Add(new KeyValuePair<string, float>("Station11Prefabs", 0.01f));
 			}
 			if (DLC(1726383u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("Station12Prefabs", 0.1408f));
+				prefabScenes.Add(new KeyValuePair<string, float>("Station12Prefabs", 0.01f));
 			}
 			if (DLC(1726384u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("Station13Prefabs", 0.1412f));
+				prefabScenes.Add(new KeyValuePair<string, float>("Station13Prefabs", 0.01f));
 			}
 			if (DLC(614581u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("FestivalPrefabs", 0.1415f));
+				prefabScenes.Add(new KeyValuePair<string, float>("FestivalPrefabs", 0.01f));
 			}
 			if (DLC(715192u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("ChristmasPrefabs", 0.142f));
+				prefabScenes.Add(new KeyValuePair<string, float>("ChristmasPrefabs", 0.01f));
 			}
 			if (DLC(515190u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("ModderPack1Prefabs", 0.1425f));
+				prefabScenes.Add(new KeyValuePair<string, float>("ModderPack1Prefabs", 0.03f));
 			}
 			if (DLC(547500u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("ModderPack2Prefabs", 0.143f));
+				prefabScenes.Add(new KeyValuePair<string, float>("ModderPack2Prefabs", 0.03f));
 			}
 			if (DLC(715190u))
 			{
 				Package.Asset asset2 = PackageManager.FindAssetByName("System." + DistrictStyle.kEuropeanSuburbiaStyleName);
 				if (asset2 != null && asset2.isEnabled)
 				{
-					prefabScenes.Add(new KeyValuePair<string, float>("ModderPack3Prefabs", 0.144f));
+					prefabScenes.Add(new KeyValuePair<string, float>("ModderPack3Prefabs", 0.03f));
 				}
 			}
 			if (DLC(1059820u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("ModderPack4Prefabs", 0.145f));
+				prefabScenes.Add(new KeyValuePair<string, float>("ModderPack4Prefabs", 0.03f));
 			}
 			if (DLC(1148020u))
 			{
 				Package.Asset asset3 = PackageManager.FindAssetByName("System." + DistrictStyle.kModderPack5StyleName);
 				if (asset3 != null && asset3.isEnabled)
 				{
-					prefabScenes.Add(new KeyValuePair<string, float>("ModderPack5Prefabs", 0.1455f));
+					prefabScenes.Add(new KeyValuePair<string, float>("ModderPack5Prefabs", 0.03f));
 				}
 			}
 			if (DLC(1148022u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("ModderPack6Prefabs", 0.146f));
+				prefabScenes.Add(new KeyValuePair<string, float>("ModderPack6Prefabs", 0.03f));
 			}
 			if (DLC(1531470u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("ModderPack7Prefabs", 0.1462f));
+				prefabScenes.Add(new KeyValuePair<string, float>("ModderPack7Prefabs", 0.03f));
 			}
 			if (DLC(1531471u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("ModderPack8Prefabs", 0.1464f));
+				prefabScenes.Add(new KeyValuePair<string, float>("ModderPack8Prefabs", 0.03f));
 			}
 			if (DLC(1726381u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("ModderPack10Prefabs", 0.1466f));
+				prefabScenes.Add(new KeyValuePair<string, float>("ModderPack10Prefabs", 0.03f));
 			}
 			if (DLC(563850u))
 			{
-				prefabScenes.Add(new KeyValuePair<string, float>("ChinaPackPrefabs", 0.1468f));
+				prefabScenes.Add(new KeyValuePair<string, float>("ChinaPackPrefabs", 0.02f));
 			}
 			Package.Asset europeanStyles = PackageManager.FindAssetByName("System." + DistrictStyle.kEuropeanStyleName);
 			if (europeanStyles != null && europeanStyles.isEnabled)
 			{
 				if (Singleton<SimulationManager>.instance.m_metaData.m_environment.Equals("Europe"))
 				{
-					prefabScenes.Add(new KeyValuePair<string, float>("EuropeNormalPrefabs", 0.15f));
+					prefabScenes.Add(new KeyValuePair<string, float>("EuropeNormalPrefabs", 0.13f));
 				}
 				else
 				{
-					prefabScenes.Add(new KeyValuePair<string, float>("EuropeStylePrefabs", 0.15f));
+					prefabScenes.Add(new KeyValuePair<string, float>("EuropeStylePrefabs", 0.1f));
 				}
 			}
-			return prefabScenes.ToArray();
+			return prefabScenes;
 		}
 
 
