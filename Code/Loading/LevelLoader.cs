@@ -474,11 +474,8 @@ namespace LoadingScreenModRevisited
 
 			// Add save to list of known fast loads.
 			knownFastLoads[savegame.checksum] = true;
-			AssetLoader.PrintMem();
+			AssetLoader.LogStatus();
 		}
-
-		//---- Refactored start
-
 
 
 		/// <summary>
@@ -634,7 +631,7 @@ namespace LoadingScreenModRevisited
 			Singleton<LoadingManager>.instance.LoadingAnimationComponent.enabled = false;
 
 			// Print memory usage.
-			AssetLoader.PrintMem();
+			AssetLoader.LogStatus();
 
 			// Dispose of loader instances.
 			AssetLoader.Dispose();

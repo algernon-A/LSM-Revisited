@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -329,7 +330,7 @@ namespace LoadingScreenModRevisited
 			loadingManager.m_loadingProfilerCustomContent.BeginLoading("Calculating asset load order");
 
 			// LSM - replaces game loading queue calculation.
-			PrintMem();
+			LogStatus();
 			Package.Asset[] queue = GetLoadQueue(hashSet);
 			Util.DebugPrint("LoadQueue", queue.Length, Profiling.Millis);
 
@@ -337,14 +338,14 @@ namespace LoadingScreenModRevisited
 			loadingManager.m_loadingProfilerCustomContent.EndLoading();
 			loadingManager.m_loadingProfilerCustomContent.BeginLoading("Loading Custom Assets");
 
-			// LSM - repalce game custom asset loading.
+			// LSM - replace game custom asset loading.
 			Instance<Sharing>.instance.Start(queue);
 			beginMillis = (lastMillis = Profiling.Millis);
 			for (int k = 0; k < queue.Length; k++)
 			{
 				if ((k & 0x3F) == 0)
 				{
-					PrintMem(k);
+					LogStatus(k);
 				}
 				Instance<Sharing>.instance.WaitForWorkers(k);
 				stack.Clear();
@@ -370,7 +371,7 @@ namespace LoadingScreenModRevisited
 			loadingManager.m_loadingProfilerCustomContent.EndLoading();
 			Util.DebugPrint(assetCount, "custom assets loaded in", lastMillis - beginMillis);
 			Instance<CustomDeserializer>.instance.SetCompleted();
-			PrintMem();
+			LogStatus();
 			stack.Clear();
 			Report();
 
@@ -440,6 +441,9 @@ namespace LoadingScreenModRevisited
 
 
 
+		/// <summary>
+		/// Triggers LSM report generation and disposes of sharing instance.
+		/// </summary>
 		private void Report()
 		{
 			LoadingScreenMod.Settings settings = LoadingScreenMod.Settings.settings;
@@ -462,29 +466,60 @@ namespace LoadingScreenModRevisited
 					Instance<Reports>.instance.ClearAssets();
 				}
 			}
+
+			// Dispose of sharing instance (no longer needed).
 			Instance<Sharing>.instance.Dispose();
 		}
 
-		internal static void PrintMem(int i = -1)
+
+		/// <summary>
+		/// Logs memory usage and other stats.
+		/// </summary>
+		/// <param name="queueCount">Asset loading queue counter</param>
+		internal static void LogStatus(int queueCount = -1)
 		{
-			string text = ((i >= 0) ? ("[LSM] Mem " + i + ": ") : "[LSM] Mem ");
-			text += Profiling.Millis;
+			StringBuilder logMessage = new StringBuilder();
+			logMessage.Append("status: ");
+			if (queueCount >= 0)
+			{
+				logMessage.Append("assets: ");
+				logMessage.Append(queueCount);
+				logMessage.Append(' ');
+			}
+			logMessage.Append("millis: ");
+			logMessage.Append(Profiling.Millis);
+
 			try
 			{
+				// Include memory usage if on Windows.
 				if (Application.platform == RuntimePlatform.WindowsPlayer)
 				{
 					MemoryAPI.GetUsage(out var pfMegas, out var wsMegas);
-					text = text + " " + wsMegas + " " + pfMegas;
+					logMessage.Append(" RAM: ");
+					logMessage.Append(wsMegas);
+					logMessage.Append(" Page: ");
+					logMessage.Append(pfMegas);
 				}
+
+				// Include sharing status.
 				if (Instance<Sharing>.HasInstance)
 				{
-					text = text + " " + Instance<Sharing>.instance.Status + " " + Instance<Sharing>.instance.Misses + " " + Instance<Sharing>.instance.LoaderAhead;
+					Sharing sharing = Instance<Sharing>.instance;
+					logMessage.Append(" Sharing status: ");
+					logMessage.Append(sharing.Status);
+					logMessage.Append(" Sharing misses: ");
+					logMessage.Append(sharing.Misses);
+					logMessage.Append(" Loader ahead: ");
+					logMessage.Append(sharing.LoaderAhead);
 				}
 			}
-			catch (Exception)
+			catch (Exception e)
 			{
+				Logging.LogException(e, "exception logging status");
 			}
-			Console.WriteLine(text);
+
+			// Write to log.
+			Logging.KeyMessage(logMessage);
 		}
 
 
@@ -605,57 +640,112 @@ namespace LoadingScreenModRevisited
 			}
 		}
 
+
+		/// <summary>
+		/// Initializes prefabs.
+		/// </summary>
+		/// <typeparam name="T">Prefab type to initialize</typeparam>
+		/// <param name="info">Prefab instance</param>
+		/// <exception cref="Exception">PrefabLoadingException if prefab cannot be loaded</exception>
 		private void Initialize<T>(T info) where T : PrefabInfo
 		{
-			string brokenAssets = Singleton<LoadingManager>.instance.m_brokenAssets;
+			// Local reference.
+			LoadingManager loadingManager = Singleton<LoadingManager>.instance;
+
+			// Save broken assets list.
+			string brokenAssets = loadingManager.m_brokenAssets;
+
+			// Initialize custom prefabs.
 			PrefabCollection<T>.InitializePrefabs("Custom Assets", info, null);
-			Singleton<LoadingManager>.instance.m_brokenAssets = brokenAssets;
+
+			// Restore broken assets list.
+			loadingManager.m_brokenAssets = brokenAssets;
+
+			// Confirm prefab loaded.
 			string name = info.name;
 			if ((UnityEngine.Object)CustomDeserializer.FindLoaded<T>(name, tryName: false) == (UnityEngine.Object)null)
 			{
+				// Prefab not loaded - throw exception.
+				Logging.Error(typeof(T).Name, " prefab ", name, " failed");
 				throw new Exception(typeof(T).Name + " " + name + " failed");
 			}
 		}
 
+
+		/// <summary>
+		/// Compares two packages and determines load order.
+		/// </summary>
+		/// <param name="a">Package a</param>
+		/// <param name="b">package b</param>
+		/// <returns>Negative integer if a is first, positive integer if b is first, 0 if no difference</returns>
 		private int PackageComparison(Package a, Package b)
 		{
-			int num = string.Compare(a.packageName, b.packageName);
-			if (num != 0)
+			// Compare names.
+			int sortOrder = string.Compare(a.packageName, b.packageName);
+			if (sortOrder != 0)
 			{
-				return num;
+				// Strings aren't identical; return sort order (< 0 if a lexically preceeds b, > 0 if b lexically preceeds a).
+				return sortOrder;
 			}
-			Package.Asset asset = a.Find(a.packageMainAsset);
-			Package.Asset asset2 = b.Find(b.packageMainAsset);
-			if ((asset == null) | (asset2 == null))
+
+			// Names are identical; retrieve package main assets.
+			Package.Asset assetA = a.Find(a.packageMainAsset);
+			Package.Asset assetB = b.Find(b.packageMainAsset);
+
+			// If either main asset is null, then order is irrelevant; return 0.
+			if (assetA == null | assetB == null)
 			{
 				return 0;
 			}
-			bool flag = IsEnabled(asset);
-			bool flag2 = IsEnabled(asset2);
-			if (flag != flag2)
+
+			// Check enabled status.
+			bool aEnabled = IsEnabled(assetA);
+			bool bEnabled = IsEnabled(assetB);
+			if (aEnabled != bEnabled)
 			{
-				if (!flag)
+				// Flags differ; if A is disabled, then return 1 (b first).
+				if (!aEnabled)
 				{
 					return 1;
 				}
+
+				// Otherwise, return -1 (a first).
 				return -1;
 			}
-			return (int)asset2.offset - (int)asset.offset;
+
+			// Othewise, the package with the greatest offset goes first.
+			return (int)assetB.offset - (int)assetA.offset;
 		}
 
+
+		/// <summary>
+		/// Calculates asset loading queue.
+		/// </summary>
+		/// <param name="styleBuildings">Buildings in current district style</param>
+		/// <returns>Package asset load queue as array</returns>
 		private Package.Asset[] GetLoadQueue(HashSet<string> styleBuildings)
 		{
-			Package[] array = new Package[0];
+			// Retrieve all custom asset packages to load.
+			Package[] packages = new Package[0];
 			try
 			{
-				array = PackageManager.allPackages.Where((Package p) => p.FilterAssets(UserAssetType.CustomAssetMetaData).Any()).ToArray();
-				Array.Sort(array, PackageComparison);
+				packages = PackageManager.allPackages.Where((Package p) => p.FilterAssets(UserAssetType.CustomAssetMetaData).Any()).ToArray();
+
+				// Sort list by package comparison.
+				Array.Sort(packages, PackageComparison);
 			}
-			catch (Exception exception)
+			catch (Exception e)
 			{
-				Debug.LogException(exception);
+				Logging.LogException(e, "exception retrieving custom asset package list");
 			}
-			List<Package.Asset>[] array2 = new List<Package.Asset>[5]
+
+			// Establish loading queues.
+			// 0: Tree and citizen
+			// 1: Props
+			// 2: Roads, elevations, and pillars
+			// 3: Buildings and sub-buildings
+			// 4: Vehicles and trailers
+			List<Package.Asset>[] queues = new List<Package.Asset>[5]
 			{
 				new List<Package.Asset>(32),
 				new List<Package.Asset>(128),
@@ -663,99 +753,135 @@ namespace LoadingScreenModRevisited
 				new List<Package.Asset>(128),
 				new List<Package.Asset>(64)
 			};
-			List<Package.Asset> list = new List<Package.Asset>(8);
-			HashSet<string> hashSet = new HashSet<string>();
-			string text = string.Empty;
+
+			List<Package.Asset> assetRefList = new List<Package.Asset>(8);
+			HashSet<string> assetNames = new HashSet<string>();
+			string previousPackageName = string.Empty;
 			SteamHelper.DLC_BitMask dLC_BitMask = ~SteamHelper.GetOwnedDLCMask();
-			bool flag = LoadingScreenMod.Settings.settings.loadEnabled & !LoadingScreenMod.Settings.settings.enableDisable;
+
+			// 'Load enabled' and 'load used' settings.
+			bool loadEnabled = LoadingScreenMod.Settings.settings.loadEnabled & !LoadingScreenMod.Settings.settings.enableDisable;
 			bool loadUsed = LoadingScreenMod.Settings.settings.loadUsed;
-			Package[] array3 = array;
-			foreach (Package package in array3)
+			
+			// Iterate through each package.
+			foreach (Package package in packages)
 			{
-				Package.Asset asset = null;
+				Package.Asset finalAsset = null;
 				try
 				{
 					Instance<CustomDeserializer>.instance.AddPackage(package);
-					Package.Asset asset2 = package.Find(package.packageMainAsset);
+					Package.Asset mainAsset = package.Find(package.packageMainAsset);
 					string packageName = package.packageName;
-					bool flag2 = (flag && IsEnabled(asset2)) || styleBuildings.Contains(asset2.fullName);
-					if (!flag2 && (!loadUsed || !Instance<UsedAssets>.instance.GotPackage(packageName)))
+
+					// Package is enabled if 'load enabled' is active and the main asset is enabled, or if the district style contains the main asset.
+					bool enabled = (loadEnabled && IsEnabled(mainAsset)) || styleBuildings.Contains(mainAsset.fullName);
+
+					// If not enabled, skip (unless we're loading used assets, or this package is already recorded as being in use).
+					if (!enabled && (!loadUsed || !Instance<UsedAssets>.instance.GotPackage(packageName)))
 					{
 						continue;
 					}
-					CustomAssetMetaData assetRefs = GetAssetRefs(asset2, list);
-					int count = list.Count;
-					asset = list[count - 1];
+					
+					CustomAssetMetaData assetRefs = GetAssetRefs(mainAsset, assetRefList);
+					int assetCount = assetRefList.Count;
+					finalAsset = assetRefList[assetCount - 1];
 					CustomAssetMetaData.Type type = typeMap[(int)assetRefs.type];
 					packageTypes.Add(package, type);
-					bool flag3 = loadUsed && Instance<UsedAssets>.instance.IsUsed(asset, type);
-					flag2 = flag2 && (AssetImporterAssetTemplate.GetAssetDLCMask(assetRefs) & dLC_BitMask) == 0;
-					if (count > 1 && !flag3 && loadUsed)
+
+					// Check if the first asset in the package is in use.
+					bool isUsed = loadUsed && Instance<UsedAssets>.instance.IsUsed(finalAsset, type);
+
+					// Disable asset if relevant DLC isn't active.
+					enabled &= (AssetImporterAssetTemplate.GetAssetDLCMask(assetRefs) & dLC_BitMask) == 0;
+
+					// If we're loading used assets, and the main asset isn't used, but there are other assets in the package - check if any of the other assets are used.
+					if (assetCount > 1 & !isUsed & loadUsed)
 					{
-						for (int j = 0; j < count - 1; j++)
+						// Iterate through each asset in package.
+						for (int i = 0; i < assetCount - 1; ++i)
 						{
-							if ((type != CustomAssetMetaData.Type.Road && Instance<UsedAssets>.instance.IsUsed(list[j], type)) || (type == CustomAssetMetaData.Type.Road && Instance<UsedAssets>.instance.IsUsed(list[j], CustomAssetMetaData.Type.Road, CustomAssetMetaData.Type.Building)))
+							if ((type != CustomAssetMetaData.Type.Road && Instance<UsedAssets>.instance.IsUsed(assetRefList[i], type)) ||
+								(type == CustomAssetMetaData.Type.Road && Instance<UsedAssets>.instance.IsUsed(assetRefList[i], CustomAssetMetaData.Type.Road, CustomAssetMetaData.Type.Building)))
 							{
-								flag3 = true;
+								// Secondary asset is in use; mark the package as being in use.
+								isUsed = true;
 								break;
 							}
 						}
 					}
-					if (!(flag2 || flag3))
+
+					// If not enabled or in use, skip.
+					if (!(enabled || isUsed))
 					{
 						continue;
 					}
+
+					// Record asset if we're doing so.
 					if (recordAssets)
 					{
-						Instance<Reports>.instance.AddPackage(asset, type, flag2, flag3);
+						Instance<Reports>.instance.AddPackage(finalAsset, type, enabled, isUsed);
 					}
-					if (packageName != text)
+
+					// Update previous package name reference.
+					if (packageName != previousPackageName)
 					{
-						text = packageName;
-						hashSet.Clear();
+						previousPackageName = packageName;
+
+						// Finished with this package; clear asset names list. 
+						assetNames.Clear();
 					}
-					List<Package.Asset> list2 = array2[loadQueueIndex[(int)type]];
-					for (int k = 0; k < count - 1; k++)
+
+					// Iterate through all asset references in this package and add to queue (unless it's a duplicate).
+					List<Package.Asset> assetQueue = queues[loadQueueIndex[(int)type]];
+					for (int i = 0; i < assetCount - 1; ++i)
 					{
-						Package.Asset asset3 = list[k];
-						if (hashSet.Add(asset3.name) || !IsDuplicate(asset3, type, array2, isMainAssetRef: false))
+						Package.Asset thisAsset = assetRefList[i];
+						if (assetNames.Add(thisAsset.name) || !IsDuplicate(thisAsset, type, queues, isMainAssetRef: false))
 						{
-							list2.Add(asset3);
+							assetQueue.Add(thisAsset);
 						}
 					}
-					if (hashSet.Add(asset.name) || !IsDuplicate(asset, type, array2, isMainAssetRef: true))
+
+					// Add final asset to queue, if not a duplicate.
+					if (assetNames.Add(finalAsset.name) || !IsDuplicate(finalAsset, type, queues, isMainAssetRef: true))
 					{
-						list2.Add(asset);
+						assetQueue.Add(finalAsset);
 						if (hasAssetDataExtensions)
 						{
-							metaDatas[asset.fullName] = new SomeMetaData(assetRefs.userDataRef, assetRefs.name);
+							metaDatas[finalAsset.fullName] = new SomeMetaData(assetRefs.userDataRef, assetRefs.name);
 						}
 						if (type == CustomAssetMetaData.Type.Citizen)
 						{
-							citizenMetaDatas[asset.fullName] = assetRefs;
+							citizenMetaDatas[finalAsset.fullName] = assetRefs;
 						}
 					}
 				}
 				catch (Exception e)
 				{
-					AssetFailed(asset, package, e);
+					AssetFailed(finalAsset, package, e);
 				}
 			}
+
 			CheckSuspects();
-			hashSet.Clear();
-			hashSet = null;
-			Package.Asset[] array4 = new Package.Asset[array2.Sum((List<Package.Asset> lst) => lst.Count)];
-			int l = 0;
-			int num = 0;
-			for (; l < array2.Length; l++)
+
+			// Clear hashset.
+			assetNames.Clear();
+			assetNames = null;
+
+			// Generate return queue.
+			Package.Asset[] queue = new Package.Asset[queues.Sum((List<Package.Asset> assetList) => assetList.Count)];
+			int index = 0;
+			for (int i = 0; i < queues.Length; ++i)
 			{
-				array2[l].CopyTo(array4, num);
-				num += array2[l].Count;
-				array2[l].Clear();
-				array2[l] = null;
+				queues[i].CopyTo(queue, index);
+				index += queues[i].Count;
+
+				// Clear each queue after copying.
+				queues[i].Clear();
+				queues[i] = null;
 			}
-			array2 = null;
-			return array4;
+			queues = null;
+			return queue;
 		}
 
 		private static CustomAssetMetaData GetAssetRefs(Package.Asset mainAsset, List<Package.Asset> assetRefs)
