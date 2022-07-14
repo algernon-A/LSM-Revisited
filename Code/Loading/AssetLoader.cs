@@ -884,44 +884,57 @@ namespace LoadingScreenModRevisited
 			return queue;
 		}
 
+
+		/// <summary>
+		/// Gets asset metadata and references for the provided main asset.
+		/// </summary>
+		/// <param name="mainAsset">Main asset</param>
+		/// <param name="assetRefs">List of asset references (will be cleared before new references are added)</param>
+		/// <returns>Custom asset metadata</returns>
 		private static CustomAssetMetaData GetAssetRefs(Package.Asset mainAsset, List<Package.Asset> assetRefs)
 		{
+			// Read metadata and extract initial reference.
 			CustomAssetMetaData customAssetMetaData = AssetDeserializer.InstantiateOne(mainAsset) as CustomAssetMetaData;
 			Package.Asset assetRef = customAssetMetaData.assetRef;
 			Package.Asset asset = null;
 			assetRefs.Clear();
+
+			// Iterate through each asset in package looking for suitable asset references.
 			foreach (Package.Asset item in mainAsset.package)
 			{
-				switch ((int)item.type)
+				if (item.type == Package.AssetType.Object)
 				{
-					case 1:
-						asset = item;
-						if ((object)item != assetRef)
+					asset = item;
+					if ((object)item == assetRef)
+					{
+						break;
+					}
+				}
+				else if (item.type == UserAssetType.CustomAssetMetaData)
+				{
+					if (asset != null)
+					{
+						string name = asset.name;
+						int length = name.Length;
+						// Any metadata names with " - " starting at length - 35 need secondary asset ref resolution.
+						if (length < 35 || name[length - 34] != '-' || name[length - 35] != ' ' || name[length - 33] != ' ')
 						{
+							assetRefs.Add(asset);
+							asset = null;
 							break;
 						}
-						goto end_IL_0029;
-					case 103:
-						if (asset != null)
-						{
-							string name = asset.name;
-							int length = name.Length;
-							if (length < 35 || name[length - 34] != '-' || name[length - 35] != ' ' || name[length - 33] != ' ')
-							{
-								assetRefs.Add(asset);
-								asset = null;
-								break;
-							}
-							GetSecondaryAssetRefs(mainAsset, assetRefs);
-						}
-						else
-						{
-							GetSecondaryAssetRefs(mainAsset, assetRefs);
-						}
-						goto end_IL_0029;
+						Logging.Message("getting secondary asset refs for asset ", name);
+						GetSecondaryAssetRefs(mainAsset, assetRefs);
+					}
+					else
+					{
+						GetSecondaryAssetRefs(mainAsset, assetRefs);
+					}
+					break;
 				}
 			}
-		end_IL_0029:
+
+			// If we found a reference, add it to the list.
 			if (assetRef != null)
 			{
 				assetRefs.Add(assetRef);
@@ -929,12 +942,21 @@ namespace LoadingScreenModRevisited
 			return customAssetMetaData;
 		}
 
+
+		/// <summary>
+		/// Gets secondar asset references for the specified main asset.
+		/// </summary>
+		/// <param name="mainAsset">Main asset</param>
+		/// <param name="assetRefs">List of secondary asset references (will be cleared before new references are added)</param>
 		private static void GetSecondaryAssetRefs(Package.Asset mainAsset, List<Package.Asset> assetRefs)
 		{
-			Util.DebugPrint("!GetSecondaryAssetRefs", mainAsset.fullName);
+			Logging.Message("!GetSecondaryAssetRefs: ", mainAsset.fullName);
 			assetRefs.Clear();
+
+			// Iterate through each CustomAssetMetaData asset in package.
 			foreach (Package.Asset item in mainAsset.package.FilterAssets(UserAssetType.CustomAssetMetaData))
 			{
+				// If this is not the main asset, try to deserialise it and extract the reference.
 				if ((object)item != mainAsset)
 				{
 					Package.Asset assetRef = (AssetDeserializer.InstantiateOne(item) as CustomAssetMetaData).assetRef;
@@ -943,11 +965,18 @@ namespace LoadingScreenModRevisited
 						assetRefs.Add(assetRef);
 						continue;
 					}
-					Util.DebugPrint("!NULL asset", mainAsset.fullName);
+					Logging.Error(" NULL asset ", mainAsset.fullName);
 				}
 			}
 		}
 
+
+		/// <summary>
+		/// Returns the metadata type for the given asset and package type.
+		/// </summary>
+		/// <param name="assetRef">Asset</param>
+		/// <param name="packageType">Package type</param>
+		/// <returns>Custom meta data type</returns>
 		private CustomAssetMetaData.Type GetMetaTypeFor(Package.Asset assetRef, CustomAssetMetaData.Type packageType)
 		{
 			if (packageType != CustomAssetMetaData.Type.Road || IsMainAssetRef(assetRef))
@@ -957,6 +986,14 @@ namespace LoadingScreenModRevisited
 			return typeMap[(int)GetMetaDataFor(assetRef).type];
 		}
 
+
+		/// <summary>
+		/// Returns the metadata type for the given asset and package type, with known main asset status.
+		/// </summary>
+		/// <param name="assetRef">Asset</param>
+		/// <param name="packageType">Package type</param>
+		/// <param name="isMainAssetRef">True if the provided asset is the main asset, false otherwise</param>
+		/// <returns>Custom meta data type</returns>
 		private CustomAssetMetaData.Type GetMetaTypeFor(Package.Asset assetRef, CustomAssetMetaData.Type packageType, bool isMainAssetRef)
 		{
 			if (isMainAssetRef || packageType != CustomAssetMetaData.Type.Road)
@@ -966,19 +1003,25 @@ namespace LoadingScreenModRevisited
 			return typeMap[(int)GetMetaDataFor(assetRef).type];
 		}
 
+
+		/// <summary>
+		/// Gets the metadata for the specified asset.
+		/// </summary>
+		/// <param name="assetRef">Asset</param>
+		/// <returns>Custom asset metadata (null if metadata was unable to be retrieved)</returns>
 		private static CustomAssetMetaData GetMetaDataFor(Package.Asset assetRef)
 		{
-			bool flag = true;
+			bool seeking = true;
 			foreach (Package.Asset item in assetRef.package)
 			{
-				if (flag)
+				if (seeking)
 				{
 					if ((object)item == assetRef)
 					{
-						flag = false;
+						seeking = false;
 					}
 				}
-				else if (item.type.m_Value == 103)
+				else if (item.type.m_Value == UserAssetType.CustomAssetMetaData)
 				{
 					CustomAssetMetaData customAssetMetaData = AssetDeserializer.InstantiateOne(item) as CustomAssetMetaData;
 					if ((object)customAssetMetaData.assetRef == assetRef)
@@ -988,91 +1031,156 @@ namespace LoadingScreenModRevisited
 					break;
 				}
 			}
-			Util.DebugPrint("!assetRef mismatch", assetRef.fullName);
-			foreach (Package.Asset item2 in assetRef.package.FilterAssets(UserAssetType.CustomAssetMetaData))
+
+			Logging.Message("assetRef mismatch for asset ", assetRef.fullName);
+
+			// Iterate through all custom asset metadata in package.
+			foreach (Package.Asset item in assetRef.package.FilterAssets(UserAssetType.CustomAssetMetaData))
 			{
-				CustomAssetMetaData customAssetMetaData2 = AssetDeserializer.InstantiateOne(item2) as CustomAssetMetaData;
-				if ((object)customAssetMetaData2.assetRef == assetRef)
+				CustomAssetMetaData customAssetMetaData = AssetDeserializer.InstantiateOne(item) as CustomAssetMetaData;
+				if ((object)customAssetMetaData.assetRef == assetRef)
 				{
-					return customAssetMetaData2;
+					return customAssetMetaData;
 				}
 			}
-			Util.DebugPrint("!Cannot get metadata for", assetRef.fullName);
+
+			Logging.Error("cannot get metadata for asset ", assetRef.fullName);
 			return null;
 		}
 
-		private static CustomAssetMetaData GetMainMetaDataFor(Package p)
+
+		/// <summary>
+		/// Gets the main asset metadata for the specified package.
+		/// </summary>
+		/// <param name="package">Package</param>
+		/// <returns>Custom asset metadata (null if metadata was unable to be retrieved)</returns>
+		private static CustomAssetMetaData GetMainMetaDataFor(Package package)
 		{
-			Package.Asset asset = p.Find(p.packageMainAsset);
+			// Look for main asset.
+			Package.Asset asset = package.Find(package.packageMainAsset);
 			if (!(asset != null))
 			{
 				return null;
 			}
+
+			// Found it - deserialize and return.
 			return AssetDeserializer.InstantiateOne(asset) as CustomAssetMetaData;
 		}
 
-		internal CustomAssetMetaData.Type GetPackageTypeFor(Package p)
+
+		/// <summary>
+		/// Gets the asset metdata type for the given package.
+		/// </summary>
+		/// <param name="package">Pakcage</param>
+		/// <returns>Asset metadata type (defaults to Building if type cannot be obtained)</returns>
+		internal CustomAssetMetaData.Type GetPackageTypeFor(Package package)
 		{
-			if (packageTypes.TryGetValue(p, out var value))
+			// See if we've already done this one.
+			if (packageTypes.TryGetValue(package, out CustomAssetMetaData.Type packageType))
 			{
-				return value;
+				return packageType;
 			}
-			CustomAssetMetaData mainMetaDataFor = GetMainMetaDataFor(p);
+
+			// No existing record - get main asset metadata.
+			CustomAssetMetaData mainMetaDataFor = GetMainMetaDataFor(package);
 			if (mainMetaDataFor != null)
 			{
-				value = typeMap[(int)mainMetaDataFor.type];
-				packageTypes.Add(p, value);
-				return value;
+				// Found it - add to dictionary.
+				packageType = typeMap[(int)mainMetaDataFor.type];
+				packageTypes.Add(package, packageType);
+				return packageType;
 			}
-			Util.DebugPrint("!Cannot get package type for", p.packagePath);
+
+			// Fallback to buildng.
+			Logging.Error("cannot get package type for package ", package.packagePath);
 			return CustomAssetMetaData.Type.Building;
 		}
 
-		private bool IsDuplicate(Package.Asset assetRef, CustomAssetMetaData.Type packageType, List<Package.Asset>[] queues, bool isMainAssetRef)
+
+		/// <summary>
+		/// Checks to see if the given asset is a duplicate.
+		/// </summary>
+		/// <param name="assetRef">Asset</param>
+		/// <param name="packageType">Package type</param>
+		/// <param name="loadingQueues">Asset loading queues</param>
+		/// <param name="isMainAssetRef">True if this is the package's main asset, false otherwise</param>
+		/// <returns>True if the given asset is a duplicate, false otherwise</returns>
+		private bool IsDuplicate(Package.Asset assetRef, CustomAssetMetaData.Type packageType, List<Package.Asset>[] loadingQueues, bool isMainAssetRef)
 		{
+			// Get metadata.
 			CustomAssetMetaData.Type metaTypeFor = GetMetaTypeFor(assetRef, packageType, isMainAssetRef);
-			Dictionary<string, List<Package.Asset>> dictionary = suspects[(int)metaTypeFor];
+			Dictionary<string, List<Package.Asset>> duplicateSuspects = suspects[(int)metaTypeFor];
 			string fullName = assetRef.fullName;
-			if (dictionary.TryGetValue(fullName, out var value))
+
+			// See if we already have an entry for this asset.
+			if (duplicateSuspects.TryGetValue(fullName, out List<Package.Asset> duplicateList))
 			{
-				value.Add(assetRef);
+				// Existing entry found - add this asset to it.
+				duplicateList.Add(assetRef);
 			}
 			else
 			{
-				value = new List<Package.Asset>(2);
-				FindDuplicates(assetRef, metaTypeFor, queues[loadQueueIndex[(int)metaTypeFor]], value);
+				// No existing entry.
+				duplicateList = new List<Package.Asset>(2);
+
+				// Check for any duplicates.
+				FindDuplicates(assetRef, metaTypeFor, loadingQueues[loadQueueIndex[(int)metaTypeFor]], duplicateList);
 				if (metaTypeFor == CustomAssetMetaData.Type.Building)
 				{
-					FindDuplicates(assetRef, metaTypeFor, queues[loadQueueIndex[9]], value);
+					FindDuplicates(assetRef, metaTypeFor, loadingQueues[loadQueueIndex[9]], duplicateList);
 				}
-				if (value.Count == 0)
+
+				// Did we find any duplicates?
+				if (duplicateList.Count == 0)
 				{
+					// No duplicates found - return false.
 					return false;
 				}
-				value.Add(assetRef);
-				dictionary.Add(fullName, value);
+
+				// Duplicates found - add to suspects dictionary.
+				duplicateList.Add(assetRef);
+				duplicateSuspects.Add(fullName, duplicateList);
 			}
+
+			// If we got here, duplicates were found - return true.
 			return true;
 		}
 
-		private void FindDuplicates(Package.Asset assetRef, CustomAssetMetaData.Type type, List<Package.Asset> q, List<Package.Asset> assets)
+
+		/// <summary>
+		/// Find any duplicates of the given asset.
+		/// </summary>
+		/// <param name="assetRef">Asset</param>
+		/// <param name="type">Asset type</param>
+		/// <param name="loadingQueue">Loading queue</param>
+		/// <param name="duplicates">List of duplicate assets (duplicates will be added to the list)</param>
+		private void FindDuplicates(Package.Asset assetRef, CustomAssetMetaData.Type type, List<Package.Asset> loadingQueue, List<Package.Asset> duplicates)
 		{
 			string name = assetRef.name;
 			string packageName = assetRef.package.packageName;
-			int num = q.Count - 1;
-			while (num >= 0)
+
+			// Iterate through the queue in reverse.
+			int queueIndex = loadingQueue.Count - 1;
+			while (queueIndex >= 0)
 			{
-				Package.Asset asset = q[num];
+				Package.Asset asset = loadingQueue[queueIndex];
 				Package package = asset.package;
-				if (!(package.packageName != packageName))
+
+				// Check for package name match.
+				if (package.packageName == packageName)
 				{
+					// If asset name and type match, this is a duplicate.
 					if (asset.name == name && GetMetaTypeFor(asset, packageTypes[package]) == type)
 					{
-						assets.Insert(0, asset);
+						duplicates.Insert(0, asset);
 					}
-					num--;
+
+					// Move onto next asset in queue.
+					--queueIndex;
 					continue;
 				}
+
+				// If package name no longer matches, stop.
 				break;
 			}
 		}
