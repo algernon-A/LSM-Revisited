@@ -5,19 +5,29 @@ using ColossalFramework;
 using ColossalFramework.Importers;
 using ColossalFramework.Packaging;
 using UnityEngine;
+using LoadingScreenMod;
 
-namespace LoadingScreenMod
+
+namespace LoadingScreenModRevisited
 {
+	/// <summary>
+	/// Asset deserialization.
+	/// </summary>
 	internal sealed class AssetDeserializer
 	{
 		private readonly Package package;
-
 		private readonly PackageReader reader;
-
 		private bool isMain;
-
 		private readonly bool isTop;
 
+
+		/// <summary>
+		/// Deserializes an asset from a sharing stream.
+		/// </summary>
+		/// <param name="asset">Asset to deserialise</param>
+		/// <param name="isMain">True if this assset is the main package asset, false otherwise</param>
+		/// <param name="isTop">True if this is the top asset, false otherwise</param>
+		/// <returns>Deserialized object</returns>
 		internal static object Instantiate(Package.Asset asset, bool isMain, bool isTop)
 		{
 			using (Stream stream = Instance<Sharing>.instance.GetStream(asset))
@@ -29,6 +39,14 @@ namespace LoadingScreenMod
 			}
 		}
 
+
+		/// <summary>
+		/// Deserializes an asset from a byte array.
+		/// </summary>
+		/// <param name="package">Containing package</param>
+		/// <param name="bytes">True if this is the top asset, false otherwise</param>
+		/// <param name="isMain">True if the assset is the main package asset, false otherwise</param>
+		/// <returns>Deserialized object</returns>
 		internal static object Instantiate(Package package, byte[] bytes, bool isMain)
 		{
 			using (MemStream stream = new MemStream(bytes, 0))
@@ -40,6 +58,14 @@ namespace LoadingScreenMod
 			}
 		}
 
+
+		/// <summary>
+		/// Deserializes an asset from a package file.
+		/// </summary>
+		/// <param name="asset">Asset to deserialise</param>
+		/// <param name="isMain">True if this assset is the main package asset, false otherwise</param>
+		/// <param name="isTop">True if this is the top asset, false otherwise</param>
+		/// <returns>Deserialized object</returns>
 		internal static object InstantiateOne(Package.Asset asset, bool isMain = true, bool isTop = true)
 		{
 			Package package = asset.package;
@@ -53,6 +79,14 @@ namespace LoadingScreenMod
 			}
 		}
 
+
+		/// <summary>
+		/// Constructor.
+		/// </summary>
+		/// <param name="package">Package</param>
+		/// <param name="reader">PackageReader instance</param>
+		/// <param name="isMain">True if this assset is the main package asset, false otherwise</param>
+		/// <param name="isTop">True if this is the top asset, false otherwise</param>
 		private AssetDeserializer(Package package, PackageReader reader, bool isMain, bool isTop)
 		{
 			this.package = package;
@@ -61,14 +95,21 @@ namespace LoadingScreenMod
 			this.isTop = isTop;
 		}
 
+
+		/// <summary>
+		/// Deserializes an object.
+		/// Based on ColossalFramework.Packaging.PackageDeserializer.
+		/// </summary>
+		/// <returns>Deserialized object</returns>
 		private object Deserialize()
 		{
-			if (!DeserializeHeader(out var type))
+			if (!DeserializeHeader(out Type type))
 			{
 				return null;
 			}
 			if (type == typeof(GameObject))
 			{
+				// Slight modification to game code.
 				return DeserializeGameObject();
 			}
 			if (type == typeof(Mesh))
@@ -90,32 +131,48 @@ namespace LoadingScreenMod
 			return DeserializeObject(type);
 		}
 
+
+		/// <summary>
+		/// Deserializes a single object.
+		/// Based on ColossalFramework.Packaging.PackageDeserializer.DeserializeSingleObject.
+		/// </summary>
+		/// <param name="type">Object type</param>
+		/// <param name="expectedType">Expected object type</param>
+		/// <returns></returns>
 		private object DeserializeSingleObject(Type type, Type expectedType)
 		{
 			object obj = Instance<CustomDeserializer>.instance.CustomDeserialize(package, type, reader);
 			if (obj != null)
+			{
 				return obj;
+			}
 			if (typeof(ScriptableObject).IsAssignableFrom(type))
-				//return Instantiate(FindAsset(reader.ReadString()), isMain);
+			{
 				return Instantiate(package.FindByChecksum(reader.ReadString()), isMain, isTop: false);
+			}
 			if (typeof(GameObject).IsAssignableFrom(type))
-				//return Instantiate(FindAsset(reader.ReadString()), isMain);
+			{
 				return Instantiate(package.FindByChecksum(reader.ReadString()), isMain, isTop: false);
+			}
 
 			try
 			{
+				// Gamecode.
 				if (package.version < 3 && expectedType != null && expectedType == typeof(Package.Asset))
+				{
 					return reader.ReadUnityType(expectedType);
-
+				}
 				return reader.ReadUnityType(type, package);
 			}
 			catch (MissingMethodException)
 			{
-				Util.DebugPrint("Unsupported type for deserialization:", type.Name);
+				Logging.Error("unsupported type for deserialization: ", type.Name);
 				return null;
 			}
 		}
 
+
+		// Replace with reverse patch to ColossalFramework.Packaging.PackageDeserializer.DeserializeScriptableObject?
 		private UnityEngine.Object DeserializeScriptableObject(Type type)
 		{
 			ScriptableObject scriptableObject = ScriptableObject.CreateInstance(type);
@@ -124,6 +181,7 @@ namespace LoadingScreenMod
 			return scriptableObject;
 		}
 
+		// Replace with gamecode from DeserializeObject/DeserializeScriptableObject?
 		private void DeserializeFields(object obj, Type type, bool resolveMember)
 		{
 			int num = reader.ReadInt32();
@@ -191,6 +249,14 @@ namespace LoadingScreenMod
 			}
 		}
 
+
+		/// <summary>
+		/// Deserializes a GameObject.
+		/// Based on ColossalFramework.Packaging.PackageDeserializer.DeserializeGameObject.
+		/// Custom Asset Loader Postfixes this.
+		/// </summary>
+		/// <returns></returns>
+		/// <exception cref="InvalidDataException"></exception>
 		private UnityEngine.Object DeserializeGameObject()
 		{
 			GameObject gameObject = new GameObject(reader.ReadString());
@@ -198,7 +264,11 @@ namespace LoadingScreenMod
 			gameObject.layer = reader.ReadInt32();
 			gameObject.SetActive(reader.ReadBoolean());
 			int num = reader.ReadInt32();
+
+			// Insert to gamecode.
 			isMain = isTop || num > 3;
+
+			// Unwrapped ColossalFramework.Packaging.PackageDeserializer.DeserializeComponent.
 			for (int i = 0; i < num; i++)
 			{
 				if (!DeserializeHeader(out var type))
@@ -240,6 +310,11 @@ namespace LoadingScreenMod
 			return gameObject;
 		}
 
+
+		// Replace with reverse patch.
+		// ColossalFramework.Packaging.PackageDeserializer
+		//internal static void DeserializeAnimator(Package package, Animator animator, PackageReader reader)
+
 		private void DeserializeAnimator(Animator animator)
 		{
 			animator.applyRootMotion = reader.ReadBoolean();
@@ -247,6 +322,10 @@ namespace LoadingScreenMod
 			animator.cullingMode = (AnimatorCullingMode)reader.ReadInt32();
 		}
 
+
+		// Replace with reverse patch.
+		// ColossalFramework.Packaging.PackageDeserializer
+		// internal static Object DeserializeTexture(Package package, PackageReader reader)
 		private UnityEngine.Object DeserializeTexture()
 		{
 			string name = reader.ReadString();
@@ -259,6 +338,10 @@ namespace LoadingScreenMod
 			return texture2D;
 		}
 
+
+		// ColossalFramework.Packaging.PackageDeserializer
+		// internal static Object DeserializeMaterial(Package package, PackageReader reader)
+		// LSM sharing inserts
 		private MaterialData DeserializeMaterial()
 		{
 			string name = reader.ReadString();
@@ -307,6 +390,10 @@ namespace LoadingScreenMod
 			return materialData;
 		}
 
+
+		// Replace with reverse patch.
+		// ColossalFramework.Packaging.PackageDeserializer
+		// internal static void DeserializeTransform(Package package, Transform transform, PackageReader reader)
 		private void DeserializeTransform(Transform transform)
 		{
 			transform.localPosition = reader.ReadVector3();
@@ -314,48 +401,100 @@ namespace LoadingScreenMod
 			transform.localScale = reader.ReadVector3();
 		}
 
+
+
+		// Replace with reverse patch.
+		// ColossalFramework.Packaging.PackageDeserializer
+		// internal static void DeserializeMeshFilter(Package package, MeshFilter meshFilter, PackageReader reader)
 		private void DeserializeMeshFilter(MeshFilter meshFilter)
 		{
 			meshFilter.sharedMesh = Instance<Sharing>.instance.GetMesh(reader.ReadString(), package, isMain);
 		}
 
+
+		// Replace with reverse patch.
+		// ColossalFramework.Packaging.PackageDeserializer
+		// internal static void DeserializeMonoBehaviour(Package package, MonoBehaviour behaviour, PackageReader reader)
+		// Note that deserializefields is the same as object and scriptableobject.
 		private void DeserializeMonoBehaviour(MonoBehaviour behaviour)
 		{
 			DeserializeFields(behaviour, behaviour.GetType(), resolveMember: false);
 		}
 
+
+		/// <summary>
+		/// Deserializes a generic object.
+		/// </summary>
+		/// <param name="type">Object type</param>
+		/// <returns>Deserializaed fields</returns>
 		private object DeserializeObject(Type type)
 		{
+			// Skips gamecode custom deserializer check.
+
 			object obj = Activator.CreateInstance(type);
 			reader.ReadString();
 			DeserializeFields(obj, type, resolveMember: true);
 			return obj;
 		}
 
+
+		/// <summary>
+		/// Deserializaes a mesh renderer.
+		/// Implements mesh sharing.
+		/// </summary>
+		/// <param name="renderer">Renderer to deserialize</param>
 		private void DeserializeMeshRenderer(MeshRenderer renderer)
 		{
-			int num = reader.ReadInt32();
-			Material[] array = new Material[num];
+			int materialCount = reader.ReadInt32();
+			Material[] materials = new Material[materialCount];
 			Sharing instance = Instance<Sharing>.instance;
-			for (int i = 0; i < num; i++)
+			for (int i = 0; i < materialCount; ++i)
 			{
-				array[i] = instance.GetMaterial(reader.ReadString(), package, isMain);
+				materials[i] = instance.GetMaterial(reader.ReadString(), package, isMain);
 			}
-			renderer.sharedMaterials = array;
+			renderer.sharedMaterials = materials;
 		}
 
-		private void DeserializeSkinnedMeshRenderer(SkinnedMeshRenderer smr)
+
+		/// <summary>
+		/// Gets a reader for the specified stream.
+		/// </summary>
+		/// <param name="stream">Stream to read from</param>
+		/// <returns>New MemReader (if stream is MemStream) or PackageReader (otherwise)</returns>
+		private static PackageReader GetReader(Stream stream)
 		{
-			int num = reader.ReadInt32();
-			Material[] array = new Material[num];
-			for (int i = 0; i < num; i++)
+			// If this is a MemStream, return a new MemReader.
+			if (stream is MemStream memStream)
 			{
-				array[i] = Instance<Sharing>.instance.GetMaterial(reader.ReadString(), package, isMain);
+				return new MemReader(memStream);
 			}
-			smr.sharedMaterials = array;
-			smr.sharedMesh = Instance<Sharing>.instance.GetMesh(reader.ReadString(), package, isMain);
+
+			// Otherwise, return a new PackageReader.
+			return new PackageReader(stream);
 		}
 
+
+		/// <summary>
+		/// Deserializaes a skinned mesh renderer.
+		/// Implements mesh and material sharing.
+		/// </summary>
+		/// <param name="renderer">Renderer to deserialize</param>
+		private void DeserializeSkinnedMeshRenderer(SkinnedMeshRenderer renderer)
+		{
+			int materialCount = reader.ReadInt32();
+			Material[] materials = new Material[materialCount];
+			for (int i = 0; i < materialCount; ++i)
+			{
+				materials[i] = Instance<Sharing>.instance.GetMaterial(reader.ReadString(), package, isMain);
+			}
+			renderer.sharedMaterials = materials;
+			renderer.sharedMesh = Instance<Sharing>.instance.GetMesh(reader.ReadString(), package, isMain);
+		}
+
+
+		// Replace with reverse patch.
+		// ColossalFramework.Packaging.PackageDeserializer
+		// internal static Object DeserializeMesh(Package package, PackageReader reader)
 		private UnityEngine.Object DeserializeMesh()
 		{
 			Mesh mesh = new Mesh();
@@ -374,7 +513,10 @@ namespace LoadingScreenMod
 			}
 			return mesh;
 		}
-
+		
+		
+		// ColossalFramework.Packaging.AssetSerializer
+		// Reverse patch
 		private bool DeserializeHeader(out Type type)
 		{
 			type = null;
@@ -399,21 +541,10 @@ namespace LoadingScreenMod
 			return true;
 		}
 
-		private static PackageReader GetReader(Stream stream)
-		{
-			MemStream memStream = stream as MemStream;
-			if (memStream == null)
-			{
-				return new PackageReader(stream);
-			}
-			return new MemReader(memStream);
-		}
 
-		private static bool IsPowerOfTwo(int i)
-		{
-			return (i & (i - 1)) == 0;
-		}
-
+		// Replace with reverse patch.
+		// ColossalFramework.Packaging.AssetSerializer
+		// public static bool DeserializeHeader(out Type type, out string name, PackageReader reader)
 		private bool DeserializeHeader(out Type type, out string name)
 		{
 			type = null;
@@ -440,6 +571,10 @@ namespace LoadingScreenMod
 			return true;
 		}
 
+
+		// Replace with reverse patch.
+		// ColossalFramework.Packaging.AssetSerializer
+		// private static int HandleUnknownType(string type, PackageReader reader)
 		private int HandleUnknownType(string type)
 		{
 			int num = PackageHelper.UnknownTypeHandler(type);
@@ -452,6 +587,14 @@ namespace LoadingScreenMod
 			return -1;
 		}
 
+
+		/// <summary>
+		/// Attempts to resolve any legacy types using the game's legacy type handler.
+		/// Replace with reverse patch to ColossalFramework.Packaging.PackageDeserializer
+		/// internal static string ResolveLegacyType(string type)
+		/// </summary>
+		/// <param name="type">Type to resolve</param>
+		/// <returns>Resolved type text (unchanged if no conversion was found)</returns>
 		private static string ResolveLegacyType(string type)
 		{
 			string text = PackageHelper.ResolveLegacyTypeHandler(type);
@@ -459,6 +602,10 @@ namespace LoadingScreenMod
 			return text;
 		}
 
+
+		// Replace with reverse patch.
+		// ColossalFramework.Packaging.PackageDeserializer
+		// internal static string ResolveLegacyMember(Type fieldType, Type classType, string member)
 		private static string ResolveLegacyMember(Type fieldType, Type classType, string member)
 		{
 			string text = PackageHelper.ResolveLegacyMemberHandler(classType, member);

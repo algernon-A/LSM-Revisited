@@ -587,12 +587,12 @@ namespace LoadingScreenMod
 				byte[] array = val?.bytes;
 				if (array != null)
 				{
-					value = AssetDeserializer.Instantiate(package, array, isMain) as Mesh;
+					value = LoadingScreenModRevisited.AssetDeserializer.Instantiate(package, array, isMain) as Mesh;
 					mesload++;
 				}
 				else
 				{
-					value = AssetDeserializer.InstantiateOne(package.FindByChecksum(checksum), isMain, isTop: false) as Mesh;
+					value = LoadingScreenModRevisited.AssetDeserializer.InstantiateOne(package.FindByChecksum(checksum), isMain, isTop: false) as Mesh;
 					mesload++;
 				}
 			}
@@ -661,12 +661,12 @@ namespace LoadingScreenMod
 				byte[] array = val?.bytes;
 				if (array != null)
 				{
-					value = AssetDeserializer.Instantiate(package, array, isMain) as Texture2D;
+					value = LoadingScreenModRevisited.AssetDeserializer.Instantiate(package, array, isMain) as Texture2D;
 					texload++;
 				}
 				else
 				{
-					value = AssetDeserializer.InstantiateOne(package.FindByChecksum(checksum), isMain, isTop: false) as Texture2D;
+					value = LoadingScreenModRevisited.AssetDeserializer.InstantiateOne(package.FindByChecksum(checksum), isMain, isTop: false) as Texture2D;
 					texload++;
 				}
 			}
@@ -732,7 +732,7 @@ namespace LoadingScreenMod
 			byte[] array = val?.bytes;
 			if (array != null)
 			{
-				value = AssetDeserializer.Instantiate(package, array, isMain) as MaterialData;
+				value = LoadingScreenModRevisited.AssetDeserializer.Instantiate(package, array, isMain) as MaterialData;
 				matpre++;
 			}
 			else
@@ -744,7 +744,7 @@ namespace LoadingScreenMod
 					LoadingScreenModRevisited.Logging.Message("asset not found for package ", package.packageName ?? "null", " with checksum ", checksum);
 					return null;
 				}
-				value = AssetDeserializer.InstantiateOne(asset, isMain, isTop: false) as MaterialData;
+				value = LoadingScreenModRevisited.AssetDeserializer.InstantiateOne(asset, isMain, isTop: false) as MaterialData;
 				matload++;
 			}
 			if (checkAssets && !isMain)

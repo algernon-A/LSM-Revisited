@@ -707,7 +707,7 @@ namespace LoadingScreenMod
 			string text = r.ReadString();
 			if (!string.IsNullOrEmpty(text))
 			{
-				GameObject gameObject = AssetDeserializer.Instantiate(p.FindByChecksum(text), isMain: true, isTop: false) as GameObject;
+				GameObject gameObject = LoadingScreenModRevisited.AssetDeserializer.Instantiate(p.FindByChecksum(text), isMain: true, isTop: false) as GameObject;
 				meshInfo.m_subInfo = gameObject.GetComponent<VehicleInfoBase>();
 				gameObject.SetActive(value: false);
 				if (meshInfo.m_subInfo.m_lodObject != null)
@@ -732,7 +732,7 @@ namespace LoadingScreenMod
 			string text = r.ReadString();
 			if (!string.IsNullOrEmpty(text))
 			{
-				GameObject gameObject = AssetDeserializer.Instantiate(p.FindByChecksum(text), isMain: true, isTop: false) as GameObject;
+				GameObject gameObject = LoadingScreenModRevisited.AssetDeserializer.Instantiate(p.FindByChecksum(text), isMain: true, isTop: false) as GameObject;
 				meshInfo.m_subInfo = gameObject.GetComponent<BuildingInfoBase>();
 				gameObject.SetActive(value: false);
 				if (meshInfo.m_subInfo.m_lodObject != null)
