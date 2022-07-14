@@ -442,34 +442,11 @@ namespace LoadingScreenModRevisited
 
 
 		/// <summary>
-		/// Triggers LSM report generation and disposes of sharing instance.
+		/// Retrieves the main asset of a package.
 		/// </summary>
-		private void Report()
-		{
-			LoadingScreenMod.Settings settings = LoadingScreenMod.Settings.settings;
-			if (settings.loadUsed)
-			{
-				Instance<UsedAssets>.instance.ReportMissingAssets();
-			}
-			if (recordAssets)
-			{
-				if (settings.reportAssets)
-				{
-					Instance<Reports>.instance.Save(hiddenAssets, Instance<Sharing>.instance.texhit, Instance<Sharing>.instance.mathit, Instance<Sharing>.instance.meshit);
-				}
-				if (settings.hideAssets)
-				{
-					settings.SaveHiddenAssets(hiddenAssets, Instance<Reports>.instance.GetMissing(), Instance<Reports>.instance.GetDuplicates());
-				}
-				if (!settings.enableDisable)
-				{
-					Instance<Reports>.instance.ClearAssets();
-				}
-			}
-
-			// Dispose of sharing instance (no longer needed).
-			Instance<Sharing>.instance.Dispose();
-		}
+		/// <param name="package">Package</param>
+		/// <returns>Main asset</returns>
+		internal static Package.Asset FindMainAssetRef(Package package) => package.FilterAssets(Package.AssetType.Object).LastOrDefault((Package.Asset a) => a.name.EndsWith("_Data"));
 
 
 		/// <summary>
@@ -520,6 +497,21 @@ namespace LoadingScreenModRevisited
 
 			// Write to log.
 			Logging.KeyMessage(logMessage);
+		}
+
+
+		/// <summary>
+		/// Removes trailing "_Data" (if any) from the provided name.
+		/// </summary>
+		/// <param name="name_Data">Name</param>
+		/// <returns>Name with trailing "_Data" removed (unchanged input if the original didn't end with "_Data")</returns>
+		internal static string ShortName(string name_Data)
+		{
+			if (name_Data.Length <= 5 || !name_Data.EndsWith("_Data"))
+			{
+				return name_Data;
+			}
+			return name_Data.Substring(0, name_Data.Length - 5);
 		}
 
 
@@ -637,6 +629,93 @@ namespace LoadingScreenModRevisited
 				stack.Pop();
 				assetCount++;
 				Singleton<LoadingManager>.instance.m_loadingProfilerCustomAsset.EndLoading();
+			}
+		}
+
+
+		/// <summary>
+		/// Gets the asset metdata type for the given package.
+		/// </summary>
+		/// <param name="package">Pakcage</param>
+		/// <returns>Asset metadata type (defaults to Building if type cannot be obtained)</returns>
+		internal CustomAssetMetaData.Type GetPackageTypeFor(Package package)
+		{
+			// See if we've already done this one.
+			if (packageTypes.TryGetValue(package, out CustomAssetMetaData.Type packageType))
+			{
+				return packageType;
+			}
+
+			// No existing record - get main asset metadata.
+			CustomAssetMetaData mainMetaDataFor = GetMainMetaDataFor(package);
+			if (mainMetaDataFor != null)
+			{
+				// Found it - add to dictionary.
+				packageType = typeMap[(int)mainMetaDataFor.type];
+				packageTypes.Add(package, packageType);
+				return packageType;
+			}
+
+			// Fallback to buildng.
+			Logging.Error("cannot get package type for package ", package.packagePath);
+			return CustomAssetMetaData.Type.Building;
+		}
+
+
+		/// <summary>
+		/// Reports a failed asset.
+		/// </summary>
+		/// <param name="assetRef">Asset</param>
+		/// <param name="package">Package</param>
+		/// <param name="e">Asset execption</param>
+		internal void AssetFailed(Package.Asset assetRef, Package package, Exception e)
+		{
+			// Get asset name.
+			string text = assetRef?.fullName;
+			if (text == null)
+			{
+				assetRef = FindMainAssetRef(package);
+				text = assetRef?.fullName;
+			}
+
+			// Check that text isn't null and we haven't already recorded this asset as missing or having failed.
+			if (text != null && LevelLoader.AddFailed(text))
+			{
+				// Add asset to list of recorded failures, if we're doing so.
+				if (recordAssets)
+				{
+					Instance<Reports>.instance.AssetFailed(assetRef);
+				}
+
+				// Log and display failure.
+				Logging.Error("asset failed: ", text);
+				Instance<LoadingScreen>.instance.DualSource?.CustomAssetFailed(ShortAssetName(text));
+			}
+
+			// Log the exception details as well.
+			if (e != null)
+			{
+				Logging.LogException(e, "asset failure exception");
+			}
+		}
+
+
+		/// <summary>
+		/// Reports a missing asset.
+		/// </summary>
+		/// <param name="fullName">Asset full name</param>
+		internal void AssetMissing(string fullName)
+		{
+			// Check that text isn't null and we haven't already recorded this asset as missing or having failed.
+			if (fullName != null && LevelLoader.AddFailed(fullName))
+			{
+				Logging.Error("asset missing: ", fullName);
+
+				// Display missing asset name unless we're supressing this one as a known missing asset.
+				if (!hiddenAssets.Contains(fullName))
+				{
+					Instance<LoadingScreen>.instance.DualSource?.CustomAssetNotFound(ShortAssetName(fullName));
+				}
 			}
 		}
 
@@ -862,6 +941,7 @@ namespace LoadingScreenModRevisited
 				}
 			}
 
+			// Report duplicates.
 			CheckSuspects();
 
 			// Clear hashset.
@@ -891,7 +971,7 @@ namespace LoadingScreenModRevisited
 		/// <param name="mainAsset">Main asset</param>
 		/// <param name="assetRefs">List of asset references (will be cleared before new references are added)</param>
 		/// <returns>Custom asset metadata</returns>
-		private static CustomAssetMetaData GetAssetRefs(Package.Asset mainAsset, List<Package.Asset> assetRefs)
+		private CustomAssetMetaData GetAssetRefs(Package.Asset mainAsset, List<Package.Asset> assetRefs)
 		{
 			// Read metadata and extract initial reference.
 			CustomAssetMetaData customAssetMetaData = AssetDeserializer.InstantiateOne(mainAsset) as CustomAssetMetaData;
@@ -948,7 +1028,7 @@ namespace LoadingScreenModRevisited
 		/// </summary>
 		/// <param name="mainAsset">Main asset</param>
 		/// <param name="assetRefs">List of secondary asset references (will be cleared before new references are added)</param>
-		private static void GetSecondaryAssetRefs(Package.Asset mainAsset, List<Package.Asset> assetRefs)
+		private void GetSecondaryAssetRefs(Package.Asset mainAsset, List<Package.Asset> assetRefs)
 		{
 			Logging.Message("!GetSecondaryAssetRefs: ", mainAsset.fullName);
 			assetRefs.Clear();
@@ -1009,7 +1089,7 @@ namespace LoadingScreenModRevisited
 		/// </summary>
 		/// <param name="assetRef">Asset</param>
 		/// <returns>Custom asset metadata (null if metadata was unable to be retrieved)</returns>
-		private static CustomAssetMetaData GetMetaDataFor(Package.Asset assetRef)
+		private CustomAssetMetaData GetMetaDataFor(Package.Asset assetRef)
 		{
 			bool seeking = true;
 			foreach (Package.Asset item in assetRef.package)
@@ -1054,7 +1134,7 @@ namespace LoadingScreenModRevisited
 		/// </summary>
 		/// <param name="package">Package</param>
 		/// <returns>Custom asset metadata (null if metadata was unable to be retrieved)</returns>
-		private static CustomAssetMetaData GetMainMetaDataFor(Package package)
+		private CustomAssetMetaData GetMainMetaDataFor(Package package)
 		{
 			// Look for main asset.
 			Package.Asset asset = package.Find(package.packageMainAsset);
@@ -1065,35 +1145,6 @@ namespace LoadingScreenModRevisited
 
 			// Found it - deserialize and return.
 			return AssetDeserializer.InstantiateOne(asset) as CustomAssetMetaData;
-		}
-
-
-		/// <summary>
-		/// Gets the asset metdata type for the given package.
-		/// </summary>
-		/// <param name="package">Pakcage</param>
-		/// <returns>Asset metadata type (defaults to Building if type cannot be obtained)</returns>
-		internal CustomAssetMetaData.Type GetPackageTypeFor(Package package)
-		{
-			// See if we've already done this one.
-			if (packageTypes.TryGetValue(package, out CustomAssetMetaData.Type packageType))
-			{
-				return packageType;
-			}
-
-			// No existing record - get main asset metadata.
-			CustomAssetMetaData mainMetaDataFor = GetMainMetaDataFor(package);
-			if (mainMetaDataFor != null)
-			{
-				// Found it - add to dictionary.
-				packageType = typeMap[(int)mainMetaDataFor.type];
-				packageTypes.Add(package, packageType);
-				return packageType;
-			}
-
-			// Fallback to buildng.
-			Logging.Error("cannot get package type for package ", package.packagePath);
-			return CustomAssetMetaData.Type.Building;
 		}
 
 
@@ -1185,8 +1236,13 @@ namespace LoadingScreenModRevisited
 			}
 		}
 
+
+		/// <summary>
+		/// Checks for duplicate assets and reports them.
+		/// </summary>
 		private void CheckSuspects()
 		{
+			// Types to check.
 			CustomAssetMetaData.Type[] array = new CustomAssetMetaData.Type[6]
 			{
 				CustomAssetMetaData.Type.Building,
@@ -1196,19 +1252,30 @@ namespace LoadingScreenModRevisited
 				CustomAssetMetaData.Type.Citizen,
 				CustomAssetMetaData.Type.Road
 			};
+
+			// Iterate through each type.
 			foreach (CustomAssetMetaData.Type type in array)
 			{
+				// Iterate through all duplicate suspects recorded for that type.
 				foreach (KeyValuePair<string, List<Package.Asset>> item in suspects[(int)type])
 				{
-					List<Package.Asset> value = item.Value;
-					if (value.Select((Package.Asset a) => a.checksum).Distinct().Count() > 1 && value.Where((Package.Asset a) => IsEnabled(a.package)).Count() != 1)
+					// Check for multiple entries where more than one is enabled.
+					List<Package.Asset> duplicateList = item.Value;
+					if (duplicateList.Select((Package.Asset a) => a.checksum).Distinct().Count() > 1 && duplicateList.Where((Package.Asset a) => IsEnabled(a.package)).Count() != 1)
 					{
-						Duplicate(item.Key, value);
+						// Report duplicate.
+						ReportDuplicate(item.Key, duplicateList);
 					}
 				}
 			}
 		}
 
+
+		/// <summary>
+		/// Checks to see if the given package is enabled.
+		/// </summary>
+		/// <param name="package">Package</param>
+		/// <returns>True if enabled, false otherwise</returns>
 		private bool IsEnabled(Package package)
 		{
 			Package.Asset asset = package.Find(package.packageMainAsset);
@@ -1219,176 +1286,236 @@ namespace LoadingScreenModRevisited
 			return true;
 		}
 
-		private bool IsEnabled(Package.Asset mainAsset)
-		{
-			bool value;
-			return !boolValues.TryGetValue(mainAsset.checksum + ".enabled", out value) || value;
-		}
+
+		/// <summary>
+		/// Checks to see if the given main asset is enabled.
+		/// </summary>
+		/// <param name="mainAsset">Package main asset</param>
+		/// <returns>True if enabled, false otherwise</returns>
+		private bool IsEnabled(Package.Asset mainAsset) => !boolValues.TryGetValue(mainAsset.checksum + ".enabled", out bool value) | value;
+
+
+		/// <summary>
+		/// Removes asset metadata record and calls OnAssetLoaded extensions as required.
+		/// </summary>
+		/// <param name="assetRef">Asset</param>
+		/// <param name="info">Prefab info</param>
 
 		private void CallExtensions(Package.Asset assetRef, PrefabInfo info)
 		{
+			// Check for recorded metadata.
 			string fullName = assetRef.fullName;
-			if (metaDatas.TryGetValue(fullName, out var value))
+			if (metaDatas.TryGetValue(fullName, out SomeMetaData metaData))
 			{
+				// Metadata retrieved - remove from dictionary (no longer needed).
 				metaDatas.Remove(fullName);
 			}
 			else if (IsMainAssetRef(assetRef))
 			{
+				// No metadata record found and the asset is the main asset - get the metadata for this asset.
 				CustomAssetMetaData mainMetaDataFor = GetMainMetaDataFor(assetRef.package);
-				value = new SomeMetaData(mainMetaDataFor.userDataRef, mainMetaDataFor.name);
+				metaData = new SomeMetaData(mainMetaDataFor.userDataRef, mainMetaDataFor.name);
 			}
-			if (value.userDataRef != null)
+
+			// Was metadata found?
+			if (metaData.userDataRef != null)
 			{
-				AssetDataWrapper.UserAssetData userAssetData = AssetDeserializer.InstantiateOne(value.userDataRef) as AssetDataWrapper.UserAssetData;
+				// Metadata found - deserialize the asset data.
+				AssetDataWrapper.UserAssetData userAssetData = AssetDeserializer.InstantiateOne(metaData.userDataRef) as AssetDataWrapper.UserAssetData;
 				if (userAssetData == null)
 				{
+					// Create empty instance if none was deserialized.
 					userAssetData = new AssetDataWrapper.UserAssetData();
 				}
-				Singleton<LoadingManager>.instance.m_AssetDataWrapper.OnAssetLoaded(value.name, info, userAssetData);
+
+				// Execute OnAssetLoaded extensions.
+				Singleton<LoadingManager>.instance.m_AssetDataWrapper.OnAssetLoaded(metaData.name, info, userAssetData);
 			}
 		}
 
-		private static bool IsPillarOrElevation(Package.Asset assetRef, bool knownRoad)
+
+		/// <summary>
+		/// Checks to see if the given asset is a pillar or road elevation.
+		/// </summary>
+		/// <param name="assetRef">Asset</param>
+		/// <param name="knownRoad">True if the asset is a road type, false otherwise</param>
+		/// <returns>True if the asset is a pillar or road elevation, false otherwise</returns>
+		private bool IsPillarOrElevation(Package.Asset assetRef, bool knownRoad)
 		{
+			// If this is a known road asset, then anything other than the main asset is a pillar or elevation.
 			if (knownRoad)
 			{
 				return !IsMainAssetRef(assetRef);
 			}
-			int num = 0;
+
+			// Iterate through each custom asset item in the package.
+			int counter = 0;
 			foreach (Package.Asset item in assetRef.package.FilterAssets(UserAssetType.CustomAssetMetaData))
 			{
 				_ = item;
-				if (++num > 1)
+				if (++counter > 1)
 				{
 					break;
 				}
 			}
-			if (num != 1)
+
+			// If more than one item was returned, return based on the metadata type of the provided asset.
+			if (counter != 1)
 			{
 				return GetMetaDataFor(assetRef).type >= CustomAssetMetaData.Type.RoadElevation;
 			}
+
+			// Default is false (not a pillar or elevation).
 			return false;
 		}
 
-		private static string PillarOrElevationName(string packageName, string name)
-		{
-			return packageName + "." + PackageHelper.StripName(name);
-		}
 
-		internal static Package.Asset FindMainAssetRef(Package p)
-		{
-			return p.FilterAssets(Package.AssetType.Object).LastOrDefault((Package.Asset a) => a.name.EndsWith("_Data"));
-		}
+		/// <summary>
+		/// Returns the name of a pillar or elevation.
+		/// </summary>
+		/// <param name="packageName">Package name</param>
+		/// <param name="name">Asset name</param>
+		/// <returns></returns>
+		private string PillarOrElevationName(string packageName, string assetName) => packageName + "." + PackageHelper.StripName(assetName);
 
-		private static bool IsMainAssetRef(Package.Asset assetRef)
-		{
-			return (object)FindMainAssetRef(assetRef.package) == assetRef;
-		}
 
-		internal static string ShortName(string name_Data)
+		/// <summary>
+		/// Checks to see if the provided asset is the package's main asset.
+		/// </summary>
+		/// <param name="assetRef">Asset</param>
+		/// <returns>True if the asset is the package's main asset, false otherwise</returns>
+		private bool IsMainAssetRef(Package.Asset assetRef) => (object)FindMainAssetRef(assetRef.package) == assetRef;
+
+
+		/// <summary>
+		/// Triggers LSM report generation and disposes of sharing instance.
+		/// </summary>
+		private void Report()
 		{
-			if (name_Data.Length <= 5 || !name_Data.EndsWith("_Data"))
+			LoadingScreenMod.Settings settings = LoadingScreenMod.Settings.settings;
+			if (settings.loadUsed)
 			{
-				return name_Data;
+				Instance<UsedAssets>.instance.ReportMissingAssets();
 			}
-			return name_Data.Substring(0, name_Data.Length - 5);
+			if (recordAssets)
+			{
+				if (settings.reportAssets)
+				{
+					Instance<Reports>.instance.Save(hiddenAssets, Instance<Sharing>.instance.texhit, Instance<Sharing>.instance.mathit, Instance<Sharing>.instance.meshit);
+				}
+				if (settings.hideAssets)
+				{
+					settings.SaveHiddenAssets(hiddenAssets, Instance<Reports>.instance.GetMissing(), Instance<Reports>.instance.GetDuplicates());
+				}
+				if (!settings.enableDisable)
+				{
+					Instance<Reports>.instance.ClearAssets();
+				}
+			}
+
+			// Dispose of sharing instance (no longer needed).
+			Instance<Sharing>.instance.Dispose();
 		}
 
-		private static string ShortAssetName(string fullName_Data)
+
+		/// <summary>
+		/// Struips leading package number from the given name.
+		/// </summary>
+		/// <param name="fullName_Data">Name</param>
+		/// <returns>Name stripped of leading package number and period (unchanged input if no leading package number)</returns>
+		private string ShortAssetName(string fullName_Data)
 		{
-			int num = fullName_Data.IndexOf('.');
-			if (num >= 0 && num < fullName_Data.Length - 1)
+			int periodIndex = fullName_Data.IndexOf('.');
+			if (periodIndex >= 0 && periodIndex < fullName_Data.Length - 1)
 			{
-				fullName_Data = fullName_Data.Substring(num + 1);
+				fullName_Data = fullName_Data.Substring(periodIndex + 1);
 			}
 			return ShortName(fullName_Data);
 		}
 
-		internal void AssetFailed(Package.Asset assetRef, Package p, Exception e)
-		{
-			string text = assetRef?.fullName;
-			if (text == null)
-			{
-				assetRef = FindMainAssetRef(p);
-				text = assetRef?.fullName;
-			}
-			if (text != null && LoadingScreenModRevisited.LevelLoader.AddFailed(text))
-			{
-				if (recordAssets)
-				{
-					Instance<Reports>.instance.AssetFailed(assetRef);
-				}
-				Util.DebugPrint("Asset failed:", text);
-				Instance<LoadingScreen>.instance.DualSource?.CustomAssetFailed(ShortAssetName(text));
-			}
-			if (e != null)
-			{
-				Debug.LogException(e);
-			}
-		}
 
-		internal void NotFound(string fullName)
-		{
-			if (fullName != null && LoadingScreenModRevisited.LevelLoader.AddFailed(fullName))
-			{
-				Util.DebugPrint("Missing:", fullName);
-				if (!hiddenAssets.Contains(fullName))
-				{
-					Instance<LoadingScreen>.instance.DualSource?.CustomAssetNotFound(ShortAssetName(fullName));
-				}
-			}
-		}
 
-		private void Duplicate(string fullName, List<Package.Asset> assets)
+		/// <summary>
+		/// Reports duplicate assets.
+		/// </summary>
+		/// <param name="fullName">Asset full name</param>
+		/// <param name="assets">List of duplicates</param>
+		private void ReportDuplicate(string fullName, List<Package.Asset> assets)
 		{
+			// Report duplicate assets if we're doing that.
 			if (recordAssets)
 			{
 				Instance<Reports>.instance.Duplicate(assets);
 			}
-			Util.DebugPrint("Duplicate name", fullName);
+
+			// Log message
+			Logging.Message("duplicate name", fullName);
+
+			// Display missing asset name unless we're supressing this one as a known missing asset.
 			if (!hiddenAssets.Contains(fullName))
 			{
 				Instance<LoadingScreen>.instance.DualSource?.CustomAssetDuplicate(ShortAssetName(fullName));
 			}
 		}
 
+
+		/// <summary>
+		/// Enables all assets used in the current save, and disables all others.
+		/// </summary>
 		private void EnableDisableAssets()
 		{
 			try
 			{
+				// Report if we're set to do so.
 				if (!LoadingScreenMod.Settings.settings.reportAssets)
 				{
 					Instance<Reports>.instance.SetIndirectUsages();
 				}
+
+				// Iterate through all packages.
 				foreach (object item in Instance<CustomDeserializer>.instance.AllPackages())
 				{
-					Package package = item as Package;
-					if ((object)package != null)
+					// Single-package items.
+					if (item is Package singlePackage)
 					{
-						EnableDisableAssets(package);
+						EnableDisableAssets(singlePackage);
 						continue;
 					}
-					foreach (Package item2 in item as List<Package>)
+
+					// Otherwise, iterate through each item in a multi-package list
+					foreach (Package package in item as List<Package>)
 					{
-						EnableDisableAssets(item2);
+						EnableDisableAssets(package);
 					}
 				}
+
+				// Report cleared assets.
 				Instance<Reports>.instance.ClearAssets();
+
+				// Mark game settigns file as dirty.
 				GameSettings.FindSettingsFileByName(PackageManager.assetStateSettingsFile).MarkDirty();
 			}
-			catch (Exception exception)
+			catch (Exception e)
 			{
-				Debug.LogException(exception);
+				Logging.LogException(e, "exception enabling/disabling assset");
 			}
 		}
 
-		private void EnableDisableAssets(Package p)
+
+		/// <summary>
+		/// Enables or disables assets in the given package.
+		/// </summary>
+		/// <param name="package">Package</param>
+		private void EnableDisableAssets(Package package)
 		{
-			bool flag = Instance<Reports>.instance.IsUsed(FindMainAssetRef(p));
-			foreach (Package.Asset item in p.FilterAssets(UserAssetType.CustomAssetMetaData))
+			// Determine if package is in use.
+			bool isUsed = Instance<Reports>.instance.IsUsed(FindMainAssetRef(package));
+
+			// Enable/disable each item in the package based on used status.
+			foreach (Package.Asset item in package.FilterAssets(UserAssetType.CustomAssetMetaData))
 			{
 				string key = item.checksum + ".enabled";
-				if (flag)
+				if (isUsed)
 				{
 					boolValues.Remove(key);
 				}

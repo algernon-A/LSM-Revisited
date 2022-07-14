@@ -1048,7 +1048,7 @@ namespace LoadingScreenMod
 				}
 				else
 				{
-					LoadingScreenModRevisited.AssetLoader.Instance.NotFound(fullName);
+					LoadingScreenModRevisited.AssetLoader.Instance.AssetMissing(fullName);
 				}
 			}
 			else
