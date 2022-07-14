@@ -97,6 +97,24 @@ namespace LoadingScreenModRevisited
 
 
 		/// <summary>
+		/// Gets a reader for the specified stream.
+		/// </summary>
+		/// <param name="stream">Stream to read from</param>
+		/// <returns>New MemReader (if stream is MemStream) or PackageReader (otherwise)</returns>
+		private static PackageReader GetReader(Stream stream)
+		{
+			// If this is a MemStream, return a new MemReader.
+			if (stream is MemStream memStream)
+			{
+				return new MemReader(memStream);
+			}
+
+			// Otherwise, return a new PackageReader.
+			return new PackageReader(stream);
+		}
+
+
+		/// <summary>
 		/// Deserializes an object.
 		/// Based on ColossalFramework.Packaging.PackageDeserializer.
 		/// </summary>
@@ -138,14 +156,18 @@ namespace LoadingScreenModRevisited
 		/// </summary>
 		/// <param name="type">Object type</param>
 		/// <param name="expectedType">Expected object type</param>
-		/// <returns></returns>
+		/// <returns>Deserialized object</returns>
 		private object DeserializeSingleObject(Type type, Type expectedType)
 		{
+			// Attempt custom deserialization.
 			object obj = Instance<CustomDeserializer>.instance.CustomDeserialize(package, type, reader);
 			if (obj != null)
 			{
+				// Success - return object.
 				return obj;
 			}
+
+			// Follow gamecode, but call FindByChecksum directly rather than via intermediate steps.
 			if (typeof(ScriptableObject).IsAssignableFrom(type))
 			{
 				return Instantiate(package.FindByChecksum(reader.ReadString()), isMain, isTop: false);
@@ -172,78 +194,77 @@ namespace LoadingScreenModRevisited
 		}
 
 
-		// Replace with reverse patch to ColossalFramework.Packaging.PackageDeserializer.DeserializeScriptableObject?
-		private UnityEngine.Object DeserializeScriptableObject(Type type)
-		{
-			ScriptableObject scriptableObject = ScriptableObject.CreateInstance(type);
-			scriptableObject.name = reader.ReadString();
-			DeserializeFields(scriptableObject, type, resolveMember: false);
-			return scriptableObject;
-		}
-
-		// Replace with gamecode from DeserializeObject/DeserializeScriptableObject?
+		/// <summary>
+		/// Deserializes an object's fields.
+		/// Implements rapid reads of known simple types.
+		/// </summary>
+		/// <param name="obj">Object to deserialize</param>
+		/// <param name="type">Object type</param>
+		/// <param name="resolveMember">True to resolve any legacy members</param>
 		private void DeserializeFields(object obj, Type type, bool resolveMember)
 		{
-			int num = reader.ReadInt32();
-			for (int i = 0; i < num; i++)
+			int fieldCount = reader.ReadInt32();
+			for (int i = 0; i < fieldCount; ++i)
 			{
-				if (!DeserializeHeader(out var type2, out var name))
+				if (!DeserializeHeader(out Type headerType, out string name))
 				{
 					continue;
 				}
 				FieldInfo field = type.GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 				if (field == null && resolveMember)
 				{
-					field = type.GetField(ResolveLegacyMember(type2, type, name), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+					field = type.GetField(ResolveLegacyMember(headerType, type, name), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 				}
+
+				// Rapid reads of simple types.
 				object value;
-				if (type2 == typeof(bool))
+				if (headerType == typeof(bool))
 				{
 					value = reader.ReadBoolean();
 				}
-				else if (type2 == typeof(int))
+				else if (headerType == typeof(int))
 				{
 					value = reader.ReadInt32();
 				}
-				else if (type2 == typeof(float))
+				else if (headerType == typeof(float))
 				{
 					value = reader.ReadSingle();
 				}
-				else if (type2.IsArray)
+				else if (headerType.IsArray)
 				{
-					int num2 = reader.ReadInt32();
-					Type elementType = type2.GetElementType();
+					int arraySize = reader.ReadInt32();
+					Type elementType = headerType.GetElementType();
 					if (elementType == typeof(Vector2))
 					{
-						Vector2[] array = new Vector2[num2];
-						value = array;
-						for (int j = 0; j < num2; j++)
+						Vector2[] vectors = new Vector2[arraySize];
+						value = vectors;
+						for (int j = 0; j < arraySize; ++j)
 						{
-							array[j] = reader.ReadVector2();
+							vectors[j] = reader.ReadVector2();
 						}
 					}
 					else if (elementType == typeof(float))
 					{
-						float[] array2 = new float[num2];
-						value = array2;
-						for (int k = 0; k < num2; k++)
+						float[] floats = new float[arraySize];
+						value = floats;
+						for (int j = 0; j < arraySize; ++j)
 						{
-							array2[k] = reader.ReadSingle();
+							floats[j] = reader.ReadSingle();
 						}
 					}
 					else
 					{
-						Array array3 = Array.CreateInstance(elementType, num2);
-						value = array3;
-						for (int l = 0; l < num2; l++)
+						Array array = Array.CreateInstance(elementType, arraySize);
+						value = array;
+						for (int j = 0; j < arraySize; ++j)
 						{
-							array3.SetValue(DeserializeSingleObject(elementType, field?.FieldType), l);
+							array.SetValue(DeserializeSingleObject(elementType, field?.FieldType), j);
 						}
 					}
 				}
 				else
 				{
-					value = DeserializeSingleObject(type2, field?.FieldType);
+					value = DeserializeSingleObject(headerType, field?.FieldType);
 				}
 				field?.SetValue(obj, value);
 			}
@@ -255,21 +276,21 @@ namespace LoadingScreenModRevisited
 		/// Based on ColossalFramework.Packaging.PackageDeserializer.DeserializeGameObject.
 		/// Custom Asset Loader Postfixes this.
 		/// </summary>
-		/// <returns></returns>
-		/// <exception cref="InvalidDataException"></exception>
+		/// <returns>Deserialized GameObject</returns>
+		/// <exception cref="InvalidDataException">Thrown if GameObject type is unknown</exception>
 		private UnityEngine.Object DeserializeGameObject()
 		{
 			GameObject gameObject = new GameObject(reader.ReadString());
 			gameObject.tag = reader.ReadString();
 			gameObject.layer = reader.ReadInt32();
 			gameObject.SetActive(reader.ReadBoolean());
-			int num = reader.ReadInt32();
+			int count = reader.ReadInt32();
 
 			// Insert to gamecode.
-			isMain = isTop || num > 3;
+			isMain = isTop || count > 3;
 
 			// Unwrapped ColossalFramework.Packaging.PackageDeserializer.DeserializeComponent.
-			for (int i = 0; i < num; i++)
+			for (int i = 0; i < count; ++i)
 			{
 				if (!DeserializeHeader(out var type))
 				{
@@ -311,37 +332,36 @@ namespace LoadingScreenModRevisited
 		}
 
 
-		// Replace with reverse patch.
-		// ColossalFramework.Packaging.PackageDeserializer
-		//internal static void DeserializeAnimator(Package package, Animator animator, PackageReader reader)
-
-		private void DeserializeAnimator(Animator animator)
+		/// <summary>
+		/// Deserializes a mesh.
+		/// Local implementation of ColossalFramework.Packaging.PackageDeserializer.DeserializeMesh.
+		/// </summary>
+		/// <returns>Deserialized mesh</returns>
+		private UnityEngine.Object DeserializeMesh()
 		{
-			animator.applyRootMotion = reader.ReadBoolean();
-			animator.updateMode = (AnimatorUpdateMode)reader.ReadInt32();
-			animator.cullingMode = (AnimatorCullingMode)reader.ReadInt32();
+			Mesh mesh = new Mesh();
+			mesh.name = reader.ReadString();
+			mesh.vertices = reader.ReadVector3Array();
+			mesh.colors = reader.ReadColorArray();
+			mesh.uv = reader.ReadVector2Array();
+			mesh.normals = reader.ReadVector3Array();
+			mesh.tangents = reader.ReadVector4Array();
+			mesh.boneWeights = reader.ReadBoneWeightsArray();
+			mesh.bindposes = reader.ReadMatrix4x4Array();
+			mesh.subMeshCount = reader.ReadInt32();
+			for (int i = 0; i < mesh.subMeshCount; ++i)
+			{
+				mesh.SetTriangles(reader.ReadInt32Array(), i);
+			}
+			return mesh;
 		}
 
 
-		// Replace with reverse patch.
-		// ColossalFramework.Packaging.PackageDeserializer
-		// internal static Object DeserializeTexture(Package package, PackageReader reader)
-		private UnityEngine.Object DeserializeTexture()
-		{
-			string name = reader.ReadString();
-			bool linear = reader.ReadBoolean();
-			int anisoLevel = ((package.version < 6) ? 1 : reader.ReadInt32());
-			int count = reader.ReadInt32();
-			Texture2D texture2D = new Image(reader.ReadBytes(count)).CreateTexture(linear);
-			texture2D.name = name;
-			texture2D.anisoLevel = anisoLevel;
-			return texture2D;
-		}
-
-
-		// ColossalFramework.Packaging.PackageDeserializer
-		// internal static Object DeserializeMaterial(Package package, PackageReader reader)
-		// LSM sharing inserts
+		/// <summary>
+		/// Deserializes a material.
+		/// Local implementation of ColossalFramework.Packaging.PackageDeserializer.DeserializeMaterial.
+		/// </summary>
+		/// <returns>Deserialized material</returns>
 		private MaterialData DeserializeMaterial()
 		{
 			string name = reader.ReadString();
@@ -355,31 +375,31 @@ namespace LoadingScreenModRevisited
 			{
 				switch (reader.ReadInt32())
 				{
-				case 0:
-					material.SetColor(reader.ReadString(), reader.ReadColor());
-					break;
-				case 1:
-					material.SetVector(reader.ReadString(), reader.ReadVector4());
-					break;
-				case 2:
-					material.SetFloat(reader.ReadString(), reader.ReadSingle());
-					break;
-				case 3:
-				{
-					string name2 = reader.ReadString();
-					if (!reader.ReadBoolean())
-					{
-						string checksum = reader.ReadString();
-						texture2D = instance.GetTexture(checksum, package, isMain);
-						material.SetTexture(name2, texture2D);
-						num2++;
-					}
-					else
-					{
-						material.SetTexture(name2, null);
-					}
-					break;
-				}
+					case 0:
+						material.SetColor(reader.ReadString(), reader.ReadColor());
+						break;
+					case 1:
+						material.SetVector(reader.ReadString(), reader.ReadVector4());
+						break;
+					case 2:
+						material.SetFloat(reader.ReadString(), reader.ReadSingle());
+						break;
+					case 3:
+						{
+							string name2 = reader.ReadString();
+							if (!reader.ReadBoolean())
+							{
+								string checksum = reader.ReadString();
+								texture2D = instance.GetTexture(checksum, package, isMain);
+								material.SetTexture(name2, texture2D);
+								num2++;
+							}
+							else
+							{
+								material.SetTexture(name2, null);
+							}
+							break;
+						}
 				}
 			}
 			MaterialData materialData = new MaterialData(material, num2);
@@ -391,34 +411,37 @@ namespace LoadingScreenModRevisited
 		}
 
 
-		// Replace with reverse patch.
-		// ColossalFramework.Packaging.PackageDeserializer
-		// internal static void DeserializeTransform(Package package, Transform transform, PackageReader reader)
-		private void DeserializeTransform(Transform transform)
+		/// <summary>
+		/// Deserializes a texture.
+		/// Local implementation of ColossalFramework.Packaging.PackageDeserializer.DeserializeTexture.
+		/// </summary>
+		/// <param name="animator">Animator to deserialize</param>
+		private UnityEngine.Object DeserializeTexture()
 		{
-			transform.localPosition = reader.ReadVector3();
-			transform.localRotation = reader.ReadQuaternion();
-			transform.localScale = reader.ReadVector3();
+			string name = reader.ReadString();
+			bool linear = reader.ReadBoolean();
+			int anisoLevel = ((package.version < 6) ? 1 : reader.ReadInt32());
+			int count = reader.ReadInt32();
+			Texture2D texture2D = new Image(reader.ReadBytes(count)).CreateTexture(linear);
+			texture2D.name = name;
+			texture2D.anisoLevel = anisoLevel;
+			return texture2D;
 		}
 
 
-
-		// Replace with reverse patch.
-		// ColossalFramework.Packaging.PackageDeserializer
-		// internal static void DeserializeMeshFilter(Package package, MeshFilter meshFilter, PackageReader reader)
-		private void DeserializeMeshFilter(MeshFilter meshFilter)
+		/// <summary>
+		/// Deserializes a scriptable object.
+		/// Based on ColossalFramework.Packaging.PackageDeserializer.DeserializeScriptableObject.
+		/// </summary>
+		/// <param name="type">Object type</param>
+		/// <returns>Deserialized object</returns>
+		private UnityEngine.Object DeserializeScriptableObject(Type type)
 		{
-			meshFilter.sharedMesh = Instance<Sharing>.instance.GetMesh(reader.ReadString(), package, isMain);
-		}
-
-
-		// Replace with reverse patch.
-		// ColossalFramework.Packaging.PackageDeserializer
-		// internal static void DeserializeMonoBehaviour(Package package, MonoBehaviour behaviour, PackageReader reader)
-		// Note that deserializefields is the same as object and scriptableobject.
-		private void DeserializeMonoBehaviour(MonoBehaviour behaviour)
-		{
-			DeserializeFields(behaviour, behaviour.GetType(), resolveMember: false);
+			// Skip gamecode custom deserializer check.
+			ScriptableObject scriptableObject = ScriptableObject.CreateInstance(type);
+			scriptableObject.name = reader.ReadString();
+			DeserializeFields(scriptableObject, type, resolveMember: false);
+			return scriptableObject;
 		}
 
 
@@ -430,7 +453,6 @@ namespace LoadingScreenModRevisited
 		private object DeserializeObject(Type type)
 		{
 			// Skips gamecode custom deserializer check.
-
 			object obj = Activator.CreateInstance(type);
 			reader.ReadString();
 			DeserializeFields(obj, type, resolveMember: true);
@@ -439,7 +461,31 @@ namespace LoadingScreenModRevisited
 
 
 		/// <summary>
-		/// Deserializaes a mesh renderer.
+		/// Deserializes a transform.
+		/// Local implementation of ColossalFramework.Packaging.PackageDeserializer.DeserializeTransform.
+		/// </summary>
+		/// <param name="transform">Transform to deserialize.</param>
+		private void DeserializeTransform(Transform transform)
+		{
+			transform.localPosition = reader.ReadVector3();
+			transform.localRotation = reader.ReadQuaternion();
+			transform.localScale = reader.ReadVector3();
+		}
+
+
+		/// <summary>
+		/// Deserializes a mesh filter.
+		/// Implements mesh sharing.
+		/// </summary>
+		/// <param name="meshFilter">Mesh filter to deserialize</param>
+		private void DeserializeMeshFilter(MeshFilter meshFilter)
+		{
+			meshFilter.sharedMesh = Instance<Sharing>.instance.GetMesh(reader.ReadString(), package, isMain);
+		}
+
+
+		/// <summary>
+		/// Deserializes a mesh renderer.
 		/// Implements mesh sharing.
 		/// </summary>
 		/// <param name="renderer">Renderer to deserialize</param>
@@ -457,20 +503,15 @@ namespace LoadingScreenModRevisited
 
 
 		/// <summary>
-		/// Gets a reader for the specified stream.
+		/// Deserializes a generic MonoBehaviour object.
+		/// Local implementation of ColossalFramework.Packaging.PackageDeserializer.DeserializeMonoBehaviour with slightly faster performance.
 		/// </summary>
-		/// <param name="stream">Stream to read from</param>
-		/// <returns>New MemReader (if stream is MemStream) or PackageReader (otherwise)</returns>
-		private static PackageReader GetReader(Stream stream)
+		/// <param name="behaviour">MonoBehaviour to deserialize</param>
+		private void DeserializeMonoBehaviour(MonoBehaviour behaviour)
 		{
-			// If this is a MemStream, return a new MemReader.
-			if (stream is MemStream memStream)
-			{
-				return new MemReader(memStream);
-			}
-
-			// Otherwise, return a new PackageReader.
-			return new PackageReader(stream);
+			Logging.Message("DeserializeMonoBehavior");
+			// DeserializeFields speeds loads with known data types.
+			DeserializeFields(behaviour, behaviour.GetType(), resolveMember: false);
 		}
 
 
@@ -492,33 +533,29 @@ namespace LoadingScreenModRevisited
 		}
 
 
-		// Replace with reverse patch.
-		// ColossalFramework.Packaging.PackageDeserializer
-		// internal static Object DeserializeMesh(Package package, PackageReader reader)
-		private UnityEngine.Object DeserializeMesh()
+		/// <summary>
+		/// Deserializes an animator.
+		/// Local implementation of ColossalFramework.Packaging.PackageDeserializer.
+		/// </summary>
+		/// <param name="animator">Animator to deserialize</param>
+		private void DeserializeAnimator(Animator animator)
 		{
-			Mesh mesh = new Mesh();
-			mesh.name = reader.ReadString();
-			mesh.vertices = reader.ReadVector3Array();
-			mesh.colors = reader.ReadColorArray();
-			mesh.uv = reader.ReadVector2Array();
-			mesh.normals = reader.ReadVector3Array();
-			mesh.tangents = reader.ReadVector4Array();
-			mesh.boneWeights = reader.ReadBoneWeightsArray();
-			mesh.bindposes = reader.ReadMatrix4x4Array();
-			mesh.subMeshCount = reader.ReadInt32();
-			for (int i = 0; i < mesh.subMeshCount; i++)
-			{
-				mesh.SetTriangles(reader.ReadInt32Array(), i);
-			}
-			return mesh;
+			animator.applyRootMotion = reader.ReadBoolean();
+			animator.updateMode = (AnimatorUpdateMode)reader.ReadInt32();
+			animator.cullingMode = (AnimatorCullingMode)reader.ReadInt32();
 		}
-		
-		
-		// ColossalFramework.Packaging.AssetSerializer
-		// Reverse patch
+
+
+		/// <summary>
+		/// Deserializes an asset header to determine its type.
+		/// Local implementation of ColossalFramework.Packaging.AssetSerializer.DeserializeHeader (non-public type).
+		/// </summary>
+		/// <param name="type">Asset type (from header)</param>
+		/// <returns>True if a known type was extracted, false otherwise (after throwing an exception)</returns>
+		/// <exception cref="InvalidDataException">Unknown type</exception>
 		private bool DeserializeHeader(out Type type)
 		{
+			// TODO: Reverse patch.
 			type = null;
 			if (reader.ReadBoolean())
 			{
@@ -542,11 +579,17 @@ namespace LoadingScreenModRevisited
 		}
 
 
-		// Replace with reverse patch.
-		// ColossalFramework.Packaging.AssetSerializer
-		// public static bool DeserializeHeader(out Type type, out string name, PackageReader reader)
+		/// <summary>
+		/// Deserializes an asset header to determine its type and name.
+		/// Local implementation of ColossalFramework.Packaging.AssetSerializer.DeserializeHeader (non-public type).
+		/// </summary>
+		/// <param name="type">Asset type (from header)</param>
+		/// <param name="name">Asset name (from header)</param>
+		/// <returns>True if a known type was extracted, false otherwise (after throwing an exception)</returns>
+		/// <exception cref="InvalidDataException">Unknown type</exception>
 		private bool DeserializeHeader(out Type type, out string name)
 		{
+			// TODO: reverese patch.
 			type = null;
 			name = null;
 			if (reader.ReadBoolean())
@@ -572,9 +615,12 @@ namespace LoadingScreenModRevisited
 		}
 
 
-		// Replace with reverse patch.
-		// ColossalFramework.Packaging.AssetSerializer
-		// private static int HandleUnknownType(string type, PackageReader reader)
+		/// <summary>
+		/// Attempts to handle any unknown types returned from asset headers.
+		/// ColossalFramework.Packaging.AssetSerializer.HandleUnknownType (non-public type).
+		/// </summary>
+		/// <param name="type">Type</param>
+		/// <returns>Number of bytes read (-1 if none)</returns>
 		private int HandleUnknownType(string type)
 		{
 			int num = PackageHelper.UnknownTypeHandler(type);
@@ -595,7 +641,7 @@ namespace LoadingScreenModRevisited
 		/// </summary>
 		/// <param name="type">Type to resolve</param>
 		/// <returns>Resolved type text (unchanged if no conversion was found)</returns>
-		private static string ResolveLegacyType(string type)
+		private string ResolveLegacyType(string type)
 		{
 			string text = PackageHelper.ResolveLegacyTypeHandler(type);
 			CODebugBase<InternalLogChannel>.Warn(InternalLogChannel.Packer, "Unkown type detected. Attempting to resolve from '" + type + "' to '" + text + "'");
@@ -606,7 +652,15 @@ namespace LoadingScreenModRevisited
 		// Replace with reverse patch.
 		// ColossalFramework.Packaging.PackageDeserializer
 		// internal static string ResolveLegacyMember(Type fieldType, Type classType, string member)
-		private static string ResolveLegacyMember(Type fieldType, Type classType, string member)
+
+		/// <summary>
+		/// Attempts to resolve any legacy members using the game's legacy member handler.
+		/// </summary>
+		/// <param name="fieldType">Field type to resolve</param>
+		/// <param name="classType">Class type to resolve</param>
+		/// <param name="member">Member name</param>
+		/// <returns>Updated member name (if available), or original text</returns>
+		private string ResolveLegacyMember(Type fieldType, Type classType, string member)
 		{
 			string text = PackageHelper.ResolveLegacyMemberHandler(classType, member);
 			CODebugBase<InternalLogChannel>.Warn(InternalLogChannel.Packer, "Unkown member detected of type " + fieldType.FullName + " in " + classType.FullName + ". Attempting to resolve from '" + member + "' to '" + text + "'");

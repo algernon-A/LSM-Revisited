@@ -709,7 +709,7 @@ namespace LoadingScreenModRevisited
 			// Check that text isn't null and we haven't already recorded this asset as missing or having failed.
 			if (fullName != null && LevelLoader.AddFailed(fullName))
 			{
-				Logging.Error("asset missing: ", fullName);
+				Logging.KeyMessage("asset missing: ", fullName);
 
 				// Display missing asset name unless we're supressing this one as a known missing asset.
 				if (!hiddenAssets.Contains(fullName))
