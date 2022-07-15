@@ -1,5 +1,7 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using System.Reflection;
+using ColossalFramework.Packaging;
 using HarmonyLib;
 using CitiesHarmony.API;
 
@@ -35,6 +37,10 @@ namespace LoadingScreenModRevisited
                     // Apply all annotated patches and update flag.
                     Harmony harmonyInstance = new Harmony(harmonyID);
                     harmonyInstance.PatchAll();
+
+                    // Apply asset serializer reverse patches.
+                    ApplyAssetSerializerReverses();
+
                     _patched = true;
                 }
                 else
@@ -88,6 +94,28 @@ namespace LoadingScreenModRevisited
             harmonyInstance.Unpatch(target, patch);
         }
 
+
+        /// <summary>
+        /// Applies reverse patches to access methods of private type ColossalFramework.Packaging.AssetSerializer.
+        /// </summary>
+        private static void ApplyAssetSerializerReverses()
+        {
+            // No try...catch here, if something goes wrong we want to have the unmanaged exception (at least for now).
+            // Any failure needs to be immediately obvious to the user.
+            // TODO: More graceful disabling and user notification.
+
+            // Reflect AssetSerializer target methods.
+            Type assetSerializer = Type.GetType("ColossalFramework.Packaging.AssetSerializer,ColossalManaged");
+            MethodInfo deserializeHeader = assetSerializer.GetMethod("DeserializeHeader", BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(Type).MakeByRefType(), typeof(PackageReader) }, null);
+            MethodInfo deserializeHeaderName = assetSerializer.GetMethod("DeserializeHeader", BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(Type).MakeByRefType(), typeof(string).MakeByRefType(), typeof(PackageReader) }, null);
+
+            // Reverse patch.
+            Harmony harmonyInstance = new Harmony(harmonyID);
+            ReversePatcher reversePatcher = harmonyInstance.CreateReversePatcher(deserializeHeader, new HarmonyMethod(typeof(AssetDeserializer).GetMethod(nameof(AssetDeserializer.DeserializeHeader), BindingFlags.Static | BindingFlags.NonPublic)));
+            ReversePatcher reversePatcherName = harmonyInstance.CreateReversePatcher(deserializeHeaderName, new HarmonyMethod(typeof(AssetDeserializer).GetMethod(nameof(AssetDeserializer.DeserializeHeaderName), BindingFlags.Static | BindingFlags.NonPublic)));
+            reversePatcher.Patch();
+            reversePatcherName.Patch();
+        }
 
 
         /// <summary>

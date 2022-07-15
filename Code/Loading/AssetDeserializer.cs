@@ -1,10 +1,11 @@
 using System;
 using System.IO;
 using System.Reflection;
-using ColossalFramework;
+using System.Runtime.CompilerServices;
 using ColossalFramework.Importers;
 using ColossalFramework.Packaging;
 using UnityEngine;
+using HarmonyLib;
 using LoadingScreenMod;
 
 
@@ -81,6 +82,35 @@ namespace LoadingScreenModRevisited
 
 
 		/// <summary>
+		/// Harmomny reverse-patched method stub for AssetSerializer.DeserializeHeader(out Type, PackageReader).
+		/// </summary>
+		/// <param name="type">Asset type</param>
+		/// <param name="reader">PackageReader instance</param>
+		/// <returns>True if a known type was extracted, false otherwise (after throwing an exception)</returns>
+		/// <exception cref="NotImplementedException">Thrown if reverse patch wasn't successful</exception>
+		[MethodImpl(MethodImplOptions.NoInlining)]
+		internal static bool DeserializeHeader(out Type type, PackageReader reader)
+		{
+			Logging.Error("DeserializeHeader reverse Harmony patch wasn't applied with params ", reader);
+			throw new NotImplementedException();
+		}
+
+		/// <summary>
+		/// Harmomny reverse-patched method stub for AssetSerializer.DeserializeHeader(out Type, out string, PackageReader).
+		/// </summary>
+		/// <param name="type">Asset type</param
+		/// <param name="name">Asset name</param>
+		/// <param name="reader">PackageReader instance</param>
+		/// <returns>True if a known type was extracted, false otherwise (after throwing an exception)</returns>
+		[MethodImpl(MethodImplOptions.NoInlining)]
+		internal static bool DeserializeHeaderName(out Type type, out string name, PackageReader reader)
+		{
+			Logging.Error("DeserializeHeaderName reverse Harmony patch wasn't applied with params ", reader);
+			throw new NotImplementedException();
+		}
+
+
+		/// <summary>
 		/// Constructor.
 		/// </summary>
 		/// <param name="package">Package</param>
@@ -121,7 +151,7 @@ namespace LoadingScreenModRevisited
 		/// <returns>Deserialized object</returns>
 		private object Deserialize()
 		{
-			if (!DeserializeHeader(out Type type))
+			if (!DeserializeHeader(out Type type, reader))
 			{
 				return null;
 			}
@@ -206,7 +236,7 @@ namespace LoadingScreenModRevisited
 			int fieldCount = reader.ReadInt32();
 			for (int i = 0; i < fieldCount; ++i)
 			{
-				if (!DeserializeHeader(out Type headerType, out string name))
+				if (!DeserializeHeaderName(out Type headerType, out string name, reader))
 				{
 					continue;
 				}
@@ -292,7 +322,7 @@ namespace LoadingScreenModRevisited
 			// Unwrapped ColossalFramework.Packaging.PackageDeserializer.DeserializeComponent.
 			for (int i = 0; i < count; ++i)
 			{
-				if (!DeserializeHeader(out var type))
+				if (!DeserializeHeader(out Type type, reader))
 				{
 					continue;
 				}
@@ -546,125 +576,24 @@ namespace LoadingScreenModRevisited
 		}
 
 
-		/// <summary>
-		/// Deserializes an asset header to determine its type.
-		/// Local implementation of ColossalFramework.Packaging.AssetSerializer.DeserializeHeader (non-public type).
-		/// </summary>
-		/// <param name="type">Asset type (from header)</param>
-		/// <returns>True if a known type was extracted, false otherwise (after throwing an exception)</returns>
-		/// <exception cref="InvalidDataException">Unknown type</exception>
-		private bool DeserializeHeader(out Type type)
-		{
-			// TODO: Reverse patch.
-			type = null;
-			if (reader.ReadBoolean())
-			{
-				return false;
-			}
-			string text = reader.ReadString();
-			type = Type.GetType(text);
-			if (type == null)
-			{
-				type = Type.GetType(ResolveLegacyType(text));
-				if (type == null)
-				{
-					if (HandleUnknownType(text) < 0)
-					{
-						throw new InvalidDataException("Unknown type to deserialize " + text);
-					}
-					return false;
-				}
-			}
-			return true;
-		}
+
 
 
 		/// <summary>
-		/// Deserializes an asset header to determine its type and name.
-		/// Local implementation of ColossalFramework.Packaging.AssetSerializer.DeserializeHeader (non-public type).
-		/// </summary>
-		/// <param name="type">Asset type (from header)</param>
-		/// <param name="name">Asset name (from header)</param>
-		/// <returns>True if a known type was extracted, false otherwise (after throwing an exception)</returns>
-		/// <exception cref="InvalidDataException">Unknown type</exception>
-		private bool DeserializeHeader(out Type type, out string name)
-		{
-			// TODO: reverese patch.
-			type = null;
-			name = null;
-			if (reader.ReadBoolean())
-			{
-				return false;
-			}
-			string text = reader.ReadString();
-			type = Type.GetType(text);
-			name = reader.ReadString();
-			if (type == null)
-			{
-				type = Type.GetType(ResolveLegacyType(text));
-				if (type == null)
-				{
-					if (HandleUnknownType(text) < 0)
-					{
-						throw new InvalidDataException("Unknown type to deserialize " + text);
-					}
-					return false;
-				}
-			}
-			return true;
-		}
-
-
-		/// <summary>
-		/// Attempts to handle any unknown types returned from asset headers.
-		/// ColossalFramework.Packaging.AssetSerializer.HandleUnknownType (non-public type).
-		/// </summary>
-		/// <param name="type">Type</param>
-		/// <returns>Number of bytes read (-1 if none)</returns>
-		private int HandleUnknownType(string type)
-		{
-			int num = PackageHelper.UnknownTypeHandler(type);
-			CODebugBase<InternalLogChannel>.Warn(InternalLogChannel.Packer, "Unexpected type '" + type + "' detected. No resolver handled this type. Skipping " + num + " bytes.");
-			if (num > 0)
-			{
-				reader.ReadBytes(num);
-				return num;
-			}
-			return -1;
-		}
-
-
-		/// <summary>
-		/// Attempts to resolve any legacy types using the game's legacy type handler.
-		/// Replace with reverse patch to ColossalFramework.Packaging.PackageDeserializer
-		/// internal static string ResolveLegacyType(string type)
-		/// </summary>
-		/// <param name="type">Type to resolve</param>
-		/// <returns>Resolved type text (unchanged if no conversion was found)</returns>
-		private string ResolveLegacyType(string type)
-		{
-			string text = PackageHelper.ResolveLegacyTypeHandler(type);
-			CODebugBase<InternalLogChannel>.Warn(InternalLogChannel.Packer, "Unkown type detected. Attempting to resolve from '" + type + "' to '" + text + "'");
-			return text;
-		}
-
-
-		// Replace with reverse patch.
-		// ColossalFramework.Packaging.PackageDeserializer
-		// internal static string ResolveLegacyMember(Type fieldType, Type classType, string member)
-
-		/// <summary>
+		/// Harmomny reverse-patched method stub for PackageDeserializer.ResolveLegacyMember.
 		/// Attempts to resolve any legacy members using the game's legacy member handler.
 		/// </summary>
 		/// <param name="fieldType">Field type to resolve</param>
 		/// <param name="classType">Class type to resolve</param>
 		/// <param name="member">Member name</param>
 		/// <returns>Updated member name (if available), or original text</returns>
+		[HarmonyReversePatch]
+		[HarmonyPatch(typeof(PackageDeserializer), "ResolveLegacyMember")] 
+		[MethodImpl(MethodImplOptions.NoInlining)]
 		private string ResolveLegacyMember(Type fieldType, Type classType, string member)
 		{
-			string text = PackageHelper.ResolveLegacyMemberHandler(classType, member);
-			CODebugBase<InternalLogChannel>.Warn(InternalLogChannel.Packer, "Unkown member detected of type " + fieldType.FullName + " in " + classType.FullName + ". Attempting to resolve from '" + member + "' to '" + text + "'");
-			return text;
+			Logging.Error("DeserializeHeaderName reverse Harmony patch wasn't applied with params ", fieldType, classType, member);
+			throw new NotImplementedException();
 		}
 	}
 }
