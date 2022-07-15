@@ -21,9 +21,8 @@ namespace LSM
         /// </summary>
         /// <param name="package">Package containing the material</param>
         /// <param name="checksum">Material checksum</param>
-        /// <param name="isMain">True if the requested material is the main material, false if LOD material</param>
         /// <returns>Shared material (null if unsuccessful)</returns>
-        public static Material GetMaterial(Package package, string checksum, bool isMain) => Instance<Sharing>.instance?.GetMaterial(checksum, package, isMain);
+        public static Material GetMaterial(Package package, string checksum) => Instance<Sharing>.instance?.GetMaterial(checksum, package);
 
 
         /// <summary>
@@ -33,7 +32,7 @@ namespace LSM
         /// <param name="checksum">Mesh checksum</param>
         /// <param name="isMain">True if the requested material is the main Mesh, false if LOD Mesh</param>
         /// <returns>Shared mesh (null if unsuccessful)</returns>
-        public static Mesh GetMesh(Package package, string checksum, bool isMain) => Instance<Sharing>.instance?.GetMesh(checksum, package, isMain);
+        public static Mesh GetMesh(Package package, string checksum) => Instance<Sharing>.instance?.GetMesh(checksum, package);
 
 
         /// <summary>

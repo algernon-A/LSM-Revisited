@@ -547,6 +547,9 @@ namespace LoadingScreenMod
 			};
 		}
 
+		// Temp insert.
+		internal Mesh GetMesh(string checksum, Package package) => GetMesh(checksum, package, true) ?? GetMesh(checksum, package, false);
+
 		internal Mesh GetMesh(string checksum, Package package, bool isMain)
 		{
 			Triple val;
@@ -704,6 +707,9 @@ namespace LoadingScreenMod
 			}
 			return value;
 		}
+
+		// Temp insert.
+		internal Material GetMaterial(string checksum, Package package) => GetMaterial(checksum, package, true) ?? GetMaterial(checksum, package, false);
 
 		internal Material GetMaterial(string checksum, Package package, bool isMain)
 		{
