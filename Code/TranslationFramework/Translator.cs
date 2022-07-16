@@ -251,12 +251,20 @@ namespace LoadingScreenModRevisited
         {
             try
             {
-                // Attempt to find any other suitable translation file, or default if nothing better is available.
-                Language fallbackLanguage = FindLanguage(attemptedLanguage);
-                if (fallbackLanguage != null)
+                // Attempt to find any other suitable translation file (code matches first two letters).
+                string shortCode = attemptedLanguage.Substring(0, 2);
+                foreach (KeyValuePair<string, Language> entry in languages)
                 {
-                    return fallbackLanguage.translationDictionary[key];
+                    if (entry.Key.StartsWith(shortCode) && entry.Value.translationDictionary.TryGetValue(key, out string result))
+                    {
+                        // Found an alternative.
+                        return result;
+                    }
                 }
+
+                // No alternative was found - return default language.
+                return languages[defaultLanguage].translationDictionary[key];
+
             }
             catch (Exception e)
             {

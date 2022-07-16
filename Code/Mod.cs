@@ -1,6 +1,6 @@
-﻿using ICities;
-using CitiesHarmony.API;
-using LoadingScreenMod;
+﻿using CitiesHarmony.API;
+using ColossalFramework.UI;
+using ICities;
 
 
 namespace LoadingScreenModRevisited
@@ -24,6 +24,18 @@ namespace LoadingScreenModRevisited
 			// Apply Harmony patches via Cities Harmony.
 			// Called here instead of OnCreated to allow the auto-downloader to do its work prior to launch.
 			HarmonyHelper.DoOnHarmonyReady(() => Patcher.PatchAll());
+
+			// Attaching options panel event hook - check to see if UIView is ready.
+			if (UIView.GetAView() != null)
+			{
+				// It's ready - attach the hook now.
+				OptionsPanelManager.OptionsEventHook();
+			}
+			else
+			{
+				// Otherwise, queue the hook for when the intro's finished loading.
+				LoadingManager.instance.m_introLoaded += OptionsPanelManager.OptionsEventHook;
+			}
 		}
 
 		public void OnDisabled()
@@ -44,8 +56,8 @@ namespace LoadingScreenModRevisited
 		/// </summary>
 		public void OnSettingsUI(UIHelperBase helper)
 		{
-			// Execute legacy settings.
-			LoadingScreenMod.Settings.settings.OnSettingsUI(helper);
+			// Create options panel.
+			OptionsPanelManager.Setup(helper);
 		}
 	}
 }

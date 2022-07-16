@@ -9,7 +9,7 @@ namespace LoadingScreenModRevisited
     public class Language
     {
         // Translation file keywords - readable name.
-        public static readonly string NameKey = "NAME";
+        public static readonly string NameKey = "LANGUAGE";
 
 
         // Dictionary of translations for this language.

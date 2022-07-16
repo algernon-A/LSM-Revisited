@@ -85,7 +85,7 @@ namespace LoadingScreenMod
 
 		private static string DefaultSkipFile => Path.Combine(Path.Combine(DataLocation.localApplicationData, "SkippedPrefabs"), "skip.txt");
 
-		private static string HiddenAssetsFile => Path.Combine(Path.Combine(DataLocation.localApplicationData, "HiddenAssets"), "hide.txt");
+		internal static string HiddenAssetsFile => Path.Combine(Path.Combine(DataLocation.localApplicationData, "HiddenAssets"), "hide.txt");
 
 		public static Settings settings
 		{
@@ -131,7 +131,7 @@ namespace LoadingScreenMod
 			return settings;
 		}
 
-		private void Save()
+		internal void Save()
 		{
 			try
 			{
@@ -485,7 +485,7 @@ namespace LoadingScreenMod
 			}
 		}
 
-		private void OnSkipFileChanged(string text)
+		internal void OnSkipFileChanged(string text)
 		{
 			if (text != skipFile)
 			{
@@ -496,7 +496,7 @@ namespace LoadingScreenMod
 			}
 		}
 
-		private void OnAssetsButton()
+		internal void OnAssetsButton()
 		{
 			string hiddenAssetsFile = HiddenAssetsFile;
 			if (!File.Exists(hiddenAssetsFile))
