@@ -29,9 +29,6 @@ namespace LoadingScreenModRevisited
 		/// <returns>True if the custom loader is activated (loading into game, or left control key is held down), false otherwise (fall through to default game code)</returns>
 		public static bool Prefix(ref Coroutine __result, LoadingManager __instance, Package.Asset asset, string playerScene, string uiScene, SimulationMetaData ngs, bool forceEnvironmentReload = false)
 		{
-			// TODO: Update internationalization.
-			L10n.SetCurrent();
-
 			// Custom loader is is active when loading into game, or otherwise when a control key is held down.
 			if (!(ngs.m_updateMode == SimulationManager.UpdateMode.LoadGame ||
 				ngs.m_updateMode == SimulationManager.UpdateMode.NewGameFromMap

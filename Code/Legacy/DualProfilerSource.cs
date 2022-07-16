@@ -12,11 +12,11 @@ namespace LoadingScreenMod
 
 		private readonly string name;
 
-		private readonly string failedStr = L10n.Get(" ", 0, " ");
+		private readonly string failedStr = ' ' + LoadingScreenModRevisited.Translations.Translate("FAILED") + ' ';
 
-		private readonly string missingStr = L10n.Get(" ", 1, " ");
+		private readonly string missingStr = ' ' + LoadingScreenModRevisited.Translations.Translate("MISSING") + ' ';
 
-		private readonly string duplicatesStr = L10n.Get(" ", 3);
+		private readonly string duplicatesStr = ' ' + LoadingScreenModRevisited.Translations.Translate("DUPLICATE") + ' ';
 
 		private int state;
 

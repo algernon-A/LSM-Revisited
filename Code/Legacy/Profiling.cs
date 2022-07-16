@@ -18,9 +18,9 @@ namespace LoadingScreenMod
 		internal static void Init()
 		{
 			Sink.builder.Length = 0;
-			FAILED = L10n.Get(" (", 0, ")");
-			DUPLICATE = L10n.Get(" (", 2, ")");
-			MISSING = L10n.Get(" (", 1, ")");
+			FAILED = " (" + LoadingScreenModRevisited.Translations.Translate("FAILED") + ')';
+			DUPLICATE = " (" + LoadingScreenModRevisited.Translations.Translate("DUPLICATE") + ')';
+			MISSING = " (" + LoadingScreenModRevisited.Translations.Translate("MISSING") + ')';
 			if (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)
 			{
 				MemoryAPI.pfMax = (MemoryAPI.wsMax = 0);

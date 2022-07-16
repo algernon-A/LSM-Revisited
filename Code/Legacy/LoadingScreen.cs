@@ -203,10 +203,10 @@ namespace LoadingScreenMod
 				textMaterial = new Material(uifont.material);
 				UIFontManager.Invalidate(uifont);
 				List<Text> list = new List<Text>(5);
-				list.Add(new Text(new Vector3(-1.3f, 0.7f, 10f), new DualProfilerSource(L10n.Get(4), 36)));
-				list.Add(new Text(new Vector3(-0.33f, -0.52f, 10f), new SimpleProfilerSource(L10n.Get(5), Singleton<LoadingManager>.instance.m_loadingProfilerMain)));
-				list.Add(new Text(new Vector3(-0.33f, -0.62f, 10f), new SimpleProfilerSource(L10n.Get(6), Singleton<LoadingManager>.instance.m_loadingProfilerSimulation)));
-				list.Add(new Text(new Vector3(-0.12f, 0.7f, 10f), new LineSource(L10n.Get(7), 2, LoadingScreenModRevisited.LevelLoader.AssetLoadingActive)));
+				list.Add(new Text(new Vector3(-1.3f, 0.7f, 10f), new DualProfilerSource(LoadingScreenModRevisited.Translations.Translate("SCENES_AND_ASSETS"), 36)));
+				list.Add(new Text(new Vector3(-0.33f, -0.52f, 10f), new SimpleProfilerSource(LoadingScreenModRevisited.Translations.Translate("MAIN"), Singleton<LoadingManager>.instance.m_loadingProfilerMain)));
+				list.Add(new Text(new Vector3(-0.33f, -0.62f, 10f), new SimpleProfilerSource(LoadingScreenModRevisited.Translations.Translate("SIMULATION"), Singleton<LoadingManager>.instance.m_loadingProfilerSimulation)));
+				list.Add(new Text(new Vector3(-0.12f, 0.7f, 10f), new LineSource(LoadingScreenModRevisited.Translations.Translate("ASSETS_LOADER"), 2, LoadingScreenModRevisited.LevelLoader.AssetLoadingActive)));
 				list.Add(new Text(new Vector3(-0.08f, 0.43f, 10f), new TimeSource(), 1.4f));
 				if (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)
 				{
@@ -270,7 +270,7 @@ namespace LoadingScreenMod
 			{
 				LineSource loaderSource = LoaderSource;
 				loaderSource.Add(assetsCount + " / " + assetsTotal);
-				loaderSource.Add(((float)assetsCount * 1000f / (float)(nowMillis - beginMillis)).ToString("G3") + L10n.Get(139));
+				loaderSource.Add(((float)assetsCount * 1000f / (float)(nowMillis - beginMillis)).ToString("G3") + LoadingScreenModRevisited.Translations.Translate("PER_SECOND"));
 			}
 		}
 

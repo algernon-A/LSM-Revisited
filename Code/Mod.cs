@@ -11,9 +11,8 @@ namespace LoadingScreenModRevisited
 	public sealed class LSMRMod : IUserMod
 	{
 		public static string ModName => "LSM Revisited";
-		public static string Version => "0.0.1";
 
-		public string Name => "Loading Screen Mod Revisited " + Version;
+		public string Name => "Loading Screen Mod Revisited " + ModUtils.CurrentVersion;
 		public string Description => "Optimizes game loading";
 
 
@@ -25,9 +24,6 @@ namespace LoadingScreenModRevisited
 			// Apply Harmony patches via Cities Harmony.
 			// Called here instead of OnCreated to allow the auto-downloader to do its work prior to launch.
 			HarmonyHelper.DoOnHarmonyReady(() => Patcher.PatchAll());
-
-			// Set legacy L10n.
-			L10n.SetCurrent();
 		}
 
 		public void OnDisabled()

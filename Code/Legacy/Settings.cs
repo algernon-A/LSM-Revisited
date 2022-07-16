@@ -220,20 +220,20 @@ namespace LoadingScreenMod
 				Directory.CreateDirectory(Path.GetDirectoryName(hiddenAssetsFile));
 				using (StreamWriter streamWriter = new StreamWriter(hiddenAssetsFile))
 				{
-					streamWriter.WriteLine(L10n.Get(79));
-					streamWriter.WriteLine(L10n.Get(80));
+					streamWriter.WriteLine(LoadingScreenModRevisited.Translations.Translate("AS_YOU_KNOW"));
+					streamWriter.WriteLine(LoadingScreenModRevisited.Translations.Translate("USING_THIS_FILE"));
 					if (hidden.Count > 0)
 					{
-						WriteLines(streamWriter, L10n.Get(81), hidden.ToArray(), tag: false);
+						WriteLines(streamWriter, LoadingScreenModRevisited.Translations.Translate("THESE_ARE_NOT_REPORTED"), hidden.ToArray(), tag: false);
 					}
 					string[] array = missing.Where((string s) => !hidden.Contains(s)).ToArray();
 					string[] array2 = duplicates.Where((string s) => !hidden.Contains(s)).ToArray();
 					if (array.Length != 0 || array2.Length != 0)
 					{
 						streamWriter.WriteLine();
-						streamWriter.WriteLine(L10n.Get(82));
-						WriteLines(streamWriter, L10n.Get(83), array, tag: true);
-						WriteLines(streamWriter, L10n.Get(84), array2, tag: true);
+						streamWriter.WriteLine(LoadingScreenModRevisited.Translations.Translate("LSM_REPORTED_THESE"));
+						WriteLines(streamWriter, LoadingScreenModRevisited.Translations.Translate("REPORTED_MISSING"), array, tag: true);
+						WriteLines(streamWriter, LoadingScreenModRevisited.Translations.Translate("REPORTED_DUPLICATE"), array2, tag: true);
 					}
 				}
 			}
@@ -273,7 +273,7 @@ namespace LoadingScreenMod
 				Directory.CreateDirectory(Path.GetDirectoryName(hiddenAssetsFile));
 				using (StreamWriter streamWriter = new StreamWriter(hiddenAssetsFile))
 				{
-					streamWriter.WriteLine(L10n.Get(85));
+					streamWriter.WriteLine(LoadingScreenModRevisited.Translations.Translate("GO_AHEAD"));
 				}
 			}
 			catch (Exception)
@@ -297,10 +297,9 @@ namespace LoadingScreenMod
 
 		internal void OnSettingsUI(UIHelperBase newHelper)
 		{
-			L10n.SetCurrent();
 			if (!BuildConfig.applicationVersion.StartsWith("1.14"))
 			{
-				CreateGroup(newHelper, L10n.Get(9), L10n.Get(86));
+				CreateGroup(newHelper, LoadingScreenModRevisited.Translations.Translate("MAJOR_GAME_UPDATE"), LoadingScreenModRevisited.Translations.Translate("INCOMPATIBLE_VERSION"));
 				return;
 			}
 			UIComponent uIComponent = Self(helper);
@@ -309,36 +308,36 @@ namespace LoadingScreenMod
 				uIComponent.eventVisibilityChanged -= OnVisibilityChanged;
 			}
 			helper = newHelper;
-			string tooltip = L10n.Get(94);
-			UIHelper group = CreateGroup(newHelper, L10n.Get(87), L10n.Get(88));
-			Check(group, L10n.Get(89), L10n.Get(90), loadEnabled, delegate(bool b)
+			string tooltip = LoadingScreenModRevisited.Translations.Translate("REPLACE_DUPLICATES");
+			UIHelper group = CreateGroup(newHelper, LoadingScreenModRevisited.Translations.Translate("LOADING_OPTIONS_FOR_ASSETS"), LoadingScreenModRevisited.Translations.Translate("CUSTOM_MEANS"));
+			Check(group, LoadingScreenModRevisited.Translations.Translate("LOAD_ENABLED_ASSETS"), LoadingScreenModRevisited.Translations.Translate("LOAD_ENABLED_IN_CM"), loadEnabled, delegate(bool b)
 			{
 				loadEnabled = b;
 				LoadingScreenModRevisited.LevelLoader.Reset();
 				Save();
 			});
-			Check(group, L10n.Get(91), L10n.Get(92), loadUsed, delegate(bool b)
+			Check(group, LoadingScreenModRevisited.Translations.Translate("LOAD_USED_ASSETS"), LoadingScreenModRevisited.Translations.Translate("LOAD_USED_IN_YOUR_CITY"), loadUsed, delegate(bool b)
 			{
 				loadUsed = b;
 				LoadingScreenModRevisited.LevelLoader.Reset();
 				Save();
 			});
-			Check(group, L10n.Get(93), tooltip, shareTextures, delegate(bool b)
+			Check(group, LoadingScreenModRevisited.Translations.Translate("SHARE_TEXTURES"), tooltip, shareTextures, delegate(bool b)
 			{
 				shareTextures = b;
 				Save();
 			});
-			Check(group, L10n.Get(95), tooltip, shareMaterials, delegate(bool b)
+			Check(group, LoadingScreenModRevisited.Translations.Translate("SHARE_MATERIALS"), tooltip, shareMaterials, delegate(bool b)
 			{
 				shareMaterials = b;
 				Save();
 			});
-			Check(group, L10n.Get(96), tooltip, shareMeshes, delegate(bool b)
+			Check(group, LoadingScreenModRevisited.Translations.Translate("SHARE_MESHES"), tooltip, shareMeshes, delegate(bool b)
 			{
 				shareMeshes = b;
 				Save();
 			});
-			Check(group, L10n.Get(97), L10n.Get(98), optimizeThumbs, delegate(bool b)
+			Check(group, LoadingScreenModRevisited.Translations.Translate("OPTIMIZE_THUMBNAILS"), LoadingScreenModRevisited.Translations.Translate("OPTIMIZE_TEXTURES"), optimizeThumbs, delegate(bool b)
 			{
 				optimizeThumbs = b;
 				Save();
@@ -350,10 +349,10 @@ namespace LoadingScreenMod
 
 		private void LateSettingsUI(UIHelperBase helper)
 		{
-			UIHelper group = CreateGroup(helper, L10n.Get(99));
+			UIHelper group = CreateGroup(helper, LoadingScreenModRevisited.Translations.Translate("REPORTING"));
 			UICheckBox reportCheck = null;
 			UICheckBox checkCheck = null;
-			reportCheck = Check(group, L10n.Get(100), L10n.Get(101), reportAssets, delegate(bool b)
+			reportCheck = Check(group, LoadingScreenModRevisited.Translations.Translate("SAVE_REPORTS_IN_DIRECTORY"), LoadingScreenModRevisited.Translations.Translate("SAVE_REPORTS_OF_ASSETS"), reportAssets, delegate(bool b)
 			{
 				reportAssets = b;
 				checkAssets = checkAssets && b;
@@ -361,36 +360,36 @@ namespace LoadingScreenMod
 				Save();
 			});
 			TextField(group, reportDir, OnReportDirChanged);
-			checkCheck = Check(group, L10n.Get(102), null, checkAssets, delegate(bool b)
+			checkCheck = Check(group, LoadingScreenModRevisited.Translations.Translate("CHECK_FOR_ERRORS"), null, checkAssets, delegate(bool b)
 			{
 				checkAssets = b;
 				reportAssets = reportAssets || b;
 				reportCheck.isChecked = reportAssets;
 				Save();
 			});
-			Check(group, L10n.Get(103), null, hideAssets, delegate(bool b)
+			Check(group, LoadingScreenModRevisited.Translations.Translate("DO_NOT_REPORT_THESE"), null, hideAssets, delegate(bool b)
 			{
 				hideAssets = b;
 				Save();
 			});
-			Button(group, L10n.Get(104), L10n.Get(105) + " " + HiddenAssetsFile, OnAssetsButton);
-			group = CreateGroup(helper, L10n.Get(106), L10n.Get(107));
-			Check(group, L10n.Get(108), null, skipPrefabs, delegate(bool b)
+			Button(group, LoadingScreenModRevisited.Translations.Translate("OPEN_FILE"), LoadingScreenModRevisited.Translations.Translate("CLICK_TO_OPEN") + ' ' + HiddenAssetsFile, OnAssetsButton);
+			group = CreateGroup(helper, LoadingScreenModRevisited.Translations.Translate("PREFAB_SKIPPING"), LoadingScreenModRevisited.Translations.Translate("PREFAB_MEANS"));
+			Check(group, LoadingScreenModRevisited.Translations.Translate("SKIP_THESE"), null, skipPrefabs, delegate(bool b)
 			{
 				skipPrefabs = b;
 				Save();
 			});
 			TextField(group, skipFile, OnSkipFileChanged);
-			group = CreateGroup(helper, L10n.Get(109), L10n.Get(110));
-			Check(group, L10n.Get(111), null, removeVehicles, delegate(bool b)
+			group = CreateGroup(helper, LoadingScreenModRevisited.Translations.Translate("SAFE_MODE"), LoadingScreenModRevisited.Translations.Translate("AUTOMATICALLY_DISABLED"));
+			Check(group, LoadingScreenModRevisited.Translations.Translate("REMOVE_VEHICLE_AGENTS"), null, removeVehicles, delegate(bool b)
 			{
 				removeVehicles = b;
 			});
-			Check(group, L10n.Get(112), null, removeCitizenInstances, delegate(bool b)
+			Check(group, LoadingScreenModRevisited.Translations.Translate("REMOVE_CITIZEN_AGENTS"), null, removeCitizenInstances, delegate(bool b)
 			{
 				removeCitizenInstances = b;
 			});
-			Check(group, L10n.Get(113), null, recover, delegate(bool b)
+			Check(group, LoadingScreenModRevisited.Translations.Translate("TRY_TO_RECOVER"), null, recover, delegate(bool b)
 			{
 				recover = b;
 			});

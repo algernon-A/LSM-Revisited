@@ -324,7 +324,7 @@ namespace LoadingScreenModRevisited
 			{
 				Instance<UsedAssets>.Create();
 			}
-			Instance<LoadingScreen>.instance.DualSource.Add(L10n.Get(136));
+			Instance<LoadingScreen>.instance.DualSource.Add(Translations.Translate("CUSTOM_ASSETS"));
 
 			// Gamecode.
 			loadingManager.m_loadingProfilerCustomContent.BeginLoading("Calculating asset load order");
@@ -425,7 +425,7 @@ namespace LoadingScreenModRevisited
 			if (LoadingScreenMod.Settings.settings.enableDisable)
 			{
 				Util.DebugPrint("Going to enable and disable assets");
-				Instance<LoadingScreen>.instance.DualSource.Add(L10n.Get(137));
+				Instance<LoadingScreen>.instance.DualSource.Add(Translations.Translate("ENABLING_AND_DISABLING"));
 				yield return null;
 				EnableDisableAssets();
 			}

@@ -9,6 +9,7 @@ using UnityEngine;
 
 namespace LoadingScreenMod
 {
+	// Based on PackageHelper.CustomDeserialize.
 	public sealed class CustomDeserializer : Instance<CustomDeserializer>
 	{
 		internal const string SKIP_PREFIX = "lsm___";
@@ -347,6 +348,7 @@ namespace LoadingScreenMod
 			}
 		}
 
+		// Inserts RecordUsed
 		private object ReadBuildingInfoProp(PackageReader r)
 		{
 			string text = r.ReadString();
@@ -494,6 +496,7 @@ namespace LoadingScreenMod
 			}
 		}
 
+		// Inserts recordused
 		private object ReadBuildingInfoPathInfo(Package p, PackageReader r)
 		{
 			string text = r.ReadString();
@@ -573,6 +576,8 @@ namespace LoadingScreenMod
 			return MilestoneCollection.FindMilestone(r.ReadString());
 		}
 
+
+		// Vanilla.
 		private static object ReadMessageInfo(PackageReader r)
 		{
 			MessageInfo messageInfo = new MessageInfo();
@@ -682,6 +687,7 @@ namespace LoadingScreenMod
 			return result;
 		}
 
+		// Inserts warning about recursive variation
 		private static object ReadPropInfoVariation(Package p, PackageReader r)
 		{
 			string text = r.ReadString();
@@ -760,6 +766,7 @@ namespace LoadingScreenMod
 			return specialPlace;
 		}
 
+		// Adds warning message re recursive variations
 		private static object ReadTreeInfoVariation(Package p, PackageReader r)
 		{
 			string text = r.ReadString();
