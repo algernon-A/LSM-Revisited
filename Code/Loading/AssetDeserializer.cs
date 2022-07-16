@@ -539,7 +539,6 @@ namespace LoadingScreenModRevisited
 		/// <param name="behaviour">MonoBehaviour to deserialize</param>
 		private void DeserializeMonoBehaviour(MonoBehaviour behaviour)
 		{
-			Logging.Message("DeserializeMonoBehavior");
 			// DeserializeFields speeds loads with known data types.
 			DeserializeFields(behaviour, behaviour.GetType(), resolveMember: false);
 		}

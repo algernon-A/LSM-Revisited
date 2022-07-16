@@ -30,7 +30,6 @@ namespace LSM
         /// </summary>
         /// <param name="package">Package containing the mesh</param>
         /// <param name="checksum">Mesh checksum</param>
-        /// <param name="isMain">True if the requested material is the main Mesh, false if LOD Mesh</param>
         /// <returns>Shared mesh (null if unsuccessful)</returns>
         public static Mesh GetMesh(Package package, string checksum) => Instance<Sharing>.instance?.GetMesh(checksum, package);
 
