@@ -15,7 +15,7 @@ namespace LoadingScreenModRevisited
     {
         private Language systemLanguage = null;
         private readonly SortedList<string, Language> languages;
-        private readonly string defaultLanguage = "en";
+        private readonly string defaultLanguage = "en-EN";
         private int currentIndex = -1;
 
 
@@ -29,7 +29,7 @@ namespace LoadingScreenModRevisited
         /// <summary>
         /// Returns the current language code if one has specifically been set; otherwise, return "default".
         /// </summary>
-        public string CurrentLanguage => currentIndex < 0 ? "default" : languages.Values[currentIndex].uniqueName;
+        public string CurrentLanguage => currentIndex < 0 ? "default" : languages.Values[currentIndex].code;
 
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace LoadingScreenModRevisited
         /// </summary>
         public void UpdateUILanguage()
         {
-            Logging.Message("setting language to ", currentIndex < 0 ? "system" : languages.Values[currentIndex].uniqueName);
+            Logging.Message("setting language to ", currentIndex < 0 ? "game" : languages.Values[currentIndex].code);
 
             // UI update code goes here.
 
@@ -90,7 +90,6 @@ namespace LoadingScreenModRevisited
         {
             Language currentLanguage;
 
-
             // Check to see if we're using system settings.
             if (currentIndex < 0)
             {
@@ -118,10 +117,9 @@ namespace LoadingScreenModRevisited
                 }
                 else
                 {
-                    Logging.Message("no translation for language ", currentLanguage.uniqueName, " found for key " + key);
-
-                    // Attempt fallack translation.
-                    return FallbackTranslation(currentLanguage.uniqueName, key);
+                    // Lookup failed - fallack translation.
+                    Logging.Message("no translation for language ", currentLanguage.code, " found for key " + key);
+                    return FallbackTranslation(currentLanguage.code, key);
                 }
             }
             else
@@ -148,20 +146,15 @@ namespace LoadingScreenModRevisited
                     // Get new locale id.
                     string newLanguageCode = LocaleManager.instance.language;
 
-                    // Check to see if we have a translation for this language code; if not, we revert to default.
-                    if (!languages.ContainsKey(newLanguageCode))
-                    {
-                        newLanguageCode = defaultLanguage;
-                    }
-
                     // If we've already been set to this locale, do nothing.
-                    if (systemLanguage != null && systemLanguage.uniqueName == newLanguageCode)
+                    if (systemLanguage != null && systemLanguage.code == newLanguageCode)
                     {
                         return;
                     }
 
                     // Set the new system language,
-                    systemLanguage = languages[newLanguageCode];
+                    Logging.Message("game language is ", newLanguageCode);
+                    systemLanguage = FindLanguage(newLanguageCode);
 
                     // If we're using system language, update the UI.
                     if (currentIndex < 0)
@@ -218,45 +211,52 @@ namespace LoadingScreenModRevisited
 
 
         /// <summary>
+        /// Attempts to find the most appropriate translation file for the specified language code.
+        /// An exact match is attempted first; then a match with the first available language with the same two intial characters.
+        /// e.g. 'zh' will match to 'zh', 'zh-CN' or 'zh-TW' (in that order), or 'zh-CN' will match to 'zh-CN', 'zh' or 'zh-TW' (in that order).
+        /// If no match is made,the default language will be returned.
+        /// </summary>
+        /// <param name="languageCode">Language code to match</param>
+        /// <returns>Matched language code correspondign to a loaded translation file</returns>
+        private Language FindLanguage(string languageCode)
+        {
+            // First attempt to find the language code as-is.
+            if (languages.TryGetValue(languageCode, out Language language))
+            {
+                return language;
+            }
+
+            // If that fails, take the first two characters of the provided code and match with the first language code we have starting with those two letters.
+            // This will automatically prioritise any translations with only two letters (e.g. 'en' takes priority over 'en-US'),
+            KeyValuePair<string, Language> firstMatch = languages.FirstOrDefault(x => x.Key.StartsWith(languageCode.Substring(0, 2)));
+            if (!string.IsNullOrEmpty(firstMatch.Key))
+            {
+                // Found one - return translation.
+                Logging.KeyMessage("using translation file ", firstMatch.Key, " for language ", languageCode);
+                return firstMatch.Value;
+            }
+
+            // Fall back to default language.
+            Logging.Error("no translation file found for language ", languageCode, "; reverting to ", defaultLanguage);
+            return languages[defaultLanguage];
+        }
+
+
+        /// <summary>
         /// Attempts to find a fallback language translation in case the primary one fails (for whatever reason).
-        /// First tries a shortened version of the current reference (e.g. zh-tw -> zh), then system language, then default language.
-        /// If all that fails, it just returns the raw key.
         /// </summary>
         /// <param name="attemptedLanguage">Language code that was previously attempted</param>
         /// <returns>Fallback translation if successful, or raw key if failed</returns>
         private string FallbackTranslation(string attemptedLanguage, string key)
         {
-            // First check to see if there is a shortened version of this language id (e.g. zh-tw -> zh).
-            if (attemptedLanguage.Length > 2)
-            {
-                string newName = attemptedLanguage.Substring(0, 2);
-
-                if (languages.ContainsKey(newName))
-                {
-                    Language fallbackLanguage = languages[newName];
-                    if (fallbackLanguage.translationDictionary.ContainsKey(key))
-                    {
-                        // All good!  Return translation.
-                        return fallbackLanguage.translationDictionary[key];
-                    }
-                }
-            }
-
-            // Secondly, try to use system language if we're not already doing so.
-            if (currentIndex > 0 && systemLanguage != null && attemptedLanguage != systemLanguage.uniqueName)
-            {
-                if (systemLanguage.translationDictionary.ContainsKey(key))
-                {
-                    // All good!  Return translation.
-                    return systemLanguage.translationDictionary[key];
-                }
-            }
-
-            // Final attempt - try default language.
             try
             {
-                Language fallbackLanguage = languages[defaultLanguage];
-                return fallbackLanguage.translationDictionary[key];
+                // Attempt to find any other suitable translation file, or default if nothing better is available.
+                Language fallbackLanguage = FindLanguage(attemptedLanguage);
+                if (fallbackLanguage != null)
+                {
+                    return fallbackLanguage.translationDictionary[key];
+                }
             }
             catch (Exception e)
             {
@@ -303,7 +303,8 @@ namespace LoadingScreenModRevisited
                             // Create new language instance for this file.
                             Language thisLanguage = new Language
                             {
-                                uniqueName = Path.GetFileNameWithoutExtension(translationFile),
+                                // Language code is filename.
+                                code = Path.GetFileNameWithoutExtension(translationFile),
                             };
                             string key = null;
                             bool quoting = false;
@@ -414,17 +415,17 @@ namespace LoadingScreenModRevisited
                             }
 
                             // Did we get a valid dictionary from this?
-                            if (thisLanguage.uniqueName != null && thisLanguage.readableName != null && thisLanguage.translationDictionary.Count > 0)
+                            if (thisLanguage.code != null && thisLanguage.readableName != null && thisLanguage.translationDictionary.Count > 0)
                             {
                                 // Yes - add to languages dictionary.
-                                if (!languages.ContainsKey(thisLanguage.uniqueName))
+                                if (!languages.ContainsKey(thisLanguage.code))
                                 {
-                                    Logging.Message("found translation file ", translationFile, " with language ", thisLanguage.uniqueName, " (", thisLanguage.readableName, ")");
-                                    languages.Add(thisLanguage.uniqueName, thisLanguage);
+                                    Logging.Message("found translation file ", translationFile, " with language ", thisLanguage.code, " (", thisLanguage.readableName, ")");
+                                    languages.Add(thisLanguage.code, thisLanguage);
                                 }
                                 else
                                 {
-                                    Logging.Error("duplicate translation file for language ", thisLanguage.uniqueName);
+                                    Logging.Error("duplicate translation file for language ", thisLanguage.code);
                                 }
                             }
                             else

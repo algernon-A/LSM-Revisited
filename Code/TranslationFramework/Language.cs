@@ -15,10 +15,10 @@ namespace LoadingScreenModRevisited
         // Dictionary of translations for this language.
         public Dictionary<string, string> translationDictionary = new Dictionary<string, string>();
 
-        // Language unique name.
-        public string uniqueName = null;
+        // Language code.
+        public string code = null;
 
-        // Language human-readable name.
+        // Language human-readable display name.
         public string readableName = null;
     }
 }

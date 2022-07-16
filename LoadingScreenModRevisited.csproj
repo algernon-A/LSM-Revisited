@@ -21,10 +21,6 @@
 		<_Translations Include="$(ProjectDir)/Translations/*.csv" />
 	</ItemGroup>
 	<ItemGroup>
-	  <_Translations Remove="Translations\en.csv" />
-	  <_Translations Remove="Translations\zh-CN.csv" />
-	</ItemGroup>
-	<ItemGroup>
 	  <Folder Include="Code\Settings\" />
 	</ItemGroup>
 	<Target Name="DeployToModDirectory" AfterTargets="Build">
