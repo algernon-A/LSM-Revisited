@@ -84,6 +84,19 @@ namespace LoadingScreenModRevisited
 
 
         /// <summary>
+        /// Applies a Harmony prefix to the given type and method name, with a patch of the same name from a different type.
+        /// </summary>
+        /// <param name="targetType">Target type to patch</param>
+        /// <param name="patchType">Type containing patch method</param>
+        /// <param name="methodName">Method name</param>
+        public static void PrefixMethod(Type targetType, Type patchType, string methodName)
+        {
+            PrefixMethod(targetType.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance),
+                patchType.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance));
+        }
+
+
+        /// <summary>
         /// Reverts a Harmony ptach to the specified method.
         /// </summary>
         /// <param name="target">Target method</param>
@@ -92,6 +105,19 @@ namespace LoadingScreenModRevisited
         {
             Harmony harmonyInstance = new Harmony(harmonyID);
             harmonyInstance.Unpatch(target, patch);
+        }
+
+
+        /// <summary>
+        /// Reverts a Harmony prefix to the given type and method name, with a patch of the same name from a different type.
+        /// </summary>
+        /// <param name="targetType">Target type to patch</param>
+        /// <param name="patchType">Type containing patch method</param>
+        /// <param name="methodName">Method name</param>
+        public static void UnpatchMethod(Type targetType, Type patchType, string methodName)
+        {
+            UnpatchMethod(targetType.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance),
+                patchType.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance));
         }
 
 

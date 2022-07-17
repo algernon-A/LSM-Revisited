@@ -735,7 +735,7 @@ namespace LoadingScreenModRevisited
 					}
 
 					// Display failure message.
-					Instance<LoadingScreen>.instance.SimulationSource?.Failed(message);
+					LoadingScreen.instance.SimulationSource?.Failed(message);
 					return true;
 				}
 				catch (Exception e)

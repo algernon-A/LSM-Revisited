@@ -324,7 +324,7 @@ namespace LoadingScreenModRevisited
 			{
 				Instance<UsedAssets>.Create();
 			}
-			Instance<LoadingScreen>.instance.DualSource.Add(Translations.Translate("CUSTOM_ASSETS"));
+			LoadingScreen.instance.DualSource.Add(Translations.Translate("CUSTOM_ASSETS"));
 
 			// Gamecode.
 			loadingManager.m_loadingProfilerCustomContent.BeginLoading("Calculating asset load order");
@@ -362,12 +362,12 @@ namespace LoadingScreenModRevisited
 				{
 					lastMillis = Profiling.Millis;
 					progress = 0.15f + (float)(k + 1) * 0.7f / (float)queue.Length;
-					Instance<LoadingScreen>.instance.SetProgress(progress, progress, assetCount, assetCount - k - 1 + queue.Length, beginMillis, lastMillis);
+					LoadingScreen.instance.SetProgress(progress, progress, assetCount, assetCount - k - 1 + queue.Length, beginMillis, lastMillis);
 					yield return null;
 				}
 			}
 			lastMillis = Profiling.Millis;
-			Instance<LoadingScreen>.instance.SetProgress(0.85f, 1f, assetCount, assetCount, beginMillis, lastMillis);
+			LoadingScreen.instance.SetProgress(0.85f, 1f, assetCount, assetCount, beginMillis, lastMillis);
 			loadingManager.m_loadingProfilerCustomContent.EndLoading();
 			Util.DebugPrint(assetCount, "custom assets loaded in", lastMillis - beginMillis);
 			Instance<CustomDeserializer>.instance.SetCompleted();
@@ -425,7 +425,7 @@ namespace LoadingScreenModRevisited
 			if (LoadingScreenMod.Settings.settings.enableDisable)
 			{
 				Util.DebugPrint("Going to enable and disable assets");
-				Instance<LoadingScreen>.instance.DualSource.Add(Translations.Translate("ENABLING_AND_DISABLING"));
+				LoadingScreen.instance.DualSource.Add(Translations.Translate("ENABLING_AND_DISABLING"));
 				yield return null;
 				EnableDisableAssets();
 			}
@@ -689,7 +689,7 @@ namespace LoadingScreenModRevisited
 
 				// Log and display failure.
 				Logging.Error("asset failed: ", text);
-				Instance<LoadingScreen>.instance.DualSource?.CustomAssetFailed(ShortAssetName(text));
+				LoadingScreen.instance.DualSource?.CustomAssetFailed(ShortAssetName(text));
 			}
 
 			// Log the exception details as well.
@@ -714,7 +714,7 @@ namespace LoadingScreenModRevisited
 				// Display missing asset name unless we're supressing this one as a known missing asset.
 				if (!hiddenAssets.Contains(fullName))
 				{
-					Instance<LoadingScreen>.instance.DualSource?.CustomAssetNotFound(ShortAssetName(fullName));
+					LoadingScreen.instance.DualSource?.CustomAssetNotFound(ShortAssetName(fullName));
 				}
 			}
 		}
@@ -1454,7 +1454,7 @@ namespace LoadingScreenModRevisited
 			// Display missing asset name unless we're supressing this one as a known missing asset.
 			if (!hiddenAssets.Contains(fullName))
 			{
-				Instance<LoadingScreen>.instance.DualSource?.CustomAssetDuplicate(ShortAssetName(fullName));
+				LoadingScreen.instance.DualSource?.CustomAssetDuplicate(ShortAssetName(fullName));
 			}
 		}
 

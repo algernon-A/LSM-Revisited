@@ -64,7 +64,9 @@ namespace LoadingScreenModRevisited
 				Profiling.Init();
 				Instance<CustomDeserializer>.Create();
 				Instance<Fixes>.Create().Deploy();
-				Instance<LoadingScreen>.Create().Setup();
+
+				// Initialize loading screen.
+				LoadingScreen.instance = new LoadingScreen();
 
 				// Reset LoadingManager flags.
 				__instance.LoadingAnimationComponent.enabled = true;
