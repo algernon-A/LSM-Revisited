@@ -1,10 +1,10 @@
-﻿using System;
+﻿using ColossalFramework.Plugins;
+using ICities;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Collections.Generic;
 using System.Reflection;
-using ICities;
-using ColossalFramework.Plugins;
 
 
 namespace LoadingScreenModRevisited

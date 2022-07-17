@@ -179,10 +179,34 @@ namespace LoadingScreenModRevisited
 
         /// <summary>
         /// Sets the current language to the provided language code.
-        /// If the key isn't in the list of loaded translations, then the system default is assigned instead(IndexOfKey returns -1 if key not found).
+        /// If the key isn't in the list of loaded translations, then the system default is assigned instead.
         /// </summary>
-        /// <param name="uniqueName">Language unique name (code)</param>
-        public void SetLanguage(string uniqueName) => SetLanguage(languages.IndexOfKey(uniqueName));
+        /// <param name="languageCode">Language code</param>
+        public void SetLanguage(string languageCode)
+        {
+            if (languages.ContainsKey(languageCode))
+            {
+                SetLanguage(languages.IndexOfKey(languageCode));
+                return;
+            }
+
+            // No direct match found - attempt to find any other suitable translation file (code matches first two letters).
+            string shortCode = languageCode.Substring(0, 2);
+            foreach (KeyValuePair<string, Language> entry in languages)
+            {
+                if (entry.Key.StartsWith(shortCode))
+                {
+                    // Found an alternative.
+                    Logging.Message("using language ", entry.Key, " as replacement for unknown language code ", languageCode);
+                    SetLanguage(languages.IndexOfKey(entry.Key));
+                    return;
+                }
+            }
+
+            // If we got here, no match was found; revert to system language.
+            Logging.Message("no suitable translation file for language ", languageCode, " was found; reverting to game default");
+            SetLanguage(-1);
+        }
 
 
         /// <summary>
