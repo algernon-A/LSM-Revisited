@@ -128,6 +128,14 @@ namespace LoadingScreenModRevisited
 			instance.imageMaterial = new Material(material);
 			instance.imageScale = scale;
 
+			// Try to get imgur image.
+			Material imgurMaterial = BackgroundImage.GetImgurImage(material);
+			if (imgurMaterial != null)
+			{
+				// Success - apply new material instead.
+				instance.imageMaterial = imgurMaterial;
+			}
+
 			// Set status flag.
 			instance.imageLoaded = true;
 
