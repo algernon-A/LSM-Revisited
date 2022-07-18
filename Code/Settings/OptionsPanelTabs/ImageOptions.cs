@@ -31,18 +31,18 @@ namespace LoadingScreenModRevisited
 
             // Add curated imgur image check.
             defaultCheck = helper.AddCheckbox(Translations.Translate("DEFAULT_BACKGROUND"),
-                ModSettings.BackgroundImageMode == ModSettings.ImageMode.StandardBackground,
+                BackgroundImage.ImageMode == ImageMode.StandardBackground,
                 DefaultCheckChanged) as UICheckBox;
 
             // Add curated imgur image check.
             imgurCuratedCheck = helper.AddCheckbox(Translations.Translate("IMGUR_CURATED"),
-                ModSettings.BackgroundImageMode == ModSettings.ImageMode.ImgurCuratedBackground,
+                BackgroundImage.ImageMode == ImageMode.ImgurCuratedBackground,
                 CuratedCheckChanged) as UICheckBox;
             imgurCuratedCheck.tooltip = Translations.Translate("IMGUR_CURATED_TIP");
 
             // Add random imgur image check.
             imgurRandomCheck = helper.AddCheckbox(Translations.Translate("IMGUR_TOP"),
-                ModSettings.BackgroundImageMode == ModSettings.ImageMode.ImgurRandomBackground,
+                BackgroundImage.ImageMode == ImageMode.ImgurRandomBackground,
                 RandomCheckChanged) as UICheckBox;
             imgurRandomCheck.tooltip = Translations.Translate("IMGUR_TOP_TIP");
         }
@@ -63,7 +63,7 @@ namespace LoadingScreenModRevisited
             // Only update if this is being checked.
             if (isChecked)
             {
-                ModSettings.BackgroundImageMode = ModSettings.ImageMode.StandardBackground;
+                BackgroundImage.ImageMode = ImageMode.StandardBackground;
             }
 
             // Update all check states.
@@ -86,7 +86,7 @@ namespace LoadingScreenModRevisited
             // Only update if this is being checked.
             if (isChecked)
             {
-                ModSettings.BackgroundImageMode = isChecked ? ModSettings.ImageMode.ImgurCuratedBackground : ModSettings.ImageMode.StandardBackground;
+                BackgroundImage.ImageMode = isChecked ? ImageMode.ImgurCuratedBackground : ImageMode.StandardBackground;
             }
 
             // Update all check states.
@@ -109,7 +109,7 @@ namespace LoadingScreenModRevisited
             // Only update if this is being checked.
             if (isChecked)
             {
-                ModSettings.BackgroundImageMode = isChecked ? ModSettings.ImageMode.ImgurRandomBackground : ModSettings.ImageMode.StandardBackground;
+                BackgroundImage.ImageMode = isChecked ? ImageMode.ImgurRandomBackground : ImageMode.StandardBackground;
             }
 
             // Update all check states.
@@ -126,9 +126,9 @@ namespace LoadingScreenModRevisited
             ignoreEvents = true;
 
             // Set check states.
-            defaultCheck.isChecked = ModSettings.BackgroundImageMode == ModSettings.ImageMode.StandardBackground;
-            imgurCuratedCheck.isChecked = ModSettings.BackgroundImageMode == ModSettings.ImageMode.ImgurCuratedBackground;
-            imgurRandomCheck.isChecked = ModSettings.BackgroundImageMode == ModSettings.ImageMode.ImgurRandomBackground;
+            defaultCheck.isChecked = BackgroundImage.ImageMode == ImageMode.StandardBackground;
+            imgurCuratedCheck.isChecked = BackgroundImage.ImageMode == ImageMode.ImgurCuratedBackground;
+            imgurRandomCheck.isChecked = BackgroundImage.ImageMode == ImageMode.ImgurRandomBackground;
 
             // Resume event handling.
             ignoreEvents = false;

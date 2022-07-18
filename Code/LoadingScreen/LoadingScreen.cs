@@ -129,7 +129,7 @@ namespace LoadingScreenModRevisited
 			instance.imageScale = scale;
 
 			// Check if we're using imgur random background images.
-			if (ModSettings.BackgroundImageMode != ModSettings.ImageMode.StandardBackground)
+			if (BackgroundImage.ImageMode != ImageMode.StandardBackground)
 			{
 				// Try to get imgur image.
 				Material imgurMaterial = BackgroundImage.GetImgurImage(material);

@@ -10,6 +10,17 @@ using UnityEngine;
 namespace LoadingScreenModRevisited
 {
     /// <summary>
+    /// Loading image mode enum.
+    /// </summary>
+    public enum ImageMode : int
+    {
+        StandardBackground = 0,
+        ImgurCuratedBackground,
+        ImgurRandomBackground
+    }
+
+
+    /// <summary>
     /// Custom background image handling.
     /// </summary>
     internal static class BackgroundImage
@@ -33,8 +44,31 @@ namespace LoadingScreenModRevisited
             "ZFYmaxe",
             "J4iPKta",
             "flntFdZ",
-            "eHxXttn"
+            "eHxXttn",
+            "wRb2zpm"
         };
+
+
+        /// <summary>
+        /// Background image mode.
+        /// </summary>
+        internal static ImageMode ImageMode
+        {
+            get => _imageMode;
+
+            set
+            {
+                _imageMode = value;
+
+                if (value == ImageMode.ImgurRandomBackground)
+                {
+                    // Ensure random image list is populated.
+                    PopulatImgurRandomList();
+                }
+            }
+        }
+        private static ImageMode _imageMode = ImageMode.StandardBackground;
+
 
         /// <summary>
         /// Attempts to replace the given material with one based on a imgur image download.
@@ -44,7 +78,7 @@ namespace LoadingScreenModRevisited
         internal static Material GetImgurImage(Material material)
         {
             // Determine which list to use.
-            List<string> imageList = ModSettings.BackgroundImageMode == ModSettings.ImageMode.ImgurCuratedBackground ? curatedImages : randomImages; 
+            List<string> imageList = ImageMode == ImageMode.ImgurCuratedBackground ? curatedImages : randomImages; 
 
             // Try to populate the random list if we're using it and haven't already.
             if (imageList == randomImages && imageList.Count == 0)

@@ -184,6 +184,7 @@ namespace LoadingScreenModRevisited
         {
             // Save settings first.
             LoadingScreenMod.Settings.settings.Save();
+            LSMRSettingsFile.Save();
 
             // We're no longer visible - destroy our game object.
             if (optionsGameObject != null)

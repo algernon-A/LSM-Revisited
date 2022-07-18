@@ -8,7 +8,7 @@ namespace LoadingScreenModRevisited
 	/// <summary>
 	/// The base mod class for instantiation by the game.
 	/// </summary>
-	public sealed class LSMRMod : IUserMod
+	public sealed class Mod : LoadingExtensionBase, IUserMod
 	{
 		public static string ModName => "LSM Revisited";
 
@@ -24,6 +24,9 @@ namespace LoadingScreenModRevisited
 			// Apply Harmony patches via Cities Harmony.
 			// Called here instead of OnCreated to allow the auto-downloader to do its work prior to launch.
 			HarmonyHelper.DoOnHarmonyReady(() => Patcher.PatchAll());
+
+			// Load the settings file.
+			LSMRSettingsFile.Load();
 
 			// Attaching options panel event hook - check to see if UIView is ready.
 			if (UIView.GetAView() != null)
@@ -58,6 +61,19 @@ namespace LoadingScreenModRevisited
 		{
 			// Create options panel.
 			OptionsPanel.Setup(helper);
+        }
+
+
+		/// <summary>
+		/// Called by the game when level loading is complete.
+		/// </summary>
+		/// <param name="mode">Loading mode (e.g. game, editor, scenario, etc.)</param>
+		public override void OnLevelLoaded(LoadMode mode)
+		{
+			base.OnLevelLoaded(mode);
+
+			// Set up options panel event handler (need to redo this now that options panel has been reset after loading into game).
+			OptionsPanel.OptionsEventHook();
 		}
-	}
+    }
 }

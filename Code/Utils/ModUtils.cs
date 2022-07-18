@@ -69,7 +69,7 @@ namespace LoadingScreenModRevisited
                         IUserMod[] mods = plugin.GetInstances<IUserMod>();
 
                         // Check to see if the primary instance is this mod.
-                        if (mods.FirstOrDefault() is LSMRMod)
+                        if (mods.FirstOrDefault() is Mod)
                         {
                             // Found it! Return path.
                             return plugin.modPath;
@@ -83,7 +83,7 @@ namespace LoadingScreenModRevisited
 
                 // If we got here, then we didn't find the assembly.
                 Logging.Error("assembly path not found");
-                throw new FileNotFoundException(LSMRMod.ModName + ": assembly path not found!");
+                throw new FileNotFoundException(Mod.ModName + ": assembly path not found!");
             }
         }
     }
