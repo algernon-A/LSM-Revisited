@@ -18,6 +18,9 @@ namespace LoadingScreenModRevisited
         private readonly string defaultLanguage = "en-EN";
         private int currentIndex = -1;
 
+        // Last recorded system language.
+        private string systemLangaugeCode;
+
 
         /// <summary>
         /// Returns the current zero-based index number of the current language setting.
@@ -37,8 +40,6 @@ namespace LoadingScreenModRevisited
         /// </summary>
         public void UpdateUILanguage()
         {
-            Logging.Message("setting language to ", currentIndex < 0 ? "game" : languages.Values[currentIndex].code);
-
             // UI update code goes here.
 
             // TOOO:  Add dynamic UI update.
@@ -76,8 +77,8 @@ namespace LoadingScreenModRevisited
             // Load translation files.
             LoadLanguages();
 
-            // Event handler to update the current language when system locale changes.
-            LocaleManager.eventLocaleChanged += SetSystemLanguage;
+            // Set initial system language reference.
+            systemLangaugeCode = string.Empty;
         }
 
 
@@ -93,12 +94,11 @@ namespace LoadingScreenModRevisited
             // Check to see if we're using system settings.
             if (currentIndex < 0)
             {
-                // Using system settings - initialise system language if we haven't already.
-                if (systemLanguage == null)
+                // Using system settings - initialise system language if we haven't already, or if the system language has changed since last time.
+                if (LocaleManager.exists & (LocaleManager.instance.language != systemLangaugeCode | systemLanguage == null))
                 {
                     SetSystemLanguage();
                 }
-
                 currentLanguage = systemLanguage;
             }
             else
@@ -147,13 +147,14 @@ namespace LoadingScreenModRevisited
                     string newLanguageCode = LocaleManager.instance.language;
 
                     // If we've already been set to this locale, do nothing.
-                    if (systemLanguage != null && systemLanguage.code == newLanguageCode)
+                    if (systemLanguage != null & systemLangaugeCode == newLanguageCode)
                     {
                         return;
                     }
 
                     // Set the new system language,
                     Logging.Message("game language is ", newLanguageCode);
+                    systemLangaugeCode = newLanguageCode;
                     systemLanguage = FindLanguage(newLanguageCode);
 
                     // If we're using system language, update the UI.
@@ -184,6 +185,8 @@ namespace LoadingScreenModRevisited
         /// <param name="languageCode">Language code</param>
         public void SetLanguage(string languageCode)
         {
+            Logging.Message("setting language to ", languageCode);
+
             // Default (game) language.
             if (languageCode == "default")
             {

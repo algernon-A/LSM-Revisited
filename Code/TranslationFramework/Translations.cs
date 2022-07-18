@@ -10,14 +10,6 @@
 
 
         /// <summary>
-        /// Static interface to instance's translate method.
-        /// </summary>
-        /// <param name="text">Key to translate</param>
-        /// <returns>Translation (or key if translation failed)</returns>
-        public static string Translate(string key) => Instance.Translate(key);
-
-
-        /// <summary>
         /// The current language code.
         /// </summary>
         public static string CurrentLanguage
@@ -79,5 +71,13 @@
                 return _translator;
             }
         }
+
+
+        /// <summary>
+        /// Static interface to instance's translate method.
+        /// </summary>
+        /// <param name="text">Key to translate</param>
+        /// <returns>Translation (or key if translation failed)</returns>
+        public static string Translate(string key) => Instance.Translate(key);
     }
 }
