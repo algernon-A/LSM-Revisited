@@ -1243,28 +1243,15 @@ namespace LoadingScreenModRevisited
 		private void CheckSuspects()
 		{
 			// Types to check.
-			CustomAssetMetaData.Type[] array;
-			if (LSMRSettingsFile.showDuplicates)
+			CustomAssetMetaData.Type[] array = new CustomAssetMetaData.Type[6]
 			{
-				// If we're showing duplicates, then show duplicates from all asset types.
-				array = new CustomAssetMetaData.Type[6]
-				{
-					CustomAssetMetaData.Type.Building,
-					CustomAssetMetaData.Type.Prop,
-					CustomAssetMetaData.Type.Tree,
-					CustomAssetMetaData.Type.Vehicle,
-					CustomAssetMetaData.Type.Citizen,
-					CustomAssetMetaData.Type.Road
-				};
-			}
-			else
-			{
-				// Even if we're not showing most duplicates, we still show duplicate networks.
-				array = new CustomAssetMetaData.Type[1]
-				{
-					CustomAssetMetaData.Type.Road
-				};
-			}
+				CustomAssetMetaData.Type.Building,
+				CustomAssetMetaData.Type.Prop,
+				CustomAssetMetaData.Type.Tree,
+				CustomAssetMetaData.Type.Vehicle,
+				CustomAssetMetaData.Type.Citizen,
+				CustomAssetMetaData.Type.Road
+			};
 
 			// Iterate through each type.
 			foreach (CustomAssetMetaData.Type type in array)
@@ -1277,7 +1264,7 @@ namespace LoadingScreenModRevisited
 					if (duplicateList.Select((Package.Asset a) => a.checksum).Distinct().Count() > 1 && duplicateList.Where((Package.Asset a) => IsEnabled(a.package)).Count() != 1)
 					{
 						// Report duplicate.
-						ReportDuplicate(item.Key, duplicateList);
+						ReportDuplicate(item.Key, duplicateList, type);
 					}
 				}
 			}
@@ -1453,7 +1440,8 @@ namespace LoadingScreenModRevisited
 		/// </summary>
 		/// <param name="fullName">Asset full name</param>
 		/// <param name="assets">List of duplicates</param>
-		private void ReportDuplicate(string fullName, List<Package.Asset> assets)
+		/// <param name="type">Duplicate type</param>
+		private void ReportDuplicate(string fullName, List<Package.Asset> assets, CustomAssetMetaData.Type type)
 		{
 			// Report duplicate assets if we're doing that.
 			if (recordAssets)
@@ -1464,8 +1452,8 @@ namespace LoadingScreenModRevisited
 			// Log message
 			Logging.Message("duplicate name", fullName);
 
-			// Display duplicate asset name unless we're supressing this one as a known missing asset.
-			if (!hiddenAssets.Contains(fullName))
+			// Display duplicate asset name if this is a network asset, OR 'show duplicates' is selected, unless we're supressing this one as a known missing asset.
+			if ((type == CustomAssetMetaData.Type.Road || LSMRSettingsFile.showDuplicates) && !hiddenAssets.Contains(fullName))
 			{
 				LoadingScreen.instance.DualSource?.CustomAssetDuplicate(ShortAssetName(fullName));
 			}
