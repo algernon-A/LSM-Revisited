@@ -128,12 +128,16 @@ namespace LoadingScreenModRevisited
 			instance.imageMaterial = new Material(material);
 			instance.imageScale = scale;
 
-			// Try to get imgur image.
-			Material imgurMaterial = BackgroundImage.GetImgurImage(material);
-			if (imgurMaterial != null)
+			// Check if we're using imgur random background images.
+			if (ModSettings.BackgroundImageMode != ModSettings.ImageMode.StandardBackground)
 			{
-				// Success - apply new material instead.
-				instance.imageMaterial = imgurMaterial;
+				// Try to get imgur image.
+				Material imgurMaterial = BackgroundImage.GetImgurImage(material);
+				if (imgurMaterial != null)
+				{
+					// Success - apply new material instead.
+					instance.imageMaterial = imgurMaterial;
+				}
 			}
 
 			// Set status flag.

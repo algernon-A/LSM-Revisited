@@ -10,7 +10,7 @@ namespace LoadingScreenModRevisited
     /// <summary>
     /// Class to handle the mod's options panel.
     /// </summary>
-    internal static class OptionsPanelManager
+    internal static class OptionsPanel
     {
         // Parent UI panel reference.
         internal static UIScrollablePanel optionsPanel;
@@ -18,11 +18,6 @@ namespace LoadingScreenModRevisited
 
         // Instance references.
         private static GameObject optionsGameObject;
-        private static LSMROptionsPanel panel;
-
-        // Accessors.
-        internal static LSMROptionsPanel Panel => panel;
-        internal static bool IsOpen => optionsGameObject != null;
 
 
         /// <summary>
@@ -78,11 +73,54 @@ namespace LoadingScreenModRevisited
         {
             if (gameOptionsPanel != null && gameOptionsPanel.isVisible)
             {
-                Logging.KeyMessage("changing locale");
-
                 Close();
                 Create();
             }
+        }
+
+
+        /// <summary>
+        /// Adds a tab to a UI tabstrip.
+        /// </summary>
+        /// <param name="tabStrip">UIT tabstrip to add to</param>
+        /// <param name="tabName">Name of this tab</param>
+        /// <param name="tabIndex">Index number of this tab</param>
+        /// <param name="autoLayout">Autolayout</param>
+        /// <returns>UIHelper instance for the new tab panel</returns>
+        internal static UIPanel AddTab(UITabstrip tabStrip, string tabName, int tabIndex, bool autoLayout)
+        {
+            // Create tab.
+            UIButton tabButton = tabStrip.AddTab(tabName);
+
+            // Sprites.
+            tabButton.normalBgSprite = "SubBarButtonBase";
+            tabButton.disabledBgSprite = "SubBarButtonBaseDisabled";
+            tabButton.focusedBgSprite = "SubBarButtonBaseFocused";
+            tabButton.hoveredBgSprite = "SubBarButtonBaseHovered";
+            tabButton.pressedBgSprite = "SubBarButtonBasePressed";
+
+            // Tooltip.
+            tabButton.tooltip = tabName;
+
+            tabStrip.selectedIndex = tabIndex;
+
+            // Force width.
+            tabButton.width = 200;
+
+            // Get tab root panel.
+            UIPanel rootPanel = tabStrip.tabContainer.components[tabIndex] as UIPanel;
+
+            // Autolayout.
+            rootPanel.autoLayout = autoLayout;
+
+            if (autoLayout)
+            {
+                rootPanel.autoLayoutDirection = LayoutDirection.Vertical;
+                rootPanel.autoLayoutPadding.top = 5;
+                rootPanel.autoLayoutPadding.left = 10;
+            }
+
+            return rootPanel;
         }
 
 
@@ -98,17 +136,38 @@ namespace LoadingScreenModRevisited
                 {
                     // Give it a unique name for easy finding with ModTools.
                     optionsGameObject = new GameObject("LSMROptionsPanel");
+
+                    // Attach to game options panel.
                     optionsGameObject.transform.parent = optionsPanel.transform;
 
                     // Create a base panel attached to our game object, perfectly overlaying the game options panel.
-                    panel = optionsGameObject.AddComponent<LSMROptionsPanel>();
-                    panel.width = optionsPanel.width - 10f;
-                    panel.height = 725f;
-                    panel.clipChildren = false;
-                    panel.autoLayout = true;
+                    UIPanel basePanel = optionsGameObject.AddComponent<UIPanel>();
+                    basePanel.width = optionsPanel.width - 10f;
+                    basePanel.height = 725f;
+                    basePanel.clipChildren = false;
 
                     // Needed to ensure position is consistent if we regenerate after initial opening (e.g. on language change).
-                    panel.relativePosition = new Vector2(10f, 10f);
+                    basePanel.relativePosition = new Vector2(10f, 10f);
+
+                    // Add tabstrip.
+                    UITabstrip tabStrip = basePanel.AddUIComponent<UITabstrip>();
+                    tabStrip.relativePosition = new Vector3(0, 0);
+                    tabStrip.width = basePanel.width;
+                    tabStrip.height = basePanel.height;
+                    tabStrip.clipChildren = false;
+
+                    // Tab container (the panels underneath each tab).
+                    UITabContainer tabContainer = basePanel.AddUIComponent<UITabContainer>();
+                    tabContainer.relativePosition = new Vector3(0, 30f);
+                    tabContainer.width = tabStrip.width;
+                    tabContainer.height = tabStrip.height;
+                    tabContainer.clipChildren = false;
+                    tabStrip.tabPages = tabContainer;
+
+                    // Add tabs and panels.
+                    new GeneralOptions(tabStrip, 0);
+                    new ReportingOptions(tabStrip, 1);
+                    new ImageOptions(tabStrip, 2);
                 }
             }
             catch (Exception e)

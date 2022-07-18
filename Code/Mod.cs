@@ -21,9 +21,6 @@ namespace LoadingScreenModRevisited
 		/// </summary>
 		public void OnEnabled()
 		{
-			// Get imgur image list.
-			BackgroundImage.PopulateImgurList();
-
 			// Apply Harmony patches via Cities Harmony.
 			// Called here instead of OnCreated to allow the auto-downloader to do its work prior to launch.
 			HarmonyHelper.DoOnHarmonyReady(() => Patcher.PatchAll());
@@ -32,12 +29,12 @@ namespace LoadingScreenModRevisited
 			if (UIView.GetAView() != null)
 			{
 				// It's ready - attach the hook now.
-				OptionsPanelManager.OptionsEventHook();
+				OptionsPanel.OptionsEventHook();
 			}
 			else
 			{
 				// Otherwise, queue the hook for when the intro's finished loading.
-				LoadingManager.instance.m_introLoaded += OptionsPanelManager.OptionsEventHook;
+				LoadingManager.instance.m_introLoaded += OptionsPanel.OptionsEventHook;
 			}
 		}
 
@@ -60,7 +57,7 @@ namespace LoadingScreenModRevisited
 		public void OnSettingsUI(UIHelperBase helper)
 		{
 			// Create options panel.
-			OptionsPanelManager.Setup(helper);
+			OptionsPanel.Setup(helper);
 		}
 	}
 }
