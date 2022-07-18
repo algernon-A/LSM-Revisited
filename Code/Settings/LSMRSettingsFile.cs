@@ -12,6 +12,10 @@ namespace LoadingScreenModRevisited
         [XmlIgnore]
         private static readonly string SettingsFileName = Path.Combine(ColossalFramework.IO.DataLocation.localApplicationData, "LoadingScreenModRevisited.xml");
 
+        // 'Show duplicate warnings' setting.
+        [XmlIgnore]
+        internal static bool showDuplicates = false;
+
 
         /// <summary>
         /// Language setting.
@@ -25,6 +29,13 @@ namespace LoadingScreenModRevisited
         /// </summary>
         [XmlElement("BackgroundImageMode")]
         public ImageMode XMLImageMode { get => BackgroundImage.ImageMode; set => BackgroundImage.ImageMode = value; }
+
+
+        /// <summary>
+        /// Hide duplicate item warnings.
+        /// </summary>
+        [XmlElement("ShowDuplicateWarnings")]
+        public bool XMLShowDuplicates { get => showDuplicates; set => showDuplicates = value; }
 
 
         /// <summary>

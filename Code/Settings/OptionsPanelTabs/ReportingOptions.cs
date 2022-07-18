@@ -1,7 +1,4 @@
 ﻿using ColossalFramework.UI;
-using ICities;
-using System;
-using UnityEngine;
 
 
 namespace LoadingScreenModRevisited
@@ -27,6 +24,12 @@ namespace LoadingScreenModRevisited
 
             // Reporting options.
             UIHelper reportingGroup = AddGroup(helper, Translations.Translate("REPORTING"));
+
+            UICheckBox hideDuplicatesCheck = reportingGroup.AddCheckbox(Translations.Translate("WARN_DUPLICATES"), LSMRSettingsFile.showDuplicates, (isChecked) => LSMRSettingsFile.showDuplicates = isChecked) as UICheckBox;
+            hideDuplicatesCheck.tooltip = Translations.Translate("WARN_DUPLICATES_TIP") +
+                System.Environment.NewLine + Translations.Translate("DUPLICATE_NAMES_EXPLAIN_1") +
+                System.Environment.NewLine + Translations.Translate("DUPLICATE_NAMES_EXPLAIN_2");
+
             UICheckBox checkCheck = null;
             UICheckBox reportCheck = reportingGroup.AddCheckbox(Translations.Translate("SAVE_REPORTS_IN_DIRECTORY"), LoadingScreenMod.Settings.settings.reportAssets, (isChecked) =>
             {

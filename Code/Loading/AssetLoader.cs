@@ -1243,15 +1243,28 @@ namespace LoadingScreenModRevisited
 		private void CheckSuspects()
 		{
 			// Types to check.
-			CustomAssetMetaData.Type[] array = new CustomAssetMetaData.Type[6]
+			CustomAssetMetaData.Type[] array;
+			if (LSMRSettingsFile.showDuplicates)
 			{
-				CustomAssetMetaData.Type.Building,
-				CustomAssetMetaData.Type.Prop,
-				CustomAssetMetaData.Type.Tree,
-				CustomAssetMetaData.Type.Vehicle,
-				CustomAssetMetaData.Type.Citizen,
-				CustomAssetMetaData.Type.Road
-			};
+				// If we're showing duplicates, then show duplicates from all asset types.
+				array = new CustomAssetMetaData.Type[6]
+				{
+					CustomAssetMetaData.Type.Building,
+					CustomAssetMetaData.Type.Prop,
+					CustomAssetMetaData.Type.Tree,
+					CustomAssetMetaData.Type.Vehicle,
+					CustomAssetMetaData.Type.Citizen,
+					CustomAssetMetaData.Type.Road
+				};
+			}
+			else
+			{
+				// Even if we're not showing most duplicates, we still show duplicate networks.
+				array = new CustomAssetMetaData.Type[1]
+				{
+					CustomAssetMetaData.Type.Road
+				};
+			}
 
 			// Iterate through each type.
 			foreach (CustomAssetMetaData.Type type in array)
@@ -1451,7 +1464,7 @@ namespace LoadingScreenModRevisited
 			// Log message
 			Logging.Message("duplicate name", fullName);
 
-			// Display missing asset name unless we're supressing this one as a known missing asset.
+			// Display duplicate asset name unless we're supressing this one as a known missing asset.
 			if (!hiddenAssets.Contains(fullName))
 			{
 				LoadingScreen.instance.DualSource?.CustomAssetDuplicate(ShortAssetName(fullName));

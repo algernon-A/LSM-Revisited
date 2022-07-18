@@ -426,6 +426,8 @@ namespace LoadingScreenMod
 				SecOff();
 				Sec("#80e0f0");
 				H2(LoadingScreenModRevisited.Translations.Translate("DUPLICATE_NAMES"));
+				Italics(LoadingScreenModRevisited.Translations.Translate("DUPLICATE_NAMES_EXPLAIN_1"));
+				Italics(LoadingScreenModRevisited.Translations.Translate("DUPLICATE_NAMES_EXPLAIN_2"));
 				ReportDuplicates(hidden);
 				SecOff();
 				Sec("#60b030");
