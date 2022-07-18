@@ -184,6 +184,14 @@ namespace LoadingScreenModRevisited
         /// <param name="languageCode">Language code</param>
         public void SetLanguage(string languageCode)
         {
+            // Default (game) language.
+            if (languageCode == "default")
+            {
+                SetLanguage(-1);
+                return;
+            }
+
+            // Try for direct match.
             if (languages.ContainsKey(languageCode))
             {
                 SetLanguage(languages.IndexOfKey(languageCode));
