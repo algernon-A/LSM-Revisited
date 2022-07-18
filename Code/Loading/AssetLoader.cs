@@ -1450,7 +1450,7 @@ namespace LoadingScreenModRevisited
 			}
 
 			// Log message
-			Logging.Message("duplicate name", fullName);
+			Logging.Message("duplicate name ", fullName);
 
 			// Display duplicate asset name if this is a network asset, OR 'show duplicates' is selected, unless we're supressing this one as a known missing asset.
 			if ((type == CustomAssetMetaData.Type.Road || LSMRSettingsFile.showDuplicates) && !hiddenAssets.Contains(fullName))
