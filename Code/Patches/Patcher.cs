@@ -19,6 +19,7 @@ namespace LoadingScreenModRevisited
         // Flags.
         internal static bool Patched => _patched;
         private static bool _patched = false;
+        private static bool _customAnimLoaderPatched = false;
 
 
         /// <summary>
@@ -118,6 +119,40 @@ namespace LoadingScreenModRevisited
         {
             UnpatchMethod(targetType.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance),
                 patchType.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance));
+        }
+
+
+        /// <summary>
+        /// Patches Custom Animation Loader to work with this mod.
+        /// Actually, it applies CAL's LSM Postfix patch to this mod's AssetDeserializer.DeserializeGameObject method.
+        /// Doing this work for CAL.
+        /// </summary>
+        public static void PatchCustomAnimationLoader()
+        {
+            // Don't do anything if already patched.
+            if (!_customAnimLoaderPatched)
+            {
+                // Attempt to reflect CAL's patch method.
+                MethodInfo calPatch = Type.GetType("CustomAnimationLoader.Patches.PackageAssetPatch,CustomAnimationLoader")?.GetMethod("Postfix", BindingFlags.Public | BindingFlags.Static);
+                if (calPatch != null)
+                {
+                    // Found CAL's patch method - apply it here.
+                    Logging.KeyMessage("patching Custom Animation Loader");
+
+                    Harmony harmonyInstance = new Harmony(harmonyID);
+                    harmonyInstance.Patch(typeof(AssetDeserializer).GetMethod("DeserializeGameObject", BindingFlags.Instance | BindingFlags.NonPublic), postfix: new HarmonyMethod(calPatch));
+
+                    _customAnimLoaderPatched = true;
+                }
+                else
+                {
+                    Logging.Message("Custom Animation Loader not found");
+                }
+            }
+            else
+            {
+                Logging.Message("Custom Animation Loader already patched");
+            }
         }
 
 
