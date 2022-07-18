@@ -35,7 +35,7 @@ namespace LoadingScreenModRevisited
             UIHelper helper = new UIHelper(this);
 
             // Language selection.
-            UIDropDown languageDropDown = helper.AddDropdown(Translations.Translate("LANGUAGE"), Translations.LanguageList, Translations.Index, (index) =>
+            UIDropDown languageDropDown = helper.AddDropdown(Translations.Translate("CHOOSE_LANGUAGE"), Translations.LanguageList, Translations.Index, (index) =>
             {
                 Translations.Index = index;
                 OptionsPanelManager.LocaleChanged();

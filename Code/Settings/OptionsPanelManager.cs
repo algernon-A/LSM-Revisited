@@ -1,4 +1,5 @@
-﻿using ColossalFramework.UI;
+﻿using ColossalFramework.Globalization;
+using ColossalFramework.UI;
 using ICities;
 using System;
 using UnityEngine;
@@ -63,6 +64,9 @@ namespace LoadingScreenModRevisited
                         Close();
                     }
                 };
+
+                // Recreate panel on system locale change.
+                LocaleManager.eventLocaleChanged += LocaleChanged;
             }
         }
 
