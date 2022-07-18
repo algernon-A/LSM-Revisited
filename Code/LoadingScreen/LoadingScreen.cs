@@ -315,7 +315,7 @@ namespace LoadingScreenModRevisited
 		{
 			// Create overlay components.
 			overlayMesh = CreateOverlayMesh();
-			overlayMaterial = CreateOverlayMaterial(new Color(0f, 0f, 0f, 0.6f));
+			overlayMaterial = CreateOverlayMaterial(new Color(0f, 0f, 0f, 0.8f));
 			overlayLoaded = overlayMesh != null & overlayMaterial != null;
 
 			// Set instance references.
