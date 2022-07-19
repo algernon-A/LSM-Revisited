@@ -406,17 +406,22 @@ namespace LoadingScreenModRevisited
                                             // Does this value start with a quotation mark?
                                             if (value.StartsWith("\""))
                                             {
-                                                // Starts with quotation mark - if it also ends in a quotation mark, strip both quotation marks.
-                                                if (value.EndsWith("\""))
+                                                // Yes - trim starting quotation mark.
+                                                value = value.Substring(1);
+
+                                                // Find closing quote, if any.
+                                                int quotePos = value.IndexOf("\"");
+                                                if (quotePos > 0)
                                                 {
-                                                    value = value.Substring(1, value.Length - 2);
+                                                    // Closing quote found - trim off remainder of string.
+                                                    value = value.Substring(0, quotePos);
                                                 }
                                                 else
                                                 {
-                                                    // Doesn't end in a quotation mark, so we've (presumably) got a multi-line quoted entry
+                                                    // Doesn't have a quotation mark, so we've (presumably) got a multi-line quoted entry.
                                                     // Flag quoting mode and set initial value to start of quoted string (less leading quotation mark), plus trailing newline.
                                                     quoting = true;
-                                                    value = value.Substring(1) + Environment.NewLine;
+                                                    value = value + Environment.NewLine;
                                                 }
                                             }
 
@@ -458,9 +463,17 @@ namespace LoadingScreenModRevisited
                             }
 
                             // Did we get a valid dictionary from this?
-                            if (thisLanguage.code != null && thisLanguage.readableName != null && thisLanguage.translationDictionary.Count > 0)
+                            if (thisLanguage.code != null && thisLanguage.translationDictionary.Count > 0)
                             {
                                 // Yes - add to languages dictionary.
+
+                                // If we didn't get a readable name, use the key instead.
+                                if (thisLanguage.readableName.IsNullOrWhiteSpace())
+                                {
+                                    thisLanguage.readableName = thisLanguage.code;
+                                }
+
+                                // Check for duplicates.
                                 if (!languages.ContainsKey(thisLanguage.code))
                                 {
                                     Logging.Message("found translation file ", translationFile, " with language ", thisLanguage.code, " (", thisLanguage.readableName, ")");
