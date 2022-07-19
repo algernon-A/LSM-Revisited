@@ -20,9 +20,6 @@
 	<ItemGroup>
 		<_Translations Include="$(ProjectDir)/Translations/*.csv" />
 	</ItemGroup>
-	<ItemGroup>
-	  <_Translations Remove="Translations\de-DE.csv" />
-	</ItemGroup>
 	<Target Name="DeployToModDirectory" AfterTargets="Build">
 		<PropertyGroup>
 			<DeployDir>$(LOCALAPPDATA)/Colossal Order/Cities_Skylines/Addons/Mods/$(SolutionName)/</DeployDir>
