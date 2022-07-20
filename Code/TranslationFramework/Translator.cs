@@ -385,6 +385,14 @@ namespace LoadingScreenModRevisited
                                         key = line.Substring(0, commaPos);
                                         string value = line.Substring(commaPos + 1);
 
+                                        // Check for second comma.
+                                        commaPos = value.IndexOf(",");
+                                        if (commaPos > 0)
+                                        {
+                                            // Found second comma; ignore anything after that.
+                                            value = value.Substring(0, commaPos);
+                                        }
+
                                         // Don't do anything if either key or value is invalid.
                                         if (!key.IsNullOrWhiteSpace() && !value.IsNullOrWhiteSpace())
                                         {
