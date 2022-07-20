@@ -542,7 +542,11 @@ namespace LoadingScreenModRevisited
 				try
 				{
 					// Check availability, ignoring known failed assets).
-					return Instance<UsedAssets>.Create().AllAssetsAvailable(knownFailedAssets);
+					if (UsedAssets.instance == null)
+					{
+						UsedAssets.instance = new UsedAssets();
+					}
+					return UsedAssets.instance.AllAssetsAvailable(knownFailedAssets);
 				}
 				catch (Exception e)
 				{

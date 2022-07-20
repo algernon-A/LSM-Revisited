@@ -188,7 +188,7 @@ namespace LoadingScreenModRevisited
 			}
 
 			// Dispose of instances.
-			Instance<UsedAssets>.instance?.Dispose();
+			UsedAssets.instance?.Dispose();
 			Instance<Sharing>.instance?.Dispose();
 
 			// Clear collections.
@@ -320,9 +320,9 @@ namespace LoadingScreenModRevisited
 
 			// LSM insert.
 			// Create used asset instance if required.
-			if (LoadingScreenMod.Settings.settings.loadUsed)
+			if (LoadingScreenMod.Settings.settings.loadUsed & UsedAssets.instance == null)
 			{
-				Instance<UsedAssets>.Create();
+				UsedAssets.instance = new UsedAssets();
 			}
 			LoadingScreen.instance.DualSource.Add(Translations.Translate("CUSTOM_ASSETS"));
 
@@ -855,8 +855,8 @@ namespace LoadingScreenModRevisited
 					// Package is enabled if 'load enabled' is active and the main asset is enabled, or if the district style contains the main asset.
 					bool enabled = (loadEnabled && IsEnabled(mainAsset)) || styleBuildings.Contains(mainAsset.fullName);
 
-					// If not enabled, skip (unless we're loading used assets, or this package is already recorded as being in use).
-					if (!enabled && (!loadUsed || !Instance<UsedAssets>.instance.GotPackage(packageName)))
+					// If not enabled, skip (unless we're loading used assets, or this package is available for use).
+					if (!enabled && (!loadUsed || !UsedAssets.instance.GotPackage(packageName)))
 					{
 						continue;
 					}
@@ -868,7 +868,7 @@ namespace LoadingScreenModRevisited
 					packageTypes.Add(package, type);
 
 					// Check if the first asset in the package is in use.
-					bool isUsed = loadUsed && Instance<UsedAssets>.instance.IsUsed(finalAsset, type);
+					bool isUsed = loadUsed && UsedAssets.instance.IsUsed(finalAsset, type);
 
 					// Disable asset if relevant DLC isn't active.
 					enabled &= (AssetImporterAssetTemplate.GetAssetDLCMask(assetRefs) & dLC_BitMask) == 0;
@@ -879,8 +879,8 @@ namespace LoadingScreenModRevisited
 						// Iterate through each asset in package.
 						for (int i = 0; i < assetCount - 1; ++i)
 						{
-							if ((type != CustomAssetMetaData.Type.Road && Instance<UsedAssets>.instance.IsUsed(assetRefList[i], type)) ||
-								(type == CustomAssetMetaData.Type.Road && Instance<UsedAssets>.instance.IsUsed(assetRefList[i], CustomAssetMetaData.Type.Road, CustomAssetMetaData.Type.Building)))
+							if ((type != CustomAssetMetaData.Type.Road && UsedAssets.instance.IsUsed(assetRefList[i], type)) ||
+								(type == CustomAssetMetaData.Type.Road && UsedAssets.instance.IsUsed(assetRefList[i], CustomAssetMetaData.Type.Road, CustomAssetMetaData.Type.Building)))
 							{
 								// Secondary asset is in use; mark the package as being in use.
 								isUsed = true;
@@ -1024,7 +1024,7 @@ namespace LoadingScreenModRevisited
 
 
 		/// <summary>
-		/// Gets secondar asset references for the specified main asset.
+		/// Gets secondary asset references for the specified main asset.
 		/// </summary>
 		/// <param name="mainAsset">Main asset</param>
 		/// <param name="assetRefs">List of secondary asset references (will be cleared before new references are added)</param>
@@ -1395,7 +1395,7 @@ namespace LoadingScreenModRevisited
 			LoadingScreenMod.Settings settings = LoadingScreenMod.Settings.settings;
 			if (settings.loadUsed)
 			{
-				Instance<UsedAssets>.instance.ReportMissingAssets();
+				UsedAssets.instance.ReportMissingAssets();
 			}
 			if (recordAssets)
 			{
