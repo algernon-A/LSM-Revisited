@@ -50,7 +50,7 @@ namespace LoadingScreenModRevisited
 				red |= (ramMegas > ramRed) | (pageMegas > pageRed);
 				if (red)
 				{
-					return "<color #f04040>" + text + "</color>";
+					return "<color #ff5050>" + text + "</color>";
 				}
 				if (orange)
 				{
