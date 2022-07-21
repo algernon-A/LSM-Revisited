@@ -83,7 +83,7 @@ namespace LoadingScreenModRevisited
 
                 // If we got here, then we didn't find the assembly.
                 Logging.Error("assembly path not found");
-                throw new FileNotFoundException(Mod.ModName + ": assembly path not found!");
+                return null;
             }
         }
     }

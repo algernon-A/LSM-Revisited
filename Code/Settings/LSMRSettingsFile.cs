@@ -32,6 +32,13 @@ namespace LoadingScreenModRevisited
 
 
         /// <summary>
+        /// Local loading image directory.
+        /// </summary>
+        [XmlElement("LocalImageDir")]
+        public string XMLLocalImageDir { get => BackgroundImage.imageDir; set => BackgroundImage.imageDir = value; }
+
+
+        /// <summary>
         /// Hide duplicate item warnings.
         /// </summary>
         [XmlElement("ShowDuplicateWarnings")]

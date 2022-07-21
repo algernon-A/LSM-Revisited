@@ -46,6 +46,7 @@ namespace LoadingScreenModRevisited
                     LoadingScreenMod.Settings.settings.reportDir = text;
                 }
             });
+
             checkCheck = reportingGroup.AddCheckbox(Translations.Translate("CHECK_FOR_ERRORS"), LoadingScreenMod.Settings.settings.checkAssets, (isChecked) =>
             {
                 LoadingScreenMod.Settings.settings.checkAssets = isChecked;

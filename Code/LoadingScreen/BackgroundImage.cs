@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Security;
@@ -14,9 +15,10 @@ namespace LoadingScreenModRevisited
     /// </summary>
     public enum ImageMode : int
     {
-        StandardBackground = 0,
-        ImgurCuratedBackground,
-        ImgurRandomBackground
+        Standard = 0,
+        ImgurCurated,
+        ImgurRandom,
+        LocalRandom
     }
 
 
@@ -25,10 +27,13 @@ namespace LoadingScreenModRevisited
     /// </summary>
     internal static class BackgroundImage
     {
-        // List of image URLs from Imgur.
+        // Local random image directory.
+        internal static string imageDir = Path.Combine(ColossalFramework.IO.DataLocation.localApplicationData, "LoadingImages");
+
+        // List of image URLs from imgur.
         private static List<string> randomImages = new List<string>();
 
-
+        // Cureated imgur images.
         private static List<string> curatedImages = new List<string>
         {
             "rgxqLV0",
@@ -60,32 +65,113 @@ namespace LoadingScreenModRevisited
             {
                 _imageMode = value;
 
-                if (value == ImageMode.ImgurRandomBackground)
+                if (value == ImageMode.ImgurRandom)
                 {
                     // Ensure random image list is populated.
-                    PopulatImgurRandomList();
+                    PopulateImgurRandomList();
                 }
             }
         }
-        private static ImageMode _imageMode = ImageMode.StandardBackground;
+        private static ImageMode _imageMode = ImageMode.Standard;
+
+
+        /// <summary>
+        /// Attempts to replace the given material with one according to custom settings.
+        /// </summary>
+        /// <param name="material">Original material</param>
+        /// <returns>New material based on original with new texture, or null if failed</returns>
+        internal static Material GetImage(Material material)
+        {
+            switch (_imageMode)
+            {
+                case ImageMode.LocalRandom:
+                    return GetLocalImage(material);
+
+                case ImageMode.ImgurCurated:
+                    return GetImgurImage(material, curatedImages);
+
+                case ImageMode.ImgurRandom:
+                    // Try to populate the random list if we haven't already.
+                    if (randomImages.Count == 0)
+                    {
+                        PopulateImgurRandomList();
+                    }
+                    return GetImgurImage(material, randomImages);
+
+                default:
+                    return null;
+            }
+        }
+
+
+        /// <summary>
+        /// Attempts to replace the given material with one from a randomly selected file in a local image directory.
+        /// </summary>
+        /// <param name="material">Original material</param>
+        /// <returns>New material based on original with new texture, or null if failed</returns>
+        private static Material GetLocalImage(Material material)
+        {
+            // Check that the specified directory exists.
+            if (!Directory.Exists(imageDir))
+            {
+                Logging.KeyMessage("local image directory not found: ", imageDir);
+                return null;
+            }
+
+            // Background texture base.
+            Texture2D newTexture = new Texture2D(1, 1);
+
+            // Get list of files.
+            System.Random random = new System.Random();
+            string[] fileNames = Directory.GetFiles(imageDir);
+
+            // Iterate through filenames in random list order.
+            foreach (string imageFileName in fileNames.ToList().OrderBy(x => random.Next()))
+            {
+                try
+                {
+                    // Skip anything that isn't png or jpg.
+                    if (imageFileName == null || !imageFileName.EndsWith(".png") && !imageFileName.EndsWith(".jpg"))
+                    {
+                        continue;
+                    }
+
+                    // Read file and convert to texture.
+                    byte[] imageData = File.ReadAllBytes(imageFileName);
+                    newTexture.LoadImage(imageData);
+
+                    // Need minimum image size of 1920x1080.
+                    if (newTexture.width >= 1920 | newTexture.height >= 1080)
+                    {
+                        // Got an eligible candidate - convert to material and return it.
+                        return new Material(material)
+                        {
+                            mainTexture = newTexture
+                        };
+                    }
+
+                    Logging.Message("image too small: ", imageFileName);
+                }
+                catch (Exception e)
+                {
+                    // Don't let a single exception stop us.
+                    Logging.LogException(e, "exception reading texture file ", imageFileName ?? "null");
+                }
+            }
+
+            // If we got here, we didn't get an image; return null.
+            return null;
+        }
 
 
         /// <summary>
         /// Attempts to replace the given material with one based on a imgur image download.
         /// </summary>
         /// <param name="material">Original material</param>
+        /// <param name="imageList">Image list to use</param>
         /// <returns>New material based on original with new texture, or null if failed</returns>
-        internal static Material GetImgurImage(Material material)
+        private static Material GetImgurImage(Material material, List<string> imageList)
         {
-            // Determine which list to use.
-            List<string> imageList = ImageMode == ImageMode.ImgurCuratedBackground ? curatedImages : randomImages; 
-
-            // Try to populate the random list if we're using it and haven't already.
-            if (imageList == randomImages && imageList.Count == 0)
-            {
-                PopulatImgurRandomList();
-            }
-
             // Background texture base.
             Texture2D newTexture = new Texture2D(1, 1);
 
@@ -103,8 +189,8 @@ namespace LoadingScreenModRevisited
                     Logging.Message("downloading image from ", imageURL);
 
                     // Download image and convert to texture.
-                    byte[] imgurData = new WebClient().DownloadData(imageURL);
-                    newTexture.LoadImage(imgurData);
+                    byte[] imageData = new WebClient().DownloadData(imageURL);
+                    newTexture.LoadImage(imageData);
 
                     // Need minimum image size of 1920x1080.
                     if (newTexture.width >= 1920 | newTexture.height >= 1080)
@@ -138,7 +224,7 @@ namespace LoadingScreenModRevisited
         /// <summary>
         /// Populates the list of image URLs from /r/CitiesSkylines on imgur.
         /// </summary>
-        internal static void PopulatImgurRandomList()
+        private static void PopulateImgurRandomList()
         {
             // Don't do anything if the list is already populated.
             if (randomImages.Count > 0)
@@ -179,7 +265,7 @@ namespace LoadingScreenModRevisited
 
 
         /// <summary>
-        /// Simple Mono https/ssl certificate validation override to ensure that all certificates are accepted.
+        /// Simple Mono https/ssl certificate validation override to ensure that all certificates are accepted,
         /// because Mono has no certificates by default and https will automatically fail if we don't do this.
         /// </summary>
         private static RemoteCertificateValidationCallback CertificateValidationFudge = (sender, cert, chain, sslPolicyErrors) => cert.Subject.Contains("CN=*.imgur.com");

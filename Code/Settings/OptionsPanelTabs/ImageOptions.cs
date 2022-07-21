@@ -9,7 +9,7 @@ namespace LoadingScreenModRevisited
     internal class ImageOptions : OptionsPanelTab
     {
         // Panel components.
-        private UICheckBox defaultCheck, imgurCuratedCheck, imgurRandomCheck;
+        private UICheckBox defaultCheck, imgurCuratedCheck, imgurRandomCheck, localRandomCheck;
 
         // Event processing.
         private bool ignoreEvents = false;
@@ -31,20 +31,34 @@ namespace LoadingScreenModRevisited
 
             // Add curated imgur image check.
             defaultCheck = helper.AddCheckbox(Translations.Translate("DEFAULT_BACKGROUND"),
-                BackgroundImage.ImageMode == ImageMode.StandardBackground,
+                BackgroundImage.ImageMode == ImageMode.Standard,
                 DefaultCheckChanged) as UICheckBox;
 
             // Add curated imgur image check.
             imgurCuratedCheck = helper.AddCheckbox(Translations.Translate("IMGUR_CURATED"),
-                BackgroundImage.ImageMode == ImageMode.ImgurCuratedBackground,
+                BackgroundImage.ImageMode == ImageMode.ImgurCurated,
                 CuratedCheckChanged) as UICheckBox;
             imgurCuratedCheck.tooltip = Translations.Translate("IMGUR_CURATED_TIP");
 
             // Add random imgur image check.
             imgurRandomCheck = helper.AddCheckbox(Translations.Translate("IMGUR_TOP"),
-                BackgroundImage.ImageMode == ImageMode.ImgurRandomBackground,
+                BackgroundImage.ImageMode == ImageMode.ImgurRandom,
                 RandomCheckChanged) as UICheckBox;
             imgurRandomCheck.tooltip = Translations.Translate("IMGUR_TOP_TIP");
+
+            // Random local image check.
+            localRandomCheck = helper.AddCheckbox(Translations.Translate("LOCAL_IMAGE"),
+                BackgroundImage.ImageMode == ImageMode.LocalRandom,
+                LocalCheckChanged) as UICheckBox;
+            localRandomCheck.tooltip = Translations.Translate("LOCAL_IMAGE_TIP");
+
+            TextField(helper, BackgroundImage.imageDir, (text) =>
+            {
+                if (text != BackgroundImage.imageDir)
+                {
+                    BackgroundImage.imageDir = text;
+                }
+            });
         }
 
 
@@ -63,7 +77,7 @@ namespace LoadingScreenModRevisited
             // Only update if this is being checked.
             if (isChecked)
             {
-                BackgroundImage.ImageMode = ImageMode.StandardBackground;
+                BackgroundImage.ImageMode = ImageMode.Standard;
             }
 
             // Update all check states.
@@ -86,7 +100,7 @@ namespace LoadingScreenModRevisited
             // Only update if this is being checked.
             if (isChecked)
             {
-                BackgroundImage.ImageMode = isChecked ? ImageMode.ImgurCuratedBackground : ImageMode.StandardBackground;
+                BackgroundImage.ImageMode = ImageMode.ImgurCurated;
             }
 
             // Update all check states.
@@ -109,7 +123,30 @@ namespace LoadingScreenModRevisited
             // Only update if this is being checked.
             if (isChecked)
             {
-                BackgroundImage.ImageMode = isChecked ? ImageMode.ImgurRandomBackground : ImageMode.StandardBackground;
+                BackgroundImage.ImageMode = ImageMode.ImgurRandom;
+            }
+
+            // Update all check states.
+            UpdateChecks();
+        }
+
+
+        /// <summary>
+        /// Imgur random background image check change handler.
+        /// </summary>
+        /// <param name="isChecked">New checked status</param>
+        private void LocalCheckChanged(bool isChecked)
+        {
+            // Don't do anything if events are ignored.
+            if (ignoreEvents)
+            {
+                return;
+            }
+
+            // Only update if this is being checked.
+            if (isChecked)
+            {
+                BackgroundImage.ImageMode = ImageMode.LocalRandom;
             }
 
             // Update all check states.
@@ -126,9 +163,10 @@ namespace LoadingScreenModRevisited
             ignoreEvents = true;
 
             // Set check states.
-            defaultCheck.isChecked = BackgroundImage.ImageMode == ImageMode.StandardBackground;
-            imgurCuratedCheck.isChecked = BackgroundImage.ImageMode == ImageMode.ImgurCuratedBackground;
-            imgurRandomCheck.isChecked = BackgroundImage.ImageMode == ImageMode.ImgurRandomBackground;
+            defaultCheck.isChecked = BackgroundImage.ImageMode == ImageMode.Standard;
+            imgurCuratedCheck.isChecked = BackgroundImage.ImageMode == ImageMode.ImgurCurated;
+            imgurRandomCheck.isChecked = BackgroundImage.ImageMode == ImageMode.ImgurRandom;
+            localRandomCheck.isChecked = BackgroundImage.ImageMode == ImageMode.LocalRandom;
 
             // Resume event handling.
             ignoreEvents = false;
