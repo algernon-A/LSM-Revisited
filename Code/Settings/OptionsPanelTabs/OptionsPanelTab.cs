@@ -65,7 +65,12 @@ namespace LoadingScreenModRevisited
                 UITextField textField = group.AddTextfield(" ", text, action, null) as UITextField;
 
                 // Increase width.
-                textField.width *= 2.8f;
+                textField.width = 710f;
+
+                // Change text scale and font.
+                textField.textScale = 0.9f;
+                textField.font = FontUtils.Regular;
+                textField.padding.top = 7;
 
                 // Find label.
                 UIComponent parentPanel = textField.parent;
