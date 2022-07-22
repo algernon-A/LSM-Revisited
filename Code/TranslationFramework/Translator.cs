@@ -349,161 +349,179 @@ namespace LoadingScreenModRevisited
                 }
 
                 // Read file.
-                FileStream fileStream = new FileStream(translationFile, FileMode.Open, FileAccess.Read);
-                using (StreamReader reader = new StreamReader(fileStream))
+                try
                 {
-                    // Create new language instance for this file.
-                    Language thisLanguage = new Language
+                    FileStream fileStream = new FileStream(translationFile, FileMode.Open, FileAccess.Read);
+                    using (StreamReader reader = new StreamReader(fileStream))
                     {
-                        // Language code is filename.
-                        code = Path.GetFileNameWithoutExtension(translationFile),
-                    };
-
-                    // Parsing fields.
-                    StringBuilder builder = new StringBuilder();
-                    string key = null;
-                    bool quoting = false, parseKey = true;
-
-                    // Iterate through each line of file.
-                    string line = reader.ReadLine();
-                    while (line != null)
-                    {
-                        // Iterate through each character in line.
-                        for (int i = 0; i < line.Length; ++i)
+                        // Create new language instance for this file.
+                        Language thisLanguage = new Language
                         {
-                            // Local reference.
-                            char thisChar = line[i];
+                            // Language code is filename.
+                            code = Path.GetFileNameWithoutExtension(translationFile),
+                        };
 
-                            // Are we parsing quoted text?
+                        // Parsing fields.
+                        StringBuilder builder = new StringBuilder();
+                        string key = null;
+                        bool quoting = false, parseKey = true;
+
+                        // Iterate through each line of file.
+                        string line = reader.ReadLine();
+                        while (line != null)
+                        {
+                            // Iterate through each character in line.
+                            for (int i = 0; i < line.Length; ++i)
+                            {
+                                // Local reference.
+                                char thisChar = line[i];
+
+                                // Are we parsing quoted text?
+                                if (quoting)
+                                {
+                                    // Is this character a quote?
+                                    if (thisChar == '"')
+                                    {
+                                        // Is this a double quote?
+                                        int j = i + 1;
+                                        if (j < line.Length && line[j] == '"')
+                                        {
+                                            // Yes - append single quote to output and continue.
+                                            i = j;
+                                            builder.Append('"');
+                                            continue;
+                                        }
+
+                                        // It's a single quote - stop quoting here.
+                                        quoting = false;
+
+                                        // If we're parsing a value, this is also the end of parsing this line (discard everything else).
+                                        if (!parseKey)
+                                        {
+                                            break;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // Not a closing quote - just append character to our parsed value.
+                                        builder.Append(thisChar);
+                                    }
+                                }
+                                else
+                                {
+                                    // Not parsing quoted text - is this a comma?
+                                    if (thisChar == ',')
+                                    {
+                                        // Comma - if we're parsing a value, this is also the end of parsing this line (discard everything else).
+                                        if (!parseKey)
+                                        {
+                                            break;
+                                        }
+
+                                        // Otherwise, what we've parsed is the key - store value and reset the builder.
+                                        parseKey = false;
+                                        key = builder.ToString();
+                                        builder.Length = 0;
+                                    }
+                                    else if (thisChar == '"' & builder.Length == 0)
+                                    {
+                                        // If this is a quotation mark at the start of a field (immediately after comma), then we start parsing this as quoted text.
+                                        quoting = true;
+                                    }
+                                    else
+                                    {
+                                        // Otherwise, just append character to our parsed string.
+                                        builder.Append(thisChar);
+                                    }
+                                }
+                            }
+
+                            // Finished looping through chars - are we still parsing quoted text?
                             if (quoting)
                             {
-                                // Is this character a quote?
-                                if (thisChar == '"')
-                                {
-                                    // Yes - stop quoting here.
-                                    quoting = false;
+                                // Yes; continue, after adding a newline.
+                                builder.AppendLine();
+                                goto NextLine;
+                            }
 
-                                    // If we're parsing a value, this is also the end of parsing this line (discard everything else).
-                                    if (!parseKey)
-                                    {
-                                        break;
-                                    }
-                                }
-                                else
-                                {
-                                    // Not a closing quote - just append character to our parsed value.
-                                    builder.Append(thisChar);
-                                }
+                            // Was key empty?
+                            if (key.IsNullOrWhiteSpace())
+                            {
+                                Logging.Error("invalid key in line ", line);
+                                goto Reset;
+                            }
+
+                            // Did we get two delimited fields (key and value?)
+                            if (parseKey | builder.Length == 0)
+                            {
+                                Logging.Error("no value field found in line ", line);
+                                goto Reset;
+                            }
+
+                            // Convert value to string and reset builder.
+                            string value = builder.ToString();
+                            builder.Length = 0;
+
+                            // Check if this entry is the language entry.
+                            if (key.Equals(Language.NameKey))
+                            {
+                                // Language readable name.
+                                thisLanguage.readableName = value;
                             }
                             else
                             {
-                                // Not parsing quoted text - is this a comma?
-                                if (thisChar == ',')
+                                // Normal entry - check for duplicates.
+                                if (!thisLanguage.translationDictionary.ContainsKey(key))
                                 {
-                                    // Comma - if we're parsing a value, this is also the end of parsing this line (discard everything else).
-                                    if (!parseKey)
-                                    {
-                                        break;
-                                    }
-
-                                    // Otherwise, what we've parsed is the key - store value and reset the builder.
-                                    parseKey = false;
-                                    key = builder.ToString();
-                                    builder.Length = 0;
-                                }
-                                else if (thisChar == '"' & builder.Length == 0)
-                                {
-                                    // If this is a quotation mark at the start of a field (immediately after comma), then we start parsing this as quoted text.
-                                    quoting = true;
+                                    thisLanguage.translationDictionary.Add(key, value);
                                 }
                                 else
                                 {
-                                    // Otherwise, just append character to our parsed string.
-                                    builder.Append(thisChar);
+                                    Logging.Error("duplicate translation key ", key, " in file ", translationFile);
                                 }
                             }
+
+                        Reset:
+                            // Reset for next line.
+                            parseKey = true;
+
+                        NextLine:
+                            // Read next line.
+                            line = reader.ReadLine();
                         }
 
-                        // Finished looping through chars - are we still parsing quoted text?
-                        if (quoting)
+                        // Did we get a valid dictionary from this?
+                        if (thisLanguage.code != null && thisLanguage.translationDictionary.Count > 0)
                         {
-                            // Yes; continue, after adding a newline.
-                            builder.AppendLine();
-                            goto NextLine;
-                        }
+                            // Yes - add to languages dictionary.
 
-                        // Was key empty?
-                        if (key.IsNullOrWhiteSpace())
-                        {
-                            Logging.Error("invalid key in line ", line);
-                            goto Reset;
-                        }
-
-                        // Did we get two delimited fields (key and value?)
-                        if (parseKey | builder.Length == 0)
-                        {
-                            Logging.Error("no value field found in line ", line);
-                            goto Reset;
-                        }
-
-                        // Convert value to string and reset builder.
-                        string value = builder.ToString();
-                        builder.Length = 0;
-
-                        // Check if this entry is the language entry.
-                        if (key.Equals(Language.NameKey))
-                        {
-                            // Language readable name.
-                            thisLanguage.readableName = value;
-                        }
-                        else
-                        {
-                            // Normal entry - check for duplicates.
-                            if (!thisLanguage.translationDictionary.ContainsKey(key))
+                            // If we didn't get a readable name, use the key instead.
+                            if (thisLanguage.readableName.IsNullOrWhiteSpace())
                             {
-                                thisLanguage.translationDictionary.Add(key, value);
+                                thisLanguage.readableName = thisLanguage.code;
+                            }
+
+                            // Check for duplicates.
+                            if (!languages.ContainsKey(thisLanguage.code))
+                            {
+                                Logging.Message("read translation file ", translationFile, " with language ", thisLanguage.code, " (", thisLanguage.readableName, ") with ", thisLanguage.translationDictionary.Count, " entries");
+                                languages.Add(thisLanguage.code, thisLanguage);
                             }
                             else
                             {
-                                Logging.Error("duplicate translation key ", key, " in file ", translationFile);
+                                Logging.Error("duplicate translation file for language ", thisLanguage.code);
                             }
-                        }
-
-                    Reset:
-                        // Reset for next line.
-                        parseKey = true;
-
-                    NextLine:
-                        // Read next line.
-                        line = reader.ReadLine();
-                    }
-
-                    // Did we get a valid dictionary from this?
-                    if (thisLanguage.code != null && thisLanguage.translationDictionary.Count > 0)
-                    {
-                        // Yes - add to languages dictionary.
-
-                        // If we didn't get a readable name, use the key instead.
-                        if (thisLanguage.readableName.IsNullOrWhiteSpace())
-                        {
-                            thisLanguage.readableName = thisLanguage.code;
-                        }
-
-                        // Check for duplicates.
-                        if (!languages.ContainsKey(thisLanguage.code))
-                        {
-                            Logging.Message("read translation file ", translationFile, " with language ", thisLanguage.code, " (", thisLanguage.readableName, ") with ", thisLanguage.translationDictionary.Count, " entries");
-                            languages.Add(thisLanguage.code, thisLanguage);
                         }
                         else
                         {
-                            Logging.Error("duplicate translation file for language ", thisLanguage.code);
+                            Logging.Error("file ", translationFile, " did not produce a valid translation dictionary");
                         }
                     }
-                    else
-                    {
-                        Logging.Error("file ", translationFile, " did not produce a valid translation dictionary");
-                    }
+                }
+                catch (Exception e)
+                {
+                    // Don't let a single exception stop us; keep going through remaining files.
+                    Logging.LogException(e, "exception reading translation file ", translationFile);
                 }
             }
         }
