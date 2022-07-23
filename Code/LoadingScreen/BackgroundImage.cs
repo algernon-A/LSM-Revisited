@@ -51,7 +51,8 @@ namespace LoadingScreenModRevisited
             "flntFdZ",
             "eHxXttn",
             "wRb2zpm",
-            "6v3CNXO"
+            "6v3CNXO",
+            "KENCQU6"
         };
 
 
