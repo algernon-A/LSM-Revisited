@@ -12,7 +12,7 @@ namespace LoadingScreenModRevisited
 	{
 		public static string ModName => "LSM Revisited";
 
-		public string Name => "Loading Screen Mod Revisited " + ModUtils.CurrentVersion;
+		public string Name => "Loading Screen Mod Revisited " + AssemblyUtils.CurrentVersion;
 		public string Description => "Optimizes game loading";
 
 

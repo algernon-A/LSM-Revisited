@@ -2,7 +2,6 @@
 using ICities;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -10,9 +9,9 @@ using System.Reflection;
 namespace LoadingScreenModRevisited
 {
     /// <summary>
-    /// Class that manages interactions with other mods, including compatibility and functionality checks.
+    /// Class that manages interactions with assemblie, including compatibility and functionality checks.
     /// </summary>
-    internal static class ModUtils
+    internal static class AssemblyUtils
     {
         // Mod assembly path cache.
         private static string assemblyPath = null;

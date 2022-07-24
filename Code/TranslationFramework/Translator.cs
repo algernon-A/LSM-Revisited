@@ -322,7 +322,7 @@ namespace LoadingScreenModRevisited
             languages.Clear();
 
             // Get the current assembly path and append our locale directory name.
-            string assemblyPath = ModUtils.AssemblyPath;
+            string assemblyPath = AssemblyUtils.AssemblyPath;
             if (assemblyPath.IsNullOrWhiteSpace())
             {
                 Logging.Error("assembly path was empty");
