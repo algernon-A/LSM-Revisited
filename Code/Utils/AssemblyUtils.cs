@@ -9,7 +9,7 @@ using System.Reflection;
 namespace LoadingScreenModRevisited
 {
     /// <summary>
-    /// Class that manages interactions with assemblie, including compatibility and functionality checks.
+    /// Class that manages interactions with assemblies, including compatibility and functionality checks.
     /// </summary>
     internal static class AssemblyUtils
     {
