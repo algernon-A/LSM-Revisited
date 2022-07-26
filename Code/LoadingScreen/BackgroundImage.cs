@@ -52,7 +52,9 @@ namespace LoadingScreenModRevisited
             "eHxXttn",
             "wRb2zpm",
             "6v3CNXO",
-            "KENCQU6"
+            "KENCQU6",
+            "IcyyO0Y",
+            "SopTi2R"
         };
 
 
