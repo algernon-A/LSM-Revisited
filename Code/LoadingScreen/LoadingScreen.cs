@@ -533,7 +533,7 @@ namespace LoadingScreenModRevisited
 			// Create background quads.
 			CreateQuad(-1.35f, 0.75f, 0.86f, 1.5f, vertices, triangles);
 			CreateQuad(-0.38f, -0.47f, 0.75f, 0.28f, vertices, triangles);
-			CreateQuad(-0.17f, 0.75f, 0.34f, 0.2f, vertices, triangles);
+			CreateQuad(-0.17f, 0.75f, 0.47f, 0.2f, vertices, triangles);
 			CreateQuad(-0.17f, 0.48f, 0.47f, 0.3f, vertices, triangles);
 
 			return new Mesh
