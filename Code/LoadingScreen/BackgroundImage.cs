@@ -195,7 +195,7 @@ namespace LoadingScreenModRevisited
                     newTexture.LoadImage(imageData);
 
                     // Need minimum image size of 1920x1080.
-                    if (newTexture.width >= 1920 | newTexture.height >= 1080)
+                    if (newTexture.width >= 1920 & newTexture.height >= 1080)
                     {
                         // Got an eligible candidate - convert to material and return it.
                         return new Material(material)
