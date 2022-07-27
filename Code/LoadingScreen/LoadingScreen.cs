@@ -427,7 +427,7 @@ namespace LoadingScreenModRevisited
 			{
 				LineSource loaderSource = LoaderSource;
 				loaderSource.Add(assetsCount + " / " + assetsTotal);
-				loaderSource.Add((assetsCount * 1000f / (nowMillis - beginMillis)).ToString("G3") + Translations.Translate("PER_SECOND"));
+				loaderSource.Add((assetsCount * 1000f / (nowMillis - beginMillis)).ToString("G3") + ' ' + Translations.Translate("PER_SECOND"));
 			}
 		}
 
