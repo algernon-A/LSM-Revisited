@@ -56,7 +56,8 @@ namespace LoadingScreenModRevisited
             "IcyyO0Y",
             "SopTi2R",
             "VsemQRg",
-            "CrXy9hx"
+            "CrXy9hx",
+            "FsDd12C",
         };
 
 
