@@ -1,18 +1,19 @@
-﻿using System;
-using System.Text;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using ColossalFramework;
-using ColossalFramework.Packaging;
-using ColossalFramework.PlatformServices;
-using ICities;
-using UnityEngine;
-using LoadingScreenMod;
-
-
-namespace LoadingScreenModRevisited
+﻿namespace LoadingScreenModRevisited
 {
+	using System;
+	using System.Collections;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Text;
+	using AlgernonCommons;
+	using AlgernonCommons.Translation;
+	using ColossalFramework;
+	using ColossalFramework.Packaging;
+	using ColossalFramework.PlatformServices;
+	using ICities;
+	using LoadingScreenMod;
+	using UnityEngine;
+
 	/// <summary>
 	/// Custom content loader; called from LevelLoader.
 	/// </summary>
@@ -1453,7 +1454,7 @@ namespace LoadingScreenModRevisited
 			Logging.Message("duplicate name ", fullName);
 
 			// Display duplicate asset name if this is a network asset, OR 'show duplicates' is selected, unless we're supressing this one as a known missing asset.
-			if ((type == CustomAssetMetaData.Type.Road || LSMRSettingsFile.showDuplicates) && !hiddenAssets.Contains(fullName))
+			if ((type == CustomAssetMetaData.Type.Road || LSMRSettings.ShowDuplicates) && !hiddenAssets.Contains(fullName))
 			{
 				LoadingScreen.instance.DualSource?.CustomAssetDuplicate(ShortAssetName(fullName));
 			}

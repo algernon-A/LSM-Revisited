@@ -1,17 +1,18 @@
-using ColossalFramework;
-using ColossalFramework.UI;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using UnityEngine;
-using LoadingScreenMod;
-
-
 namespace LoadingScreenModRevisited
 {
+	using System;
+	using System.Collections.Generic;
+	using System.Reflection;
+	using ColossalFramework;
+	using ColossalFramework.UI;
+	using AlgernonCommons;
+	using AlgernonCommons.Translation;
+	using LoadingScreenMod;
+	using UnityEngine;
+
 	/// <summary>
-    /// The actual loading screen itself.
-    /// </summary>
+	/// The actual loading screen itself.
+	/// </summary>
 	public sealed class LoadingScreen
 	{
 		// Screen dimensions.
@@ -335,12 +336,12 @@ namespace LoadingScreenModRevisited
 			SetFont();
 
 			// Apply Harmony patches to the loading animation.
-			Patcher.PrefixMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "SetImage");
-			Patcher.PrefixMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "SetText");
-			Patcher.PrefixMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "OnEnable");
-			Patcher.PrefixMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "OnDisable");
-			Patcher.PrefixMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "Update");
-			Patcher.PrefixMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "OnPostRender");
+			Patcher.Instance.PrefixMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "SetImage");
+			Patcher.Instance.PrefixMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "SetText");
+			Patcher.Instance.PrefixMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "OnEnable");
+			Patcher.Instance.PrefixMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "OnDisable");
+			Patcher.Instance.PrefixMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "Update");
+			Patcher.Instance.PrefixMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "OnPostRender");
 		}
 
 
@@ -350,12 +351,12 @@ namespace LoadingScreenModRevisited
 		internal void Dispose()
 		{
 			// Revert Harmony patches.
-			Patcher.UnpatchMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "SetImage");
-			Patcher.UnpatchMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "SetText");
-			Patcher.UnpatchMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "OnEnable");
-			Patcher.UnpatchMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "OnDisable");
-			Patcher.UnpatchMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "Update");
-			Patcher.UnpatchMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "OnPostRender");
+			Patcher.Instance.UnpatchMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "SetImage");
+			Patcher.Instance.UnpatchMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "SetText");
+			Patcher.Instance.UnpatchMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "OnEnable");
+			Patcher.Instance.UnpatchMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "OnDisable");
+			Patcher.Instance.UnpatchMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "Update");
+			Patcher.Instance.UnpatchMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "OnPostRender");
 
 			// Restore font manager callback.
 			UIFontManager.callbackRequestCharacterInfo = (UIFontManager.CallbackRequestCharacterInfo)Delegate.Remove(UIFontManager.callbackRequestCharacterInfo, new UIFontManager.CallbackRequestCharacterInfo(RequestCharacterInfo));

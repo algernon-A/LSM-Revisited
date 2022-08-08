@@ -25,7 +25,7 @@ namespace LoadingScreenMod
 			{
 				if (!deployed)
 				{
-					Patcher.PrefixMethod(from, to);
+					Patcher.Instance.PrefixMethod(from, to);
 				}
 				deployed = true;
 			}
@@ -42,7 +42,7 @@ namespace LoadingScreenMod
 			{
 				if (deployed)
 				{
-					Patcher.UnpatchMethod(from, to);
+					Patcher.Instance.UnpatchMethod(from, to);
 				}
 				deployed = false;
 			}

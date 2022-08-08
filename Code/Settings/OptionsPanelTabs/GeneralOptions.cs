@@ -1,8 +1,10 @@
-﻿using ColossalFramework.UI;
-
-
-namespace LoadingScreenModRevisited
+﻿namespace LoadingScreenModRevisited
 {
+    using AlgernonCommons;
+    using AlgernonCommons.Translation;
+    using AlgernonCommons.UI;
+    using ColossalFramework.UI;
+
     /// <summary>
     /// Options panel for setting basic mod options.
     /// </summary>
@@ -18,7 +20,7 @@ namespace LoadingScreenModRevisited
             Logging.Message("creating general options panel");
 
             // Add tab and helper.
-            UIPanel panel = OptionsPanel.AddTab(tabStrip, Translations.Translate("OPTIONS_GENERAL"), tabIndex, true);
+            UIPanel panel = UITabstrips.AddTextTab(tabStrip, Translations.Translate("OPTIONS_GENERAL"), tabIndex, out UIButton _, autoLayout: true);
             panel.autoLayoutDirection = LayoutDirection.Vertical;
 
             // Add controls.
@@ -29,7 +31,7 @@ namespace LoadingScreenModRevisited
             UIDropDown languageDropDown = languageGroup.AddDropdown(" ", Translations.LanguageList, Translations.Index, (index) =>
             {
                 Translations.Index = index;
-                OptionsPanel.LocaleChanged();
+                OptionsPanelManager<OptionsPanel>.LocaleChanged();
             }) as UIDropDown;
             languageDropDown.width += 200f;
 

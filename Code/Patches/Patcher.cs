@@ -1,34 +1,59 @@
-﻿using System;
-using System.Text;
-using System.Reflection;
-using ColossalFramework.Packaging;
-using HarmonyLib;
-using CitiesHarmony.API;
-
-
-namespace LoadingScreenModRevisited
+﻿namespace LoadingScreenModRevisited
 {
+    using System;
+    using System.Reflection;
+    using System.Text;
+    using AlgernonCommons;
+    using AlgernonCommons.Patching;
+    using ColossalFramework.Packaging;
+    using CitiesHarmony.API;
+    using HarmonyLib;
+
     /// <summary>
     /// Class to manage the mod's Harmony patches.
     /// </summary>
-    public static class Patcher
+    public class Patcher : PatcherBase
     {
         // Unique harmony identifier.
         private const string harmonyID = "com.github.algernon-A.csl.lsmr";
 
         // Flags.
-        internal static bool Patched => _patched;
-        private static bool _patched = false;
-        private static bool _customAnimLoaderPatched = false;
+        private bool _customAnimLoaderPatched = false;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Patcher"/> class.
+        /// </summary>
+        /// <param name="harmonyID">This mod's unique Harmony identifier.</param>
+        public Patcher(string harmonyID)
+            : base(harmonyID)
+        {
+        }
+
+        /// <summary>
+        /// Gets the active instance reference.
+        /// </summary>
+        public static new Patcher Instance
+        {
+            get
+            {
+                // Auto-initializing getter.
+                if (s_instance == null)
+                {
+                    s_instance = new Patcher(PatcherMod.Instance.HarmonyID);
+                }
+
+                return s_instance as Patcher;
+            }
+        }
 
 
         /// <summary>
         /// Apply all Harmony patches.
         /// </summary>
-        public static void PatchAll()
+        public override void PatchAll()
         {
             // Don't do anything if already patched.
-            if (!_patched)
+            if (!Patched)
             {
                 // Ensure Harmony is ready before patching.
                 if (HarmonyHelper.IsHarmonyInstalled)
@@ -36,13 +61,12 @@ namespace LoadingScreenModRevisited
                     Logging.KeyMessage("deploying Harmony patches");
 
                     // Apply all annotated patches and update flag.
-                    Harmony harmonyInstance = new Harmony(harmonyID);
+                    Harmony harmonyInstance = new Harmony(Mod.Instance.HarmonyID);
                     harmonyInstance.PatchAll();
+                    Patched = true;
 
                     // Apply asset serializer reverse patches.
                     ApplyAssetSerializerReverses();
-
-                    _patched = true;
                 }
                 else
                 {
@@ -53,29 +77,11 @@ namespace LoadingScreenModRevisited
 
 
         /// <summary>
-        /// Remove all Harmony patches.
-        /// </summary>
-        public static void UnpatchAll()
-        {
-            // Only unapply if patches appplied.
-            if (_patched)
-            {
-                Logging.KeyMessage("reverting Harmony patches");
-
-                // Unapply patches, but only with our HarmonyID.
-                Harmony harmonyInstance = new Harmony(harmonyID);
-                harmonyInstance.UnpatchAll(harmonyID);
-                _patched = false;
-            }
-        }
-
-
-        /// <summary>
         /// Applies a Harmony prefix to the specified method.
         /// </summary>
         /// <param name="target">Target method</param>
         /// <param name="patch">Harmony Prefix patch</param>
-        public static void PrefixMethod(MethodInfo target, MethodInfo patch)
+        public void PrefixMethod(MethodInfo target, MethodInfo patch)
         {
             Harmony harmonyInstance = new Harmony(harmonyID);
             harmonyInstance.Patch(target, prefix: new HarmonyMethod(patch));
@@ -90,7 +96,7 @@ namespace LoadingScreenModRevisited
         /// <param name="targetType">Target type to patch</param>
         /// <param name="patchType">Type containing patch method</param>
         /// <param name="methodName">Method name</param>
-        public static void PrefixMethod(Type targetType, Type patchType, string methodName)
+        public void PrefixMethod(Type targetType, Type patchType, string methodName)
         {
             PrefixMethod(targetType.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance),
                 patchType.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance));
@@ -102,7 +108,7 @@ namespace LoadingScreenModRevisited
         /// </summary>
         /// <param name="target">Target method</param>
         /// <param name="patch">Patch to revert</param>
-        public static void UnpatchMethod(MethodInfo target, MethodInfo patch)
+        public void UnpatchMethod(MethodInfo target, MethodInfo patch)
         {
             Harmony harmonyInstance = new Harmony(harmonyID);
             harmonyInstance.Unpatch(target, patch);
@@ -115,7 +121,7 @@ namespace LoadingScreenModRevisited
         /// <param name="targetType">Target type to patch</param>
         /// <param name="patchType">Type containing patch method</param>
         /// <param name="methodName">Method name</param>
-        public static void UnpatchMethod(Type targetType, Type patchType, string methodName)
+        public void UnpatchMethod(Type targetType, Type patchType, string methodName)
         {
             UnpatchMethod(targetType.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance),
                 patchType.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance));
@@ -127,7 +133,7 @@ namespace LoadingScreenModRevisited
         /// Actually, it applies CAL's LSM Postfix patch to this mod's AssetDeserializer.DeserializeGameObject method.
         /// Doing this work for CAL.
         /// </summary>
-        public static void PatchCustomAnimationLoader()
+        public void PatchCustomAnimationLoader()
         {
             // Don't do anything if already patched.
             if (!_customAnimLoaderPatched)
@@ -159,7 +165,7 @@ namespace LoadingScreenModRevisited
         /// <summary>
         /// Applies reverse patches to access methods of private type ColossalFramework.Packaging.AssetSerializer.
         /// </summary>
-        private static void ApplyAssetSerializerReverses()
+        private void ApplyAssetSerializerReverses()
         {
             // No try...catch here, if something goes wrong we want to have the unmanaged exception (at least for now).
             // Any failure needs to be immediately obvious to the user.
@@ -184,7 +190,7 @@ namespace LoadingScreenModRevisited
         /// </summary>
         /// <param name="method">MethodInfo to log</param>
         /// <returns>MethodInfo data as human-readable string.</returns>
-        private static string PrintMethod(MethodInfo method)
+        private string PrintMethod(MethodInfo method)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append(method.DeclaringType);

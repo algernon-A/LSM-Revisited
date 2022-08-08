@@ -1,79 +1,96 @@
-﻿using CitiesHarmony.API;
-using ColossalFramework.UI;
-using ICities;
-
-
-namespace LoadingScreenModRevisited
+﻿namespace LoadingScreenModRevisited
 {
+	using AlgernonCommons;
+	using AlgernonCommons.Patching;
+	using AlgernonCommons.Translation;
+	using AlgernonCommons.UI;
+	using ColossalFramework.UI;
+	using ICities;
+
 	/// <summary>
 	/// The base mod class for instantiation by the game.
 	/// </summary>
-	public sealed class Mod : LoadingExtensionBase, IUserMod
+	public sealed class Mod : PatcherMod,  IUserMod
 	{
-		public static string ModName => "LSM Revisited";
+		// Mod name.
+		private static readonly string ModName = "Loading Screen Mod Revisited";
 
-		public string Name => "Loading Screen Mod Revisited " + AssemblyUtils.CurrentVersion;
-		public string Description => "Optimizes game loading";
+		/// <summary>
+		/// Gets the mod's name for logging purposes.
+		/// </summary>
+		public override string LogName => "LSM Revisited";
 
+		/// <summary>
+		/// Gets the mod's unique Harmony identfier.
+		/// </summary>
+		public override string HarmonyID => "com.github.algernon-A.csl.lsmr";
+
+		/// <summary>
+		/// Gets the mod's display name.
+		/// </summary>
+		public override string Name => ModName + ' ' + AssemblyUtils.TrimmedCurrentVersion;
+
+		/// <summary>
+		/// Gets the mod's description for display in the content manager.
+		/// </summary>
+		public string Description => Translations.Translate("MOD_DESCRIPTION");
 
 		/// <summary>
 		/// Called by the game when the mod is enabled.
 		/// </summary>
-		public void OnEnabled()
+		public override void OnEnabled()
 		{
-			// Apply Harmony patches via Cities Harmony.
-			// Called here instead of OnCreated to allow the auto-downloader to do its work prior to launch.
-			HarmonyHelper.DoOnHarmonyReady(() => Patcher.PatchAll());
-
-			// Load the settings file.
-			LSMRSettingsFile.Load();
+			base.OnEnabled();
 
 			// Attaching options panel event hook - check to see if UIView is ready.
 			if (UIView.GetAView() != null)
 			{
 				// It's ready - attach the hook now.
-				OptionsPanel.OptionsEventHook();
+				OptionsPanelManager<OptionsPanel>.OptionsEventHook();
 			}
 			else
 			{
 				// Otherwise, queue the hook for when the intro's finished loading.
-				LoadingManager.instance.m_introLoaded += OptionsPanel.OptionsEventHook;
+				LoadingManager.instance.m_introLoaded += OptionsPanelManager<OptionsPanel>.OptionsEventHook;
 			}
 		}
 
-		public void OnDisabled()
+		public override void OnDisabled()
 		{
-			// Unapply Harmony patches via Cities Harmony.
-			if (HarmonyHelper.IsHarmonyInstalled)
-			{
-				Patcher.UnpatchAll();
-			}
+			base.OnDisabled();
 
 			// Remove legacy settings helper.
 			LoadingScreenMod.Settings.settings.helper = null;
 		}
 
-
 		/// <summary>
 		/// Called by the game when the mod options panel is setup.
 		/// </summary>
+		/// <param name="helper">UI helper instance.</param>
 		public void OnSettingsUI(UIHelperBase helper)
 		{
 			// Create options panel.
-			OptionsPanel.Setup(helper);
-        }
-
+			OptionsPanelManager<OptionsPanel>.Setup(helper);
+		}
 
 		/// <summary>
-		/// Called by the game when level loading is complete.
+		/// Saves settings file.
 		/// </summary>
-		/// <param name="mode">Loading mode (e.g. game, editor, scenario, etc.)</param>
-		public override void OnLevelLoaded(LoadMode mode)
-		{
-			base.OnLevelLoaded(mode);
+		public override void SaveSettings() => LSMRSettings.Save();
 
-			// Set up options panel event handler (need to redo this now that options panel has been reset after loading into game).
-			OptionsPanel.OptionsEventHook();
-		}
-    }
+		/// <summary>
+		/// Loads settings file.
+		/// </summary>
+		public override void LoadSettings() => LSMRSettings.Load();
+
+		/// <summary>
+		/// Apply Harmony patches.
+		/// </summary>
+		protected override void ApplyPatches() => Patcher.Instance.PatchAll();
+
+		/// <summary>
+		/// Remove Harmony patches.
+		/// </summary>
+		protected override void RemovePatches() => Patcher.Instance.UnpatchAll();
+	}
 }

@@ -1,11 +1,11 @@
-using ColossalFramework.UI;
-using System;
-using UnityEngine;
-using LoadingScreenMod;
-
-
 namespace LoadingScreenModRevisited
 {
+	using System;
+	using AlgernonCommons;
+	using ColossalFramework.UI;
+	using LoadingScreenMod;
+	using UnityEngine;
+
 	/// <summary>
 	/// Loading screen text display.
 	/// </summary>

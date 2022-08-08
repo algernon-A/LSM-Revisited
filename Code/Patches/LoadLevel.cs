@@ -59,7 +59,7 @@ namespace LoadingScreenModRevisited
             }
 
             // Patch Custom Animation Loader.
-            Patcher.PatchCustomAnimationLoader();
+            Patcher.Instance.PatchCustomAnimationLoader();
 
             // Reset legacy settings.
             LoadingScreenMod.Settings settings = LoadingScreenMod.Settings.settings;

@@ -1,3 +1,4 @@
+using AlgernonCommons.Translation;
 using ColossalFramework;
 
 namespace LoadingScreenMod
@@ -12,11 +13,11 @@ namespace LoadingScreenMod
 
 		private readonly string name;
 
-		private readonly string failedStr = ' ' + LoadingScreenModRevisited.Translations.Translate("FAILED") + ' ';
+		private readonly string failedStr = ' ' + Translations.Translate("FAILED") + ' ';
 
-		private readonly string missingStr = ' ' + LoadingScreenModRevisited.Translations.Translate("MISSING") + ' ';
+		private readonly string missingStr = ' ' + Translations.Translate("MISSING") + ' ';
 
-		private readonly string duplicatesStr = ' ' + LoadingScreenModRevisited.Translations.Translate("DUPLICATE") + ' ';
+		private readonly string duplicatesStr = ' ' + Translations.Translate("DUPLICATE") + ' ';
 
 		private int state;
 

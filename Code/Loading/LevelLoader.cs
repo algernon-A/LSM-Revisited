@@ -1,18 +1,19 @@
-﻿using System;
-using System.Threading;
-using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using ColossalFramework;
-using ColossalFramework.UI;
-using ColossalFramework.Packaging;
-using LoadingScreenMod;
-
-
-namespace LoadingScreenModRevisited
+﻿namespace LoadingScreenModRevisited
 {
+	using System;
+	using System.Threading;
+	using System.Collections;
+	using System.Collections.Generic;
+	using System.Reflection;
+	using AlgernonCommons;
+	using ColossalFramework;
+	using ColossalFramework.UI;
+	using ColossalFramework.Packaging;
+	using LoadingScreenMod;
+	using UnityEngine;
+	using UnityEngine.SceneManagement;
+
+
 	/// <summary>
 	/// Custom level loader to implement mod loading.
 	/// </summary>
@@ -798,7 +799,7 @@ namespace LoadingScreenModRevisited
 			DestroyLoaded<TransportInfo>();
 			DestroyLoaded<VehicleInfo>();
 			DestroyLoaded<CitizenInfo>();
-			DestroyLoaded<EventInfo>();
+			DestroyLoaded<global::EventInfo>();
 			DestroyLoaded<DisasterInfo>();
 			DestroyLoaded<RadioContentInfo>();
 			DestroyLoaded<RadioChannelInfo>();

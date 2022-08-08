@@ -1,56 +1,13 @@
-﻿using ColossalFramework.UI;
-using ICities;
-using System;
-using UnityEngine;
-
-
-namespace LoadingScreenModRevisited
+﻿namespace LoadingScreenModRevisited
 {
+    using System;
+    using AlgernonCommons;
+    using AlgernonCommons.UI;
+    using ColossalFramework.UI;
+    using ICities;
+
     internal abstract class OptionsPanelTab
     {
-        /// <summary>
-        /// Adds a plain text label to the specified UI panel.
-        /// </summary>
-        /// <param name="parent">Parent component</param>
-        /// <param name="xPos">Relative x position)</param>
-        /// <param name="yPos">Relative y position</param>
-        /// <param name="text">Label text</param>
-        /// <param name="width">Label width (-1 (default) for autosize)</param>
-        /// <param name="width">Text scale (default 1.0)</param>
-        /// <returns>New text label</returns>
-        protected UILabel AddLabel(UIComponent parent, float xPos, float yPos, string text, float width = -1f, float textScale = 1.0f)
-        {
-            // Add label.
-            UILabel label = (UILabel)parent.AddUIComponent<UILabel>();
-
-            // Set sizing options.
-            if (width > 0f)
-            {
-                // Fixed width.
-                label.autoSize = false;
-                label.width = width;
-                label.autoHeight = true;
-                label.wordWrap = true;
-            }
-            else
-            {
-                // Autosize.
-                label.autoSize = true;
-                label.autoHeight = false;
-                label.wordWrap = false;
-            }
-
-            // Text.
-            label.textScale = textScale;
-            label.text = text;
-
-            // Position.
-            label.relativePosition = new Vector2(xPos, yPos);
-
-            return label;
-        }
-
-
         /// <summary>
         /// Adds a textfield with no title label.
         /// </summary>
@@ -69,7 +26,7 @@ namespace LoadingScreenModRevisited
 
                 // Change text scale and font.
                 textField.textScale = 0.9f;
-                textField.font = FontUtils.Regular;
+                textField.font = UIFonts.Regular;
                 textField.padding.top = 7;
 
                 // Find label.

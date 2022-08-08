@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Security;
-using System.Text.RegularExpressions;
-using UnityEngine;
-
-
-namespace LoadingScreenModRevisited
+﻿namespace LoadingScreenModRevisited
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Net;
+    using System.Net.Security;
+    using System.Text.RegularExpressions;
+    using AlgernonCommons;
+    using UnityEngine;
+
     /// <summary>
     /// Loading image mode enum.
     /// </summary>

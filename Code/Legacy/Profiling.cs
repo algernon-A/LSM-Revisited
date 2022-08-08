@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using AlgernonCommons.Translation;
 using UnityEngine;
 
 namespace LoadingScreenMod
@@ -18,9 +19,9 @@ namespace LoadingScreenMod
 		internal static void Init()
 		{
 			Sink.builder.Length = 0;
-			FAILED = " (" + LoadingScreenModRevisited.Translations.Translate("FAILED") + ')';
-			DUPLICATE = " (" + LoadingScreenModRevisited.Translations.Translate("DUPLICATE") + ')';
-			MISSING = " (" + LoadingScreenModRevisited.Translations.Translate("MISSING") + ')';
+			FAILED = " (" + Translations.Translate("FAILED") + ')';
+			DUPLICATE = " (" + Translations.Translate("DUPLICATE") + ')';
+			MISSING = " (" + Translations.Translate("MISSING") + ')';
 			if (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)
 			{
 				MemoryAPI.pfMax = (MemoryAPI.wsMax = 0);

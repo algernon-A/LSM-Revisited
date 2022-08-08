@@ -1,8 +1,9 @@
-﻿using ColossalFramework.UI;
-
-
-namespace LoadingScreenModRevisited
+﻿namespace LoadingScreenModRevisited
 {
+    using AlgernonCommons.Translation;
+    using AlgernonCommons.UI;
+    using ColossalFramework.UI;
+
     /// <summary>
     /// Options panel for setting reporting options.
     /// </summary>
@@ -16,7 +17,7 @@ namespace LoadingScreenModRevisited
         internal ReportingOptions(UITabstrip tabStrip, int tabIndex)
         {
             // Add tab and helper.
-            UIPanel panel = OptionsPanel.AddTab(tabStrip, Translations.Translate("OPTIONS_REPORTING"), tabIndex, true);
+            UIPanel panel = UITabstrips.AddTextTab(tabStrip, Translations.Translate("OPTIONS_REPORTING"), tabIndex, out UIButton _, autoLayout: true);
             panel.autoLayoutDirection = LayoutDirection.Vertical;
 
             // Add controls.
@@ -25,7 +26,7 @@ namespace LoadingScreenModRevisited
             // Reporting options.
             UIHelper reportingGroup = AddGroup(helper, Translations.Translate("REPORTING"));
 
-            UICheckBox hideDuplicatesCheck = reportingGroup.AddCheckbox(Translations.Translate("WARN_DUPLICATES"), LSMRSettingsFile.showDuplicates, (isChecked) => LSMRSettingsFile.showDuplicates = isChecked) as UICheckBox;
+            UICheckBox hideDuplicatesCheck = reportingGroup.AddCheckbox(Translations.Translate("WARN_DUPLICATES"), LSMRSettings.ShowDuplicates, (isChecked) => LSMRSettings.ShowDuplicates = isChecked) as UICheckBox;
             hideDuplicatesCheck.tooltip = Translations.Translate("WARN_DUPLICATES_TIP") +
                 System.Environment.NewLine + Translations.Translate("DUPLICATE_NAMES_EXPLAIN_1") +
                 System.Environment.NewLine + Translations.Translate("DUPLICATE_NAMES_EXPLAIN_2");

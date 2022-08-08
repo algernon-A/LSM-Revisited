@@ -1,8 +1,9 @@
-﻿using ColossalFramework.UI;
-
-
-namespace LoadingScreenModRevisited
+﻿namespace LoadingScreenModRevisited
 {
+    using AlgernonCommons.Translation;
+    using AlgernonCommons.UI;
+    using ColossalFramework.UI;
+
     /// <summary>
     /// Options panel for setting background loading image options.
     /// </summary>
@@ -23,7 +24,7 @@ namespace LoadingScreenModRevisited
         internal ImageOptions(UITabstrip tabStrip, int tabIndex)
         {
             // Add tab and helper.
-            UIPanel panel = OptionsPanel.AddTab(tabStrip, Translations.Translate("OPTIONS_IMAGE"), tabIndex, true);
+            UIPanel panel = UITabstrips.AddTextTab(tabStrip, Translations.Translate("OPTIONS_IMAGE"), tabIndex, out UIButton _,autoLayout: true);
             panel.autoLayoutDirection = LayoutDirection.Vertical;
 
             // Add controls.

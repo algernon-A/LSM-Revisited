@@ -1,10 +1,10 @@
-using System;
-using UnityEngine;
-using LoadingScreenMod;
-
-
 namespace LoadingScreenModRevisited
 {
+	using System;
+	using AlgernonCommons;
+	using LoadingScreenMod;
+	using UnityEngine;
+
 	/// <summary>
 	/// Memory status text source.
 	/// </summary>

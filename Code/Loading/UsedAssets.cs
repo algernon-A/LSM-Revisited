@@ -1,12 +1,12 @@
-using ColossalFramework;
-using ColossalFramework.Packaging;
-using System;
-using System.Collections.Generic;
-using LoadingScreenMod;
-
-
 namespace LoadingScreenModRevisited
 {
+	using System;
+	using System.Collections.Generic;
+	using AlgernonCommons;
+	using ColossalFramework;
+	using ColossalFramework.Packaging;
+	using LoadingScreenMod;
+
 	internal sealed class UsedAssets
 	{
 		// Instance reference

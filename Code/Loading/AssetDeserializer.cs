@@ -1,16 +1,16 @@
-using System;
-using System.IO;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using ColossalFramework.Importers;
-using ColossalFramework.Packaging;
-using UnityEngine;
-using HarmonyLib;
-using LoadingScreenMod;
-
-
 namespace LoadingScreenModRevisited
 {
+	using System;
+	using System.IO;
+	using System.Reflection;
+	using System.Runtime.CompilerServices;
+	using AlgernonCommons;
+	using ColossalFramework.Importers;
+	using ColossalFramework.Packaging;
+	using HarmonyLib;
+	using LoadingScreenMod;
+	using UnityEngine;
+
 	/// <summary>
 	/// Asset deserialization.
 	/// </summary>

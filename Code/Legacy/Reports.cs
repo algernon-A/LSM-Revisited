@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using AlgernonCommons.Translation;
 using ColossalFramework.Packaging;
 using UnityEngine;
 
@@ -42,15 +43,15 @@ namespace LoadingScreenMod
 
 		private readonly string[] allHeadings = new string[9]
 		{
-			LoadingScreenModRevisited.Translations.Translate("BUILDINGS_AND_PARKS"),
-			LoadingScreenModRevisited.Translations.Translate("PROPS"),
-			LoadingScreenModRevisited.Translations.Translate("TREES"),
-			LoadingScreenModRevisited.Translations.Translate("VEHICLES"),
-			LoadingScreenModRevisited.Translations.Translate("CITIZENS"),
-			LoadingScreenModRevisited.Translations.Translate("NETS"),
-			LoadingScreenModRevisited.Translations.Translate("NETS_IN_BUILDINGS"),
-			LoadingScreenModRevisited.Translations.Translate("PROPS_IN_BUILDINGS"),
-			LoadingScreenModRevisited.Translations.Translate("TREES_IN_BUILDINGS")
+			Translations.Translate("BUILDINGS_AND_PARKS"),
+			Translations.Translate("PROPS"),
+			Translations.Translate("TREES"),
+			Translations.Translate("VEHICLES"),
+			Translations.Translate("CITIZENS"),
+			Translations.Translate("NETS"),
+			Translations.Translate("NETS_IN_BUILDINGS"),
+			Translations.Translate("PROPS_IN_BUILDINGS"),
+			Translations.Translate("TREES_IN_BUILDINGS")
 		};
 
 		private readonly CustomAssetMetaData.Type[] allTypes = new CustomAssetMetaData.Type[9]
@@ -332,10 +333,10 @@ namespace LoadingScreenMod
 				{
 					text = text.Replace(oldChar, 'x');
 				}
-				reportFilePath = Util.GetFileName(text + " - " + LoadingScreenModRevisited.Translations.Translate("ASSETS_REPORT"), "htm", Settings.settings.useReportDate); ;
+				reportFilePath = Util.GetFileName(text + " - " + Translations.Translate("ASSETS_REPORT"), "htm", Settings.settings.useReportDate); ;
 				Util.DebugPrint("Saving assets report to", reportFilePath);
 				w = new StreamWriter(reportFilePath);
-				w.WriteLine("<!DOCTYPE html><html lang=\"" + LoadingScreenModRevisited.Translations.CurrentLanguage + "\"><head><meta charset=\"UTF-8\"><title>" + LoadingScreenModRevisited.Translations.Translate("ASSETS_REPORT") + "</title><style>");
+				w.WriteLine("<!DOCTYPE html><html lang=\"" + Translations.CurrentLanguage + "\"><head><meta charset=\"UTF-8\"><title>" + Translations.Translate("ASSETS_REPORT") + "</title><style>");
 				w.WriteLine("* {font-family:sans-serif;}");
 				w.WriteLine("body {background-color:#f9f6ea;}");
 				w.WriteLine("section {padding-right:24px;}");
@@ -352,14 +353,14 @@ namespace LoadingScreenMod
 				w.WriteLine("a:hover {text-decoration:underline;}");
 				w.WriteLine("</style></head><body>");
 				H1(Enc(text));
-				Italics(LoadingScreenModRevisited.Translations.Translate("ASSETS_REPORT_FOR_CS"));
-				Italics(LoadingScreenModRevisited.Translations.Translate("TO_STOP_SAVING"));
+				Italics(Translations.Translate("ASSETS_REPORT_FOR_CS"));
+				Italics(Translations.Translate("TO_STOP_SAVING"));
 				Br();
 				Br();
 				string[] headings = allHeadings.Take(6).ToArray();
 				CustomAssetMetaData.Type[] types = allTypes.Take(6).ToArray();
 				Sec("#f04040");
-				H2(LoadingScreenModRevisited.Translations.Translate("ASSETS_THAT_FAILED"));
+				H2(Translations.Translate("ASSETS_THAT_FAILED"));
 				Item[] array2 = assets.Values.Which(8).ToArray();
 				if (array2.Length != 0)
 				{
@@ -369,23 +370,23 @@ namespace LoadingScreenMod
 				}
 				else
 				{
-					Italics(LoadingScreenModRevisited.Translations.Translate("NO_FAILED_ASSETS"));
+					Italics(Translations.Translate("NO_FAILED_ASSETS"));
 				}
 				if (Settings.settings.checkAssets)
 				{
 					Br();
 					Br();
-					H2(LoadingScreenModRevisited.Translations.Translate("ASSET_ERRORS"));
+					H2(Translations.Translate("ASSET_ERRORS"));
 					if (!ReportErrors())
 					{
-						Italics(LoadingScreenModRevisited.Translations.Translate("NO_ERRORS_FOUND"));
+						Italics(Translations.Translate("NO_ERRORS_FOUND"));
 					}
 					Br();
 					Br();
-					H2(LoadingScreenModRevisited.Translations.Translate("ASSET_WARNINGS"));
+					H2(Translations.Translate("ASSET_WARNINGS"));
 					if (!ReportWarnings())
 					{
-						Italics(LoadingScreenModRevisited.Translations.Translate("NO_WARNINGS"));
+						Italics(Translations.Translate("NO_WARNINGS"));
 					}
 					weirdTextures.Clear();
 					largeTextures.Clear();
@@ -395,7 +396,7 @@ namespace LoadingScreenMod
 				}
 				SecOff();
 				Sec("#f0a840");
-				H2(LoadingScreenModRevisited.Translations.Translate("ASSETS_THAT_ARE_MISSING"));
+				H2(Translations.Translate("ASSETS_THAT_ARE_MISSING"));
 				if (Settings.settings.loadUsed)
 				{
 					SetIndirectUsages();
@@ -405,33 +406,33 @@ namespace LoadingScreenMod
 					SetNameChanges(array3);
 					if (hidden.Count > 0)
 					{
-						Italics(LoadingScreenModRevisited.Translations.Translate("SECTION_MIGHT_BE_INCOMPLETE"));
+						Italics(Translations.Translate("SECTION_MIGHT_BE_INCOMPLETE"));
 					}
 					if (array3.Length != 0)
 					{
-						Italics(LoadingScreenModRevisited.Translations.Translate("PLACED_BUT_MISSING"));
+						Italics(Translations.Translate("PLACED_BUT_MISSING"));
 						ReportMissing(array3, GetUsedBy(), allHeadings, allTypes, 2, 2, 2, 2, 2, 2, 0);
 						Array.Clear(array3, 0, array3.Length);
 						array3 = null;
 					}
 					else
 					{
-						Italics(LoadingScreenModRevisited.Translations.Translate("NO_MISSING_ASSETS"));
+						Italics(Translations.Translate("NO_MISSING_ASSETS"));
 					}
 				}
 				else
 				{
-					Italics(LoadingScreenModRevisited.Translations.Translate("TO_TRACK_MISSING"));
+					Italics(Translations.Translate("TO_TRACK_MISSING"));
 				}
 				SecOff();
 				Sec("#80e0f0");
-				H2(LoadingScreenModRevisited.Translations.Translate("DUPLICATE_NAMES"));
-				Italics(LoadingScreenModRevisited.Translations.Translate("DUPLICATE_NAMES_EXPLAIN_1"));
-				Italics(LoadingScreenModRevisited.Translations.Translate("DUPLICATE_NAMES_EXPLAIN_2"));
+				H2(Translations.Translate("DUPLICATE_NAMES"));
+				Italics(Translations.Translate("DUPLICATE_NAMES_EXPLAIN_1"));
+				Italics(Translations.Translate("DUPLICATE_NAMES_EXPLAIN_2"));
 				ReportDuplicates(hidden);
 				SecOff();
 				Sec("#60b030");
-				H2(LoadingScreenModRevisited.Translations.Translate("THESE_ARE_USED"));
+				H2(Translations.Translate("THESE_ARE_USED"));
 				if (Settings.settings.loadUsed)
 				{
 					Item[] array4 = assets.Values.Which(6).ToArray();
@@ -443,27 +444,27 @@ namespace LoadingScreenMod
 					}
 					else
 					{
-						Italics(LoadingScreenModRevisited.Translations.Translate("NO_USED_ASSETS"));
+						Italics(Translations.Translate("NO_USED_ASSETS"));
 					}
 					SecOff();
 					Sec("#c9c6ba");
-					H2(LoadingScreenModRevisited.Translations.Translate("THESE_ARE_UNNECESSARY"));
+					H2(Translations.Translate("THESE_ARE_UNNECESSARY"));
 					Item[] array5 = assets.Values.Where((Item item) => item.Enabled && !item.Used && !LoadingScreenModRevisited.AssetLoader.Instance.IsIntersection(item.FullName)).ToArray();
 					if (array5.Length != 0)
 					{
-						Italics(LoadingScreenModRevisited.Translations.Translate("ENABLED_BUT_UNNECESSARY"));
+						Italics(Translations.Translate("ENABLED_BUT_UNNECESSARY"));
 						Report(array5, headings, types);
 						Array.Clear(array5, 0, array5.Length);
 						array5 = null;
 					}
 					else
 					{
-						Italics(LoadingScreenModRevisited.Translations.Translate("NO_UNNECESSARY_ASSETS"));
+						Italics(Translations.Translate("NO_UNNECESSARY_ASSETS"));
 					}
 				}
 				else
 				{
-					Italics(LoadingScreenModRevisited.Translations.Translate("TO_TRACK_USED"));
+					Italics(Translations.Translate("TO_TRACK_USED"));
 				}
 				SecOff();
 			}
@@ -489,31 +490,31 @@ namespace LoadingScreenMod
 			{
 				Util.DebugPrint("Saving stats to", reportFilePath);
 				w = new StreamWriter(reportFilePath, append: true);
-				H2(LoadingScreenModRevisited.Translations.Translate("LOADING_STATS"));
-				H3(LoadingScreenModRevisited.Translations.Translate("PERFORMANCE"));
-				Stat(LoadingScreenModRevisited.Translations.Translate("CUSTOM_ASSETS_LOADED"), LoadingScreenModRevisited.AssetLoader.Instance.assetCount, LoadingScreenModRevisited.Translations.Translate("ASSETS"));
+				H2(Translations.Translate("LOADING_STATS"));
+				H3(Translations.Translate("PERFORMANCE"));
+				Stat(Translations.Translate("CUSTOM_ASSETS_LOADED"), LoadingScreenModRevisited.AssetLoader.Instance.assetCount, Translations.Translate("ASSETS"));
 				int num = LoadingScreenModRevisited.AssetLoader.Instance.lastMillis - LoadingScreenModRevisited.AssetLoader.Instance.beginMillis;
 				if (num > 0)
 				{
-					Stat(LoadingScreenModRevisited.Translations.Translate("LOADING_SPEED"), ((float)LoadingScreenModRevisited.AssetLoader.Instance.assetCount * 1000f / (float)num).ToString("F1"), LoadingScreenModRevisited.Translations.Translate("ASSETS_PER_SECOND"));
+					Stat(Translations.Translate("LOADING_SPEED"), ((float)LoadingScreenModRevisited.AssetLoader.Instance.assetCount * 1000f / (float)num).ToString("F1"), Translations.Translate("ASSETS_PER_SECOND"));
 				}
-				Stat(LoadingScreenModRevisited.Translations.Translate("ASSETS_LOADING_TIME"), Profiling.TimeString(num + 500), LoadingScreenModRevisited.Translations.Translate("MINUTES_SECONDS"));
-				Stat(LoadingScreenModRevisited.Translations.Translate("TOTAL_LOADING_TIME"), Profiling.TimeString(Profiling.Millis + 500), LoadingScreenModRevisited.Translations.Translate("MINUTES_SECONDS"));
+				Stat(Translations.Translate("ASSETS_LOADING_TIME"), Profiling.TimeString(num + 500), Translations.Translate("MINUTES_SECONDS"));
+				Stat(Translations.Translate("TOTAL_LOADING_TIME"), Profiling.TimeString(Profiling.Millis + 500), Translations.Translate("MINUTES_SECONDS"));
 				if (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)
 				{
-					H3(LoadingScreenModRevisited.Translations.Translate("PEAK_MEMORY_USAGE"));
+					H3(Translations.Translate("PEAK_MEMORY_USAGE"));
 					Stat("RAM", ((float)MemoryAPI.wsMax / 1024f).ToString("F1"), "GB");
-					Stat(LoadingScreenModRevisited.Translations.Translate("VIRTUAL_MEMORY"), ((float)MemoryAPI.pfMax / 1024f).ToString("F1"), "GB");
+					Stat(Translations.Translate("VIRTUAL_MEMORY"), ((float)MemoryAPI.pfMax / 1024f).ToString("F1"), "GB");
 				}
-				H3(LoadingScreenModRevisited.Translations.Translate("SHARING_OF_RESOURCES"));
-				Stat(LoadingScreenModRevisited.Translations.Translate("TEXTURES"), texturesShared, LoadingScreenModRevisited.Translations.Translate("TIMES"));
-				Stat(LoadingScreenModRevisited.Translations.Translate("MATERIALS"), materialsShared, LoadingScreenModRevisited.Translations.Translate("TIMES"));
-				Stat(LoadingScreenModRevisited.Translations.Translate("MESHES"), meshesShared, LoadingScreenModRevisited.Translations.Translate("TIMES"));
-				H3(LoadingScreenModRevisited.Translations.Translate("SKIPPED_PREFABS"));
+				H3(Translations.Translate("SHARING_OF_RESOURCES"));
+				Stat(Translations.Translate("TEXTURES"), texturesShared, Translations.Translate("TIMES"));
+				Stat(Translations.Translate("MATERIALS"), materialsShared, Translations.Translate("TIMES"));
+				Stat(Translations.Translate("MESHES"), meshesShared, Translations.Translate("TIMES"));
+				H3(Translations.Translate("SKIPPED_PREFABS"));
 				int[] skipCounts = LoadingScreenModRevisited.LevelLoader.skipCounts;
-				Stat(LoadingScreenModRevisited.Translations.Translate("BUILDING_PREFABS"), skipCounts[0], string.Empty);
-				Stat(LoadingScreenModRevisited.Translations.Translate("VEHICLE_PREFABS"), skipCounts[1], string.Empty);
-				Stat(LoadingScreenModRevisited.Translations.Translate("PROP_PREFABS"), skipCounts[2], string.Empty);
+				Stat(Translations.Translate("BUILDING_PREFABS"), skipCounts[0], string.Empty);
+				Stat(Translations.Translate("VEHICLE_PREFABS"), skipCounts[1], string.Empty);
+				Stat(Translations.Translate("PROP_PREFABS"), skipCounts[2], string.Empty);
 				w.WriteLine("</body></html>");
 			}
 			catch (Exception exception)
@@ -531,7 +532,7 @@ namespace LoadingScreenMod
 		{
 			try
 			{
-				string fileName = Util.GetFileName(cityName + " - " + LoadingScreenModRevisited.Translations.Translate("ASSETS_BROWSER"), "htm", Settings.settings.useReportDate);
+				string fileName = Util.GetFileName(cityName + " - " + Translations.Translate("ASSETS_BROWSER"), "htm", Settings.settings.useReportDate);
 				Util.DebugPrint("Saving assets browser to", fileName);
 				Item[] array = assets.Values.OrderBy(Name).ToArray();
 				Dictionary<Item, int> ids = new Dictionary<Item, int>(array.Length);
@@ -541,7 +542,7 @@ namespace LoadingScreenMod
 				}
 				string text = "</option><option>";
 				w = new StreamWriter(fileName);
-				w.WriteLine("<!DOCTYPE html><html lang=\"" + LoadingScreenModRevisited.Translations.CurrentLanguage + "\"><head><meta charset=\"UTF-8\"><title>" + LoadingScreenModRevisited.Translations.Translate("ASSETS_BROWSER") + "</title><style>");
+				w.WriteLine("<!DOCTYPE html><html lang=\"" + Translations.CurrentLanguage + "\"><head><meta charset=\"UTF-8\"><title>" + Translations.Translate("ASSETS_BROWSER") + "</title><style>");
 				w.WriteLine("* {box-sizing:border-box;font-family:'Segoe UI',Verdana,sans-serif;}");
 				w.WriteLine("body {background-color:#fafaf7;}");
 				w.WriteLine("h1 {color:#00507a;}");
@@ -563,28 +564,28 @@ namespace LoadingScreenMod
 				w.WriteLine(".nr {flex:0.75;}");
 				w.WriteLine(".gr {border:1px solid #7da291;padding:0 8px 9px 15px;}");
 				w.WriteLine("</style></head><body>");
-				H1(LoadingScreenModRevisited.Translations.Translate("ASSETS_BROWSER") + " - " + Enc(cityName));
+				H1(Translations.Translate("ASSETS_BROWSER") + " - " + Enc(cityName));
 				w.WriteLine("<noscript><h2 style=\"color:red\">JavaScript is required.</h2></noscript>");
-				w.WriteLine("<input id=\"sch\" style=\"margin:16px 16px 16px 0;\" type=\"search\" placeholder=\"" + LoadingScreenModRevisited.Translations.Translate("FIND_ASSETS") + "\">");
-				w.WriteLine("<label for=\"sct\">" + LoadingScreenModRevisited.Translations.Translate("ORDER_BY") + "&nbsp;</label>");
-				w.WriteLine("<select id=\"sct\"><option>" + LoadingScreenModRevisited.Translations.Translate("NAME") + text +
-					LoadingScreenModRevisited.Translations.Translate("TYPE") + text +
-					LoadingScreenModRevisited.Translations.Translate("STATUS") + text +
-					LoadingScreenModRevisited.Translations.Translate("WORKSHOP_ID") + text +
-					LoadingScreenModRevisited.Translations.Translate("DATE") + text +
-					LoadingScreenModRevisited.Translations.Translate("SIZE") + text +
-					LoadingScreenModRevisited.Translations.Translate("USES_COUNT") + text +
-					LoadingScreenModRevisited.Translations.Translate("USED_BY_COUNT") + text +
-					LoadingScreenModRevisited.Translations.Translate("TYPE_AND_STATUS") + text +
-					LoadingScreenModRevisited.Translations.Translate("TYPE_AND_SIZE") + text +
-					LoadingScreenModRevisited.Translations.Translate("TYPE_AND_USED_BY_COUNT") + text +
-					LoadingScreenModRevisited.Translations.Translate("STATUS_AND_USED_BY_COUNT") + text +
-					LoadingScreenModRevisited.Translations.Translate("USED_BY_COUNT_AND_SIZE") + text +
-					LoadingScreenModRevisited.Translations.Translate("USED_IN_CITY") + text +
-					LoadingScreenModRevisited.Translations.Translate("USED_IN_CITY_AND_SIZE") + "</option></select>");
+				w.WriteLine("<input id=\"sch\" style=\"margin:16px 16px 16px 0;\" type=\"search\" placeholder=\"" + Translations.Translate("FIND_ASSETS") + "\">");
+				w.WriteLine("<label for=\"sct\">" + Translations.Translate("ORDER_BY") + "&nbsp;</label>");
+				w.WriteLine("<select id=\"sct\"><option>" + Translations.Translate("NAME") + text +
+					Translations.Translate("TYPE") + text +
+					Translations.Translate("STATUS") + text +
+					Translations.Translate("WORKSHOP_ID") + text +
+					Translations.Translate("DATE") + text +
+					Translations.Translate("SIZE") + text +
+					Translations.Translate("USES_COUNT") + text +
+					Translations.Translate("USED_BY_COUNT") + text +
+					Translations.Translate("TYPE_AND_STATUS") + text +
+					Translations.Translate("TYPE_AND_SIZE") + text +
+					Translations.Translate("TYPE_AND_USED_BY_COUNT") + text +
+					Translations.Translate("STATUS_AND_USED_BY_COUNT") + text +
+					Translations.Translate("USED_BY_COUNT_AND_SIZE") + text +
+					Translations.Translate("USED_IN_CITY") + text +
+					Translations.Translate("USED_IN_CITY_AND_SIZE") + "</option></select>");
 				w.WriteLine("<div id=\"top\"></div>");
 				w.WriteLine("<script src=\"https://code.jquery.com/jquery-3.3.1.min.js\"></script>");
-				w.WriteLine("<script>const zh=" + ((LoadingScreenModRevisited.Translations.CurrentLanguage.StartsWith("zh")) ? "1" : "0") + "</script>");
+				w.WriteLine("<script>const zh=" + ((Translations.CurrentLanguage.StartsWith("zh")) ? "1" : "0") + "</script>");
 				w.WriteLine("<script src=\"https://thale5.github.io/js/browse4.js\"></script>");
 				w.WriteLine("<script>");
 				StringBuilder stringBuilder = new StringBuilder(640);
@@ -691,7 +692,7 @@ namespace LoadingScreenMod
 						continue;
 					}
 					stringBuilder.Length = 0;
-					stringBuilder.Append(LoadingScreenModRevisited.Translations.Translate("USED_BY")).Append(':');
+					stringBuilder.Append(Translations.Translate("USED_BY")).Append(':');
 					int num2 = 0;
 					foreach (Item item3 in usedBy[item2])
 					{
@@ -705,12 +706,12 @@ namespace LoadingScreenMod
 					{
 						if (!item2.HasPackageName)
 						{
-							text2 = ((!item2.FullName.EndsWith("_Data")) ? (Enc(item2.name) + " " + LoadingScreenModRevisited.Translations.Translate("IS_POSSIBLY_DLC")) : (Enc(item2.name) + " " + LoadingScreenModRevisited.Translations.Translate("NO_LINK_IS_AVAILABLE")));
+							text2 = ((!item2.FullName.EndsWith("_Data")) ? (Enc(item2.name) + " " + Translations.Translate("IS_POSSIBLY_DLC")) : (Enc(item2.name) + " " + Translations.Translate("NO_LINK_IS_AVAILABLE")));
 						}
 						else if (num2 > 0)
 						{
-							string text3 = ((num2 == 1) ? LoadingScreenModRevisited.Translations.Translate("ASSET_BUG") : LoadingScreenModRevisited.Translations.Translate("ASSET_BUGS"));
-							text2 = "<a target=\"_blank\" href=\"https://steamcommunity.com/workshop/filedetails/discussion/667342976/357284767251931800/\">" + text3 + ":</a> " + LoadingScreenModRevisited.Translations.Translate("ASSET_USES_PRIVATE_ASSET") + " (" + Enc(item2.FullName) + ")";
+							string text3 = ((num2 == 1) ? Translations.Translate("ASSET_BUG") : Translations.Translate("ASSET_BUGS"));
+							text2 = "<a target=\"_blank\" href=\"https://steamcommunity.com/workshop/filedetails/discussion/667342976/357284767251931800/\">" + text3 + ":</a> " + Translations.Translate("ASSET_USES_PRIVATE_ASSET") + " (" + Enc(item2.FullName) + ")";
 						}
 					}
 					if (!string.IsNullOrEmpty(text2))
@@ -729,7 +730,7 @@ namespace LoadingScreenMod
 			int num = 0;
 			if (hidden.Count > 0)
 			{
-				Italics(LoadingScreenModRevisited.Translations.Translate("SECTION_MIGHT_BE_INCOMPLETE"));
+				Italics(Translations.Translate("SECTION_MIGHT_BE_INCOMPLETE"));
 			}
 			foreach (List<Package.Asset> duplicate in duplicates)
 			{
@@ -746,7 +747,7 @@ namespace LoadingScreenMod
 				{
 					string text = Enc(fullName);
 					stringBuilder.Length = 0;
-					stringBuilder.Append(LoadingScreenModRevisited.Translations.Translate("SAME_ASSET_NAME") + " (" + text + ") " + LoadingScreenModRevisited.Translations.Translate("IN_ALL_OF_THESE") + ':');
+					stringBuilder.Append(Translations.Translate("SAME_ASSET_NAME") + " (" + text + ") " + Translations.Translate("IN_ALL_OF_THESE") + ':');
 					Item[] array2 = array;
 					foreach (Item item2 in array2)
 					{
@@ -758,7 +759,7 @@ namespace LoadingScreenMod
 			}
 			if (num == 0)
 			{
-				Italics(LoadingScreenModRevisited.Translations.Translate("NO_DUPLICATES"));
+				Italics(Translations.Translate("NO_DUPLICATES"));
 			}
 		}
 
@@ -789,12 +790,12 @@ namespace LoadingScreenMod
 					largeMeshes.Add(extremeMesh);
 				}
 			}
-			string wLink = "<a target=\"_blank\" href=\"https://steamcommunity.com/workshop/filedetails/discussion/667342976/1639789306562159404/\">" + LoadingScreenModRevisited.Translations.Translate("INVALID_LOD_TEXTURE_SIZE") + "</a> ";
-			string nLink = "<a target=\"_blank\" href=\"https://steamcommunity.com/workshop/filedetails/discussion/667342976/1639789306562171733/\">" + LoadingScreenModRevisited.Translations.Translate("ASSET_NAMING_CONFLICT") + "</a>";
+			string wLink = "<a target=\"_blank\" href=\"https://steamcommunity.com/workshop/filedetails/discussion/667342976/1639789306562159404/\">" + Translations.Translate("INVALID_LOD_TEXTURE_SIZE") + "</a> ";
+			string nLink = "<a target=\"_blank\" href=\"https://steamcommunity.com/workshop/filedetails/discussion/667342976/1639789306562171733/\">" + Translations.Translate("ASSET_NAMING_CONFLICT") + "</a>";
 			IEnumerable<AssetError<string>> enumerable = weirdTextures.Select((AssetError<int> e) => e.Map((int v) => wLink + DecodeTextureSize(v))).Concat(namingConflicts.Select((Package p) => new AssetError<string>(p, string.Empty, nLink))).Concat(list.Select((AssetError<int> e) => e.Map<string>(ExtremeMesh)));
 			if (enumerable.Any())
 			{
-				Italics(LoadingScreenModRevisited.Translations.Translate("PROBLEMS_WERE_DETECTED"));
+				Italics(Translations.Translate("PROBLEMS_WERE_DETECTED"));
 				ReportEWs(enumerable);
 				return true;
 			}
@@ -803,11 +804,11 @@ namespace LoadingScreenMod
 
 		private bool ReportWarnings()
 		{
-			string link = "<a target=\"_blank\" href=\"https://steamcommunity.com/workshop/filedetails/discussion/667342976/1639789306562181099/\">" + LoadingScreenModRevisited.Translations.Translate("VERY_LARGE_LOD_TEXTURE") + "</a> ";
+			string link = "<a target=\"_blank\" href=\"https://steamcommunity.com/workshop/filedetails/discussion/667342976/1639789306562181099/\">" + Translations.Translate("VERY_LARGE_LOD_TEXTURE") + "</a> ";
 			IEnumerable<AssetError<string>> enumerable = largeTextures.Select((AssetError<int> e) => e.Map((int v) => link + DecodeTextureSize(v))).Concat(largeMeshes.Select((AssetError<int> e) => e.Map<string>(MeshSize)));
 			if (enumerable.Any())
 			{
-				Italics(LoadingScreenModRevisited.Translations.Translate("OBSERVATIONS_WERE_MADE"));
+				Italics(Translations.Translate("OBSERVATIONS_WERE_MADE"));
 				ReportEWs(enumerable);
 				return true;
 			}
@@ -819,11 +820,11 @@ namespace LoadingScreenMod
 			List<Package> packages = Instance<CustomDeserializer>.instance.GetPackages(missing.packageName);
 			Package.Asset asset = ((packages.Count == 1) ? LoadingScreenModRevisited.AssetLoader.FindMainAssetRef(packages[0]) : null);
 			string text = ((asset != null) ? Ref(asset.package.packageName, LoadingScreenModRevisited.AssetLoader.ShortName(asset.name)) : Ref(missing.packageName));
-			return LoadingScreenModRevisited.Translations.Translate("YOU_HAVE") + ' ' + text + ' ' +
-				LoadingScreenModRevisited.Translations.Translate("DOES_NOT_CONTAIN") + " " + Enc(missing.name) +
+			return Translations.Translate("YOU_HAVE") + ' ' + text + ' ' +
+				Translations.Translate("DOES_NOT_CONTAIN") + " " + Enc(missing.name) +
 				".<br><a target=\"_blank\" href=\"https://steamcommunity.com/workshop/filedetails/discussion/667342976/141136086940263481/\">" +
-				LoadingScreenModRevisited.Translations.Translate("NAME_PROBABLY_CHANGED") + "</a> " +
-				LoadingScreenModRevisited.Translations.Translate("BY_THE_AUTHOR");
+				Translations.Translate("NAME_PROBABLY_CHANGED") + "</a> " +
+				Translations.Translate("BY_THE_AUTHOR");
 		}
 
 		private static int GetStatus(Item item)
@@ -987,7 +988,7 @@ namespace LoadingScreenMod
 			{
 				return Enc(packageName);
 			}
-			return "<a target=\"_blank\" href=\"https://steamcommunity.com/sharedfiles/filedetails/?id=" + packageName + "\">" + LoadingScreenModRevisited.Translations.Translate("WORKSHOP_ITEM") + ' ' + packageName + "</a>";
+			return "<a target=\"_blank\" href=\"https://steamcommunity.com/sharedfiles/filedetails/?id=" + packageName + "\">" + Translations.Translate("WORKSHOP_ITEM") + ' ' + packageName + "</a>";
 		}
 
 		private static string Cl(string cl, string s)
@@ -1013,15 +1014,15 @@ namespace LoadingScreenMod
 		private static string MeshSize(int v)
 		{
 			return "<a target=\"_blank\" href=\"https://steamcommunity.com/workshop/filedetails/discussion/667342976/1639789306562193628/\">" +
-				LoadingScreenModRevisited.Translations.Translate("VERY_LARGE_LOD_MESH") + "</a> " +
-				((v < 0) ? (-v + " " + LoadingScreenModRevisited.Translations.Translate("TRIANGLES")) : (v + " " +LoadingScreenModRevisited.Translations.Translate("VERTICES")));
+				Translations.Translate("VERY_LARGE_LOD_MESH") + "</a> " +
+				((v < 0) ? (-v + " " + Translations.Translate("TRIANGLES")) : (v + " " +Translations.Translate("VERTICES")));
 		}
 
 		private static string ExtremeMesh(int v)
 		{
 			return "<a target=\"_blank\" href=\"https://steamcommunity.com/workshop/filedetails/discussion/667342976/1639789306562193628/\">" +
-				LoadingScreenModRevisited.Translations.Translate("EXTREMELY_LARGE_LOD_MESH") + "</a> " + v + " " +
-				LoadingScreenModRevisited.Translations.Translate("VERTICES");
+				Translations.Translate("EXTREMELY_LARGE_LOD_MESH") + "</a> " + v + " " +
+				Translations.Translate("VERTICES");
 		}
 
 		private Item FindItem(Package.Asset assetRef)
@@ -1059,7 +1060,7 @@ namespace LoadingScreenMod
 			int length = s.Length;
 			if (length > 200)
 			{
-				return Enc(LoadingScreenModRevisited.Translations.Translate("LONG_NAME"));
+				return Enc(Translations.Translate("LONG_NAME"));
 			}
 			bool flag = false;
 			for (int i = 0; i < length; i++)

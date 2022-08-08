@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using AlgernonCommons;
 using ColossalFramework.Importers;
 using ColossalFramework.Packaging;
 using UnityEngine;
@@ -747,7 +748,7 @@ namespace LoadingScreenMod
 				Package.Asset asset = package.FindByChecksum(checksum);
 				if (asset == null)
 				{
-					LoadingScreenModRevisited.Logging.Message("asset not found for package ", package.packageName ?? "null", " with checksum ", checksum);
+					Logging.Message("asset not found for package ", package.packageName ?? "null", " with checksum ", checksum);
 					return null;
 				}
 				value = LoadingScreenModRevisited.AssetDeserializer.InstantiateOne(asset, isMain, isTop: false) as MaterialData;
