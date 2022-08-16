@@ -5,20 +5,20 @@ using UnityEngine;
 
 namespace LoadingScreenMod
 {
-	internal sealed class AtlasObj
-	{
-		internal Package.Asset asset;
+    internal sealed class AtlasObj
+    {
+        internal Package.Asset asset;
 
-		internal UITextureAtlas atlas;
+        internal UITextureAtlas atlas;
 
-		internal byte[] bytes;
+        internal byte[] bytes;
 
-		internal int width;
+        internal int width;
 
-		internal int height;
+        internal int height;
 
-		internal List<UITextureAtlas.SpriteInfo> sprites;
+        internal List<UITextureAtlas.SpriteInfo> sprites;
 
-		internal TextureFormat format;
-	}
+        internal TextureFormat format;
+    }
 }

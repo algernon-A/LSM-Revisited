@@ -1,32 +1,49 @@
-﻿using System;
-using System.Collections;
-using UnityEngine;
-using ColossalFramework.Packaging;
-using HarmonyLib;
-using LoadingScreenMod;
-
+﻿// <copyright file="LoadLevel.cs" company="algernon (K. Algernon A. Sheppard)">
+// Copyright (c) thale5 and algernon (K. Algernon A. Sheppard). All rights reserved.
+// Licensed under the MIT license. See LICENSE.txt file in the project root for full license information.
+// </copyright>
 
 namespace LoadingScreenModRevisited
 {
-	/// <summary>
-	/// Harmony patch to implement custom level loading.
-	/// </summary>
-	[HarmonyPatch(typeof(LoadingManager), nameof(LoadingManager.LoadLevel),
-			new Type[] { typeof(Package.Asset), typeof(string), typeof(string), typeof(SimulationMetaData), typeof(bool) },
-			new ArgumentType[] { ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal })]
-	public static class LoadLevel
+    using System;
+    using System.Collections;
+    using ColossalFramework.Packaging;
+    using HarmonyLib;
+    using LoadingScreenMod;
+    using UnityEngine;
+
+    /// <summary>
+    /// Harmony patch to implement custom level loading.
+    /// </summary>
+    [HarmonyPatch(
+        typeof(LoadingManager),
+        nameof(LoadingManager.LoadLevel),
+        new Type[] { typeof(Package.Asset), typeof(string), typeof(string), typeof(SimulationMetaData), typeof(bool) },
+        new ArgumentType[] { ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal })]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.NamingRules", "SA1313:Parameter names should begin with lower-case letter", Justification = "Harmony")]
+    public static class LoadLevel
     {
+        /// <summary>
+        /// Gets the current city name.
+        /// </summary>
+        internal static string CityName { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether shift-E is currently pressed.
+        /// </summary>
+        private static bool ShiftE => Input.GetKey(KeyCode.E) && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift));
+
         /// <summary>
         /// Harmony pre-emptive Prefix patch to LoadingManager.LoadLevel to implement custom level loading.
         /// </summary>
-        /// <param name="__result">Original method result (LoadLevel coroutine)</param>
-        /// <param name="__instance">LoadingManager instance</param>
-        /// <param name="asset">Package asset</param>
-        /// <param name="playerScene">Unity player scene name</param>
-        /// <param name="uiScene">Unity UI scene name</param>
-        /// <param name="ngs">SimulationMetaData</param>
-        /// <param name="forceEnvironmentReload">True to force an environment reload, false (default) otherwise</param>
-        /// <returns>True if the custom loader is activated (loading into game, or left control key is held down), false otherwise (fall through to default game code)</returns>
+        /// <param name="__result">Original method result (LoadLevel coroutine).</param>
+        /// <param name="__instance">LoadingManager instance.</param>
+        /// <param name="asset">Package asset.</param>
+        /// <param name="playerScene">Unity player scene name.</param>
+        /// <param name="uiScene">Unity UI scene name.</param>
+        /// <param name="ngs">SimulationMetaData.</param>
+        /// <param name="forceEnvironmentReload">True to force an environment reload, false (default) otherwise.</param>
+        /// <returns>True if the custom loader is activated (loading into game, or left control key is held down), false otherwise (fall through to default game code).</returns>
         public static bool Prefix(ref Coroutine __result, LoadingManager __instance, Package.Asset asset, string playerScene, string uiScene, SimulationMetaData ngs, bool forceEnvironmentReload = false)
         {
             // Custom loader is is active when loading into game, or otherwise when a control key is held down.
@@ -41,7 +58,7 @@ namespace LoadingScreenModRevisited
             }
 
             // Reset flags.
-            LevelLoader.simulationFailed = LevelLoader.assetLoadingStarted = LevelLoader.assetsFinished = false;
+            LevelLoader.s_simulationFailed = LevelLoader.s_assetLoadingStarted = LevelLoader.s_assetsFinished = false;
 
             // Don't do anyting further if we're already loading, or the application isn't quitting.
             if (__instance.m_currentlyLoading || __instance.m_applicationQuitting)
@@ -64,18 +81,18 @@ namespace LoadingScreenModRevisited
             // Reset legacy settings.
             LoadingScreenMod.Settings settings = LoadingScreenMod.Settings.settings;
             Util.DebugPrint("Options: 2205", settings.loadEnabled, settings.loadUsed, settings.shareTextures, settings.shareMaterials, settings.shareMeshes, settings.optimizeThumbs, settings.reportAssets, settings.checkAssets, settings.skipPrefabs, settings.hideAssets, settings.useReportDate);
-            LevelLoader.optimizeThumbs = settings.optimizeThumbs;
+            LevelLoader.s_optimizeThumbs = settings.optimizeThumbs;
             settings.enableDisable = settings.loadUsed && ShiftE;
 
             // Reset progress.
             __instance.SetSceneProgress(0f);
-            LevelLoader.cityName = ((asset != null) ? asset.name : null) ?? "NewGame";
+            CityName = asset?.name ?? "NewGame";
             Profiling.Init();
             Instance<CustomDeserializer>.Create();
             Instance<Fixes>.Create().Deploy();
 
             // Initialize loading screen.
-            LoadingScreen.instance = new LoadingScreen();
+            LoadingScreen.s_instance = new LoadingScreen();
 
             // Reset LoadingManager flags.
             __instance.LoadingAnimationComponent.enabled = true;
@@ -106,11 +123,5 @@ namespace LoadingScreenModRevisited
             // Don't execute original method.
             return false;
         }
-
-
-		/// <summary>
-		/// Returns true if shift-E is currently pressed.
-		/// </summary>
-		private static bool ShiftE => Input.GetKey(KeyCode.E) && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift));
-	}
+    }
 }

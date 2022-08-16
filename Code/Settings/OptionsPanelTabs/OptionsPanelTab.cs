@@ -1,4 +1,9 @@
-﻿namespace LoadingScreenModRevisited
+﻿// <copyright file="OptionsPanelTab.cs" company="algernon (K. Algernon A. Sheppard)">
+// Copyright (c) algernon (K. Algernon A. Sheppard). All rights reserved.
+// Licensed under the MIT license. See LICENSE.txt file in the project root for full license information.
+// </copyright>
+
+namespace LoadingScreenModRevisited
 {
     using System;
     using AlgernonCommons;
@@ -6,14 +11,17 @@
     using ColossalFramework.UI;
     using ICities;
 
+    /// <summary>
+    /// Options panel tab base class.
+    /// </summary>
     internal abstract class OptionsPanelTab
     {
         /// <summary>
         /// Adds a textfield with no title label.
         /// </summary>
-        /// <param name="group">UIHelper group</param>
-        /// <param name="text">Initial text</param>
-        /// <param name="action">Text changed action</param>
+        /// <param name="group">UIHelper group.</param>
+        /// <param name="text">Initial text.</param>
+        /// <param name="action">Text changed action.</param>
         protected void TextField(UIHelper group, string text, OnTextChanged action)
         {
             try
@@ -47,19 +55,17 @@
             }
         }
 
-
         /// <summary>
         /// Adds a helper group with reduced bottom offsets.
         /// </summary>
-        /// <param name="parent">Parent helper</param>
-        /// <param name="title">Group title</param>
-        /// <param name="tooltip">Group label tooltip</param>
-        /// <returns></returns>
+        /// <param name="parent">Parent helper.</param>
+        /// <param name="title">Group title.</param>
+        /// <param name="tooltip">Group label tooltip.</param>
+        /// <returns>New UIHelper.</returns>
         protected UIHelper AddGroup(UIHelper parent, string title, string tooltip = null)
         {
             // Add helper.
             UIHelper helper = parent.AddGroup(title) as UIHelper;
-
 
             // Add tooltip.
             UIPanel helperPanel = helper.self as UIPanel;

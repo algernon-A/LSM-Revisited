@@ -2,22 +2,22 @@ using UnityEngine;
 
 namespace LoadingScreenMod
 {
-	internal sealed class TextObj
-	{
-		internal string name;
+    internal sealed class TextObj
+    {
+        internal string name;
 
-		internal byte[] pixels;
+        internal byte[] pixels;
 
-		internal int width;
+        internal int width;
 
-		internal int height;
+        internal int height;
 
-		internal int anisoLevel;
+        internal int anisoLevel;
 
-		internal TextureFormat format;
+        internal TextureFormat format;
 
-		internal bool mipmap;
+        internal bool mipmap;
 
-		internal bool linear;
-	}
+        internal bool linear;
+    }
 }

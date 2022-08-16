@@ -1,12 +1,17 @@
-﻿namespace LoadingScreenModRevisited
+﻿// <copyright file="Patcher.cs" company="algernon (K. Algernon A. Sheppard)">
+// Copyright (c) algernon (K. Algernon A. Sheppard). All rights reserved.
+// Licensed under the MIT license. See LICENSE.txt file in the project root for full license information.
+// </copyright>
+
+namespace LoadingScreenModRevisited
 {
     using System;
     using System.Reflection;
     using System.Text;
     using AlgernonCommons;
     using AlgernonCommons.Patching;
-    using ColossalFramework.Packaging;
     using CitiesHarmony.API;
+    using ColossalFramework.Packaging;
     using HarmonyLib;
 
     /// <summary>
@@ -14,9 +19,6 @@
     /// </summary>
     public class Patcher : PatcherBase
     {
-        // Unique harmony identifier.
-        private const string harmonyID = "com.github.algernon-A.csl.lsmr";
-
         // Flags.
         private bool _customAnimLoaderPatched = false;
 
@@ -46,7 +48,6 @@
             }
         }
 
-
         /// <summary>
         /// Apply all Harmony patches.
         /// </summary>
@@ -61,7 +62,7 @@
                     Logging.KeyMessage("deploying Harmony patches");
 
                     // Apply all annotated patches and update flag.
-                    Harmony harmonyInstance = new Harmony(Mod.Instance.HarmonyID);
+                    Harmony harmonyInstance = new Harmony(HarmonyID);
                     harmonyInstance.PatchAll();
                     Patched = true;
 
@@ -75,58 +76,57 @@
             }
         }
 
-
         /// <summary>
         /// Applies a Harmony prefix to the specified method.
         /// </summary>
-        /// <param name="target">Target method</param>
-        /// <param name="patch">Harmony Prefix patch</param>
+        /// <param name="target">Target method.</param>
+        /// <param name="patch">Harmony Prefix patch.</param>
         public void PrefixMethod(MethodInfo target, MethodInfo patch)
         {
-            Harmony harmonyInstance = new Harmony(harmonyID);
+            Harmony harmonyInstance = new Harmony(HarmonyID);
             harmonyInstance.Patch(target, prefix: new HarmonyMethod(patch));
 
             Logging.Message("patched ", PrintMethod(target), " to ", PrintMethod(patch));
         }
 
-
         /// <summary>
         /// Applies a Harmony prefix to the given type and method name, with a patch of the same name from a different type.
         /// </summary>
-        /// <param name="targetType">Target type to patch</param>
-        /// <param name="patchType">Type containing patch method</param>
-        /// <param name="methodName">Method name</param>
+        /// <param name="targetType">Target type to patch.</param>
+        /// <param name="patchType">Type containing patch method.</param>
+        /// <param name="methodName">Method name.</param>
         public void PrefixMethod(Type targetType, Type patchType, string methodName)
         {
-            PrefixMethod(targetType.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance),
+            PrefixMethod(
+                targetType.GetMethod(
+                methodName,
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance),
                 patchType.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance));
         }
-
 
         /// <summary>
         /// Reverts a Harmony ptach to the specified method.
         /// </summary>
-        /// <param name="target">Target method</param>
-        /// <param name="patch">Patch to revert</param>
+        /// <param name="target">Target method.</param>
+        /// <param name="patch">Patch to revert.</param>
         public void UnpatchMethod(MethodInfo target, MethodInfo patch)
         {
-            Harmony harmonyInstance = new Harmony(harmonyID);
+            Harmony harmonyInstance = new Harmony(HarmonyID);
             harmonyInstance.Unpatch(target, patch);
         }
-
 
         /// <summary>
         /// Reverts a Harmony prefix to the given type and method name, with a patch of the same name from a different type.
         /// </summary>
-        /// <param name="targetType">Target type to patch</param>
-        /// <param name="patchType">Type containing patch method</param>
-        /// <param name="methodName">Method name</param>
+        /// <param name="targetType">Target type to patch.</param>
+        /// <param name="patchType">Type containing patch method.</param>
+        /// <param name="methodName">Method name.</param>
         public void UnpatchMethod(Type targetType, Type patchType, string methodName)
         {
-            UnpatchMethod(targetType.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance),
+            UnpatchMethod(
+                targetType.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance),
                 patchType.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance));
         }
-
 
         /// <summary>
         /// Patches Custom Animation Loader to work with this mod.
@@ -145,7 +145,7 @@
                     // Found CAL's patch method - apply it here.
                     Logging.KeyMessage("patching Custom Animation Loader");
 
-                    Harmony harmonyInstance = new Harmony(harmonyID);
+                    Harmony harmonyInstance = new Harmony(HarmonyID);
                     harmonyInstance.Patch(typeof(AssetDeserializer).GetMethod("DeserializeGameObject", BindingFlags.Instance | BindingFlags.NonPublic), postfix: new HarmonyMethod(calPatch));
 
                     _customAnimLoaderPatched = true;
@@ -160,7 +160,6 @@
                 Logging.Message("Custom Animation Loader already patched");
             }
         }
-
 
         /// <summary>
         /// Applies reverse patches to access methods of private type ColossalFramework.Packaging.AssetSerializer.
@@ -177,18 +176,17 @@
             MethodInfo deserializeHeaderName = assetSerializer.GetMethod("DeserializeHeader", BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(Type).MakeByRefType(), typeof(string).MakeByRefType(), typeof(PackageReader) }, null);
 
             // Reverse patch.
-            Harmony harmonyInstance = new Harmony(harmonyID);
+            Harmony harmonyInstance = new Harmony(HarmonyID);
             ReversePatcher reversePatcher = harmonyInstance.CreateReversePatcher(deserializeHeader, new HarmonyMethod(typeof(AssetDeserializer).GetMethod(nameof(AssetDeserializer.DeserializeHeader), BindingFlags.Static | BindingFlags.NonPublic)));
             ReversePatcher reversePatcherName = harmonyInstance.CreateReversePatcher(deserializeHeaderName, new HarmonyMethod(typeof(AssetDeserializer).GetMethod(nameof(AssetDeserializer.DeserializeHeaderName), BindingFlags.Static | BindingFlags.NonPublic)));
             reversePatcher.Patch();
             reversePatcherName.Patch();
         }
 
-
         /// <summary>
         /// Coverts MethodInfo data to string.
         /// </summary>
-        /// <param name="method">MethodInfo to log</param>
+        /// <param name="method">MethodInfo to log.</param>
         /// <returns>MethodInfo data as human-readable string.</returns>
         private string PrintMethod(MethodInfo method)
         {
@@ -209,10 +207,12 @@
                 {
                     sb.Append(", ");
                 }
+
                 sb.Append(param.ParameterType.Name);
                 sb.Append(" ");
                 sb.Append(param.Name);
             }
+
             sb.Append(")");
             return sb.ToString();
         }

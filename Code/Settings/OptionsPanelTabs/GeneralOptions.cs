@@ -1,4 +1,9 @@
-﻿namespace LoadingScreenModRevisited
+﻿// <copyright file="GeneralOptions.cs" company="algernon (K. Algernon A. Sheppard)">
+// Copyright (c) algernon (K. Algernon A. Sheppard). All rights reserved.
+// Licensed under the MIT license. See LICENSE.txt file in the project root for full license information.
+// </copyright>
+
+namespace LoadingScreenModRevisited
 {
     using AlgernonCommons;
     using AlgernonCommons.Translation;
@@ -11,10 +16,10 @@
     internal class GeneralOptions : OptionsPanelTab
     {
         /// <summary>
-        /// Adds mod options tab to tabstrip.
+        /// Initializes a new instance of the <see cref="GeneralOptions"/> class.
         /// </summary>
-        /// <param name="tabStrip">Tab strip to add to</param>
-        /// <param name="tabIndex">Index number of tab</param>
+        /// <param name="tabStrip">Tab strip to add to.</param>
+        /// <param name="tabIndex">Index number of tab.</param>
         internal GeneralOptions(UITabstrip tabStrip, int tabIndex)
         {
             Logging.Message("creating general options panel");
@@ -27,6 +32,7 @@
             UIHelper helper = new UIHelper(panel);
 
             UIHelper languageGroup = AddGroup(helper, Translations.Translate("CHOOSE_LANGUAGE"));
+
             // Language selection.
             UIDropDown languageDropDown = languageGroup.AddDropdown(" ", Translations.LanguageList, Translations.Index, (index) =>
             {
@@ -46,9 +52,17 @@
 
             // Asset loading options.
             UIHelper assetGroup = AddGroup(helper, Translations.Translate("LOADING_OPTIONS_FOR_ASSETS"));
-            UICheckBox loadEnabledCheck = assetGroup.AddCheckbox(Translations.Translate("LOAD_ENABLED_ASSETS"), LoadingScreenMod.Settings.settings.loadEnabled, (isChecked) => { LoadingScreenMod.Settings.settings.loadEnabled = isChecked; LevelLoader.Reset(); }) as UICheckBox;
+            UICheckBox loadEnabledCheck = assetGroup.AddCheckbox(Translations.Translate("LOAD_ENABLED_ASSETS"), LoadingScreenMod.Settings.settings.loadEnabled, (isChecked) =>
+            {
+                LoadingScreenMod.Settings.settings.loadEnabled = isChecked;
+                LevelLoader.Reset();
+            }) as UICheckBox;
             loadEnabledCheck.tooltip = Translations.Translate("LOAD_ENABLED_IN_CM");
-            UICheckBox loadUsedCheck = assetGroup.AddCheckbox(Translations.Translate("LOAD_USED_ASSETS"), LoadingScreenMod.Settings.settings.loadUsed, (isChecked) => { LoadingScreenMod.Settings.settings.loadUsed = isChecked; LevelLoader.Reset(); }) as UICheckBox;
+            UICheckBox loadUsedCheck = assetGroup.AddCheckbox(Translations.Translate("LOAD_USED_ASSETS"), LoadingScreenMod.Settings.settings.loadUsed, (isChecked) =>
+            {
+                LoadingScreenMod.Settings.settings.loadUsed = isChecked;
+                LevelLoader.Reset();
+            }) as UICheckBox;
             loadUsedCheck.tooltip = Translations.Translate("LOAD_USED_IN_YOUR_CITY");
 
             string replaceDuplicates = Translations.Translate("REPLACE_DUPLICATES");
@@ -73,6 +87,7 @@
             {
                 recoveryLabel.tooltip = Translations.Translate("AUTOMATICALLY_DISABLED");
             }
+
             recoveryGroup.AddCheckbox(Translations.Translate("REMOVE_VEHICLE_AGENTS"), LoadingScreenMod.Settings.settings.removeVehicles, (isChecked) => { LoadingScreenMod.Settings.settings.removeVehicles = isChecked; });
             recoveryGroup.AddCheckbox(Translations.Translate("REMOVE_CITIZEN_AGENTS"), LoadingScreenMod.Settings.settings.removeCitizenInstances, (isChecked) => { LoadingScreenMod.Settings.settings.removeCitizenInstances = isChecked; });
             recoveryGroup.AddCheckbox(Translations.Translate("TRY_TO_RECOVER"), LoadingScreenMod.Settings.settings.recover, (isChecked) => { LoadingScreenMod.Settings.settings.recover = isChecked; });

@@ -1,4 +1,9 @@
-﻿namespace LoadingScreenModRevisited
+﻿// <copyright file="BackgroundImage.cs" company="algernon (K. Algernon A. Sheppard)">
+// Copyright (c) algernon (K. Algernon A. Sheppard). All rights reserved.
+// Licensed under the MIT license. See LICENSE.txt file in the project root for full license information.
+// </copyright>
+
+namespace LoadingScreenModRevisited
 {
     using System;
     using System.Collections.Generic;
@@ -11,30 +16,15 @@
     using UnityEngine;
 
     /// <summary>
-    /// Loading image mode enum.
-    /// </summary>
-    public enum ImageMode : int
-    {
-        Standard = 0,
-        ImgurCurated,
-        ImgurRandom,
-        LocalRandom
-    }
-
-
-    /// <summary>
     /// Custom background image handling.
     /// </summary>
-    internal static class BackgroundImage
+    public static class BackgroundImage
     {
-        // Local random image directory.
-        internal static string imageDir = Path.Combine(ColossalFramework.IO.DataLocation.localApplicationData, "LoadingImages");
-
         // List of image URLs from imgur.
-        private static List<string> randomImages = new List<string>();
+        private static readonly List<string> RandomImages = new List<string>();
 
         // Cureated imgur images.
-        private static List<string> curatedImages = new List<string>
+        private static readonly List<string> CuratedImages = new List<string>
         {
             "rgxqLV0",
             "jNyKCHa",
@@ -60,17 +50,61 @@
             "FsDd12C",
         };
 
+        /// <summary>
+        /// Simple Mono https/ssl certificate validation override to ensure that all certificates are accepted,
+        /// because Mono has no certificates by default and https will automatically fail if we don't do this.
+        /// We don't do anything more sophisticated because we really don't care about site validation for this.
+        /// You could argue that even checking the common name is overkill here, but we'll do it anyway.
+        /// </summary>
+        private static readonly RemoteCertificateValidationCallback CertificateValidationFudge = (sender, cert, chain, sslPolicyErrors) => cert.Subject.Contains("CN=*.imgur.com");
+
+        // Local random image directory.
+        private static string s_imageDir = Path.Combine(ColossalFramework.IO.DataLocation.localApplicationData, "LoadingImages");
+
+        // Current background image mode.
+        private static ImageMode s_imageMode = ImageMode.Standard;
 
         /// <summary>
-        /// Background image mode.
+        /// Loading image mode enum.
         /// </summary>
-        internal static ImageMode ImageMode
+        public enum ImageMode : int
         {
-            get => _imageMode;
+            /// <summary>
+            /// Standard (game) background image.
+            /// </summary>
+            Standard = 0,
+
+            /// <summary>
+            /// Curated image from r/CitiesSkylines on imgur
+            /// </summary>
+            ImgurCurated,
+
+            /// <summary>
+            /// Random image from r/CitiesSkylines on imgur
+            /// </summary>
+            ImgurRandom,
+
+            /// <summary>
+            /// Random image from a local directory.
+            /// </summary>
+            LocalRandom,
+        }
+
+        /// <summary>
+        /// Gets or sets the local image directory.
+        /// </summary>
+        internal static string ImageDirectory { get => s_imageDir; set => s_imageDir = value; }
+
+        /// <summary>
+        /// Gets or sets the current background image mode.
+        /// </summary>
+        internal static ImageMode CurrentImageMode
+        {
+            get => s_imageMode;
 
             set
             {
-                _imageMode = value;
+                s_imageMode = value;
 
                 if (value == ImageMode.ImgurRandom)
                 {
@@ -79,49 +113,47 @@
                 }
             }
         }
-        private static ImageMode _imageMode = ImageMode.Standard;
-
 
         /// <summary>
         /// Attempts to replace the given material with one according to custom settings.
         /// </summary>
-        /// <param name="material">Original material</param>
-        /// <returns>New material based on original with new texture, or null if failed</returns>
+        /// <param name="material">Original material.</param>
+        /// <returns>New material based on original with new texture, or null if failed.</returns>
         internal static Material GetImage(Material material)
         {
-            switch (_imageMode)
+            switch (s_imageMode)
             {
                 case ImageMode.LocalRandom:
                     return GetLocalImage(material);
 
                 case ImageMode.ImgurCurated:
-                    return GetImgurImage(material, curatedImages);
+                    return GetImgurImage(material, CuratedImages);
 
                 case ImageMode.ImgurRandom:
                     // Try to populate the random list if we haven't already.
-                    if (randomImages.Count == 0)
+                    if (RandomImages.Count == 0)
                     {
                         PopulateImgurRandomList();
                     }
-                    return GetImgurImage(material, randomImages);
+
+                    return GetImgurImage(material, RandomImages);
 
                 default:
                     return null;
             }
         }
 
-
         /// <summary>
         /// Attempts to replace the given material with one from a randomly selected file in a local image directory.
         /// </summary>
-        /// <param name="material">Original material</param>
-        /// <returns>New material based on original with new texture, or null if failed</returns>
+        /// <param name="material">Original material.</param>
+        /// <returns>New material based on original with new texture, or null if failed.</returns>
         private static Material GetLocalImage(Material material)
         {
             // Check that the specified directory exists.
-            if (!Directory.Exists(imageDir))
+            if (!Directory.Exists(s_imageDir))
             {
-                Logging.KeyMessage("local image directory not found: ", imageDir);
+                Logging.KeyMessage("local image directory not found: ", s_imageDir);
                 return null;
             }
 
@@ -130,7 +162,7 @@
 
             // Get list of files.
             System.Random random = new System.Random();
-            string[] fileNames = Directory.GetFiles(imageDir);
+            string[] fileNames = Directory.GetFiles(s_imageDir);
 
             // Iterate through filenames in random list order.
             foreach (string imageFileName in fileNames.ToList().OrderBy(x => random.Next()))
@@ -138,7 +170,7 @@
                 try
                 {
                     // Skip anything that isn't png or jpg.
-                    if (imageFileName == null || !imageFileName.EndsWith(".png") && !imageFileName.EndsWith(".jpg"))
+                    if (imageFileName == null || (!imageFileName.EndsWith(".png") && !imageFileName.EndsWith(".jpg")))
                     {
                         continue;
                     }
@@ -153,7 +185,7 @@
                         // Got an eligible candidate - convert to material and return it.
                         return new Material(material)
                         {
-                            mainTexture = newTexture
+                            mainTexture = newTexture,
                         };
                     }
 
@@ -170,13 +202,12 @@
             return null;
         }
 
-
         /// <summary>
         /// Attempts to replace the given material with one based on a imgur image download.
         /// </summary>
-        /// <param name="material">Original material</param>
-        /// <param name="imageList">Image list to use</param>
-        /// <returns>New material based on original with new texture, or null if failed</returns>
+        /// <param name="material">Original material.</param>
+        /// <param name="imageList">Image list to use.</param>
+        /// <returns>New material based on original with new texture, or null if failed.</returns>
         private static Material GetImgurImage(Material material, List<string> imageList)
         {
             // Background texture base.
@@ -190,7 +221,7 @@
                 {
                     // Add certificate validation callback, because Mono has no certificates by default and https will automatically fail if we don't do this.
                     ServicePointManager.ServerCertificateValidationCallback += CertificateValidationFudge;
-                    
+
                     // Recreate direct image URL from image name.
                     string imageURL = "http://i.imgur.com/" + imageName + ".jpg";
                     Logging.Message("downloading image from ", imageURL);
@@ -205,7 +236,7 @@
                         // Got an eligible candidate - convert to material and return it.
                         return new Material(material)
                         {
-                            mainTexture = newTexture
+                            mainTexture = newTexture,
                         };
                     }
 
@@ -227,14 +258,13 @@
             return null;
         }
 
-
         /// <summary>
         /// Populates the list of image URLs from /r/CitiesSkylines on imgur.
         /// </summary>
         private static void PopulateImgurRandomList()
         {
             // Don't do anything if the list is already populated.
-            if (randomImages.Count > 0)
+            if (RandomImages.Count > 0)
             {
                 return;
             }
@@ -254,10 +284,10 @@
                     // Extract image name and add to list.
                     string matchValue = match.Value;
                     int index = matchValue.IndexOf("<div id=\"");
-                    randomImages.Add(matchValue.Substring(index + 9, 7));
+                    RandomImages.Add(matchValue.Substring(index + 9, 7));
                 }
 
-                Logging.Message("downloaded ", randomImages.Count, " imgur URLs");
+                Logging.Message("downloaded ", RandomImages.Count, " imgur URLs");
             }
             catch (Exception e)
             {
@@ -269,12 +299,5 @@
                 ServicePointManager.ServerCertificateValidationCallback -= CertificateValidationFudge;
             }
         }
-
-
-        /// <summary>
-        /// Simple Mono https/ssl certificate validation override to ensure that all certificates are accepted,
-        /// because Mono has no certificates by default and https will automatically fail if we don't do this.
-        /// </summary>
-        private static RemoteCertificateValidationCallback CertificateValidationFudge = (sender, cert, chain, sslPolicyErrors) => cert.Subject.Contains("CN=*.imgur.com");
     }
 }

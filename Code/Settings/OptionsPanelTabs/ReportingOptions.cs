@@ -1,4 +1,9 @@
-﻿namespace LoadingScreenModRevisited
+﻿// <copyright file="ReportingOptions.cs" company="algernon (K. Algernon A. Sheppard)">
+// Copyright (c) algernon (K. Algernon A. Sheppard). All rights reserved.
+// Licensed under the MIT license. See LICENSE.txt file in the project root for full license information.
+// </copyright>
+
+namespace LoadingScreenModRevisited
 {
     using AlgernonCommons.Translation;
     using AlgernonCommons.UI;
@@ -10,10 +15,10 @@
     internal class ReportingOptions : OptionsPanelTab
     {
         /// <summary>
-        /// Adds reporting options tab to tabstrip.
+        /// Initializes a new instance of the <see cref="ReportingOptions"/> class.
         /// </summary>
-        /// <param name="tabStrip">Tab strip to add to</param>
-        /// <param name="tabIndex">Index number of tab</param>
+        /// <param name="tabStrip">Tab strip to add to.</param>
+        /// <param name="tabIndex">Index number of tab.</param>
         internal ReportingOptions(UITabstrip tabStrip, int tabIndex)
         {
             // Add tab and helper.
