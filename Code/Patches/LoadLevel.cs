@@ -7,6 +7,7 @@ namespace LoadingScreenModRevisited
 {
     using System;
     using System.Collections;
+    using AlgernonCommons.Patching;
     using ColossalFramework.Packaging;
     using HarmonyLib;
     using LoadingScreenMod;
@@ -76,7 +77,7 @@ namespace LoadingScreenModRevisited
             }
 
             // Patch Custom Animation Loader.
-            Patcher.Instance.PatchCustomAnimationLoader();
+            PatcherManager<Patcher>.Instance.PatchCustomAnimationLoader();
 
             // Reset legacy settings.
             LoadingScreenMod.Settings settings = LoadingScreenMod.Settings.settings;

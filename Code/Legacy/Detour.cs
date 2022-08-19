@@ -1,7 +1,8 @@
 using System;
 using System.Reflection;
-using UnityEngine;
+using AlgernonCommons.Patching;
 using LoadingScreenModRevisited;
+using UnityEngine;
 
 namespace LoadingScreenMod
 {
@@ -25,7 +26,7 @@ namespace LoadingScreenMod
             {
                 if (!deployed)
                 {
-                    Patcher.Instance.PrefixMethod(from, to);
+                    PatcherManager<Patcher>.Instance.PrefixMethod(from, to);
                 }
                 deployed = true;
             }
@@ -42,7 +43,7 @@ namespace LoadingScreenMod
             {
                 if (deployed)
                 {
-                    Patcher.Instance.UnpatchMethod(from, to);
+                    PatcherManager<Patcher>.Instance.UnpatchMethod(from, to);
                 }
                 deployed = false;
             }

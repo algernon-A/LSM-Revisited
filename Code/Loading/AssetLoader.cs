@@ -24,11 +24,6 @@ namespace LoadingScreenModRevisited
     /// </summary>
     public sealed class AssetLoader
     {
-        /// <summary>
-        /// Yield interval.
-        /// </summary>
-        internal const int YieldInterval = 350;
-
         // Instance reference.
         private static AssetLoader s_instance;
 
