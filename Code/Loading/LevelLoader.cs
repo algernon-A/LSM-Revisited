@@ -772,8 +772,7 @@
                     }
 
                     // Display failure message.
-                    // TODO: Simulation failed message.
-                    //LoadingScreen.s_instance.SimulationSource?.Failed(message);
+                    LoadingScreen.s_instance.SimulationFailed(message);
                     return true;
                 }
                 catch (Exception e)

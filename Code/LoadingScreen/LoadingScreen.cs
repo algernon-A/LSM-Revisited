@@ -67,7 +67,7 @@ namespace LoadingScreenModRevisited
         // Camera instance reference.
         private readonly Camera _camera;
 
-        // Scene and asset status tracker.
+        // Status treackers.
         private ScenesAndAssetsStatus _scenesAndAssetsStatus;
 
         // Progress timers.
@@ -95,6 +95,9 @@ namespace LoadingScreenModRevisited
         // Asset loading progress title length.
         private int _assetTitleLength;
         private string _perSecondString;
+
+        // Failed status.
+        private string _simulationFailedMessage = null;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LoadingScreen"/> class.
@@ -319,7 +322,7 @@ namespace LoadingScreenModRevisited
                 s_timingBoxHeight = (s_style.lineHeight * 3f) + (s_style.padding.top * 2f);
                 s_assetBoxHeight = (s_style.lineHeight * 4f) + (s_style.padding.top * 2f);
                 s_memoryBoxHeight = (s_style.lineHeight * 6f) + (s_style.padding.top * 2f);
-                s_threadBoxHeight = (s_style.lineHeight * 5f) + (s_style.padding.top * 2f);
+                s_threadBoxHeight = (s_style.lineHeight * 6f) + (s_style.padding.top * 2f);
             }
 
             // Y-position indicator.
@@ -420,6 +423,15 @@ namespace LoadingScreenModRevisited
         }
 
         /// <summary>
+        /// Called by LevelLoader if the simulation fails.
+        /// </summary>
+        /// <param name="message">Simulation failure message.</param>
+        internal void SimulationFailed(string message)
+        {
+            _simulationFailedMessage = "<color=red>" + Translations.Translate("SIMULATION_FAILED") + ": " + message +"</color>";
+        }
+
+        /// <summary>
         /// Updates displayed progress.
         /// </summary>
         private void Progress()
@@ -472,6 +484,12 @@ namespace LoadingScreenModRevisited
                 ThreadText.Append(mainThreadStatus.Text);
                 ThreadText.AppendLine();
                 ThreadText.Append(simulationStatus.Text);
+
+                // If any simulation failed message is set, display it.
+                if (_simulationFailedMessage != null)
+                {
+                    ThreadText.Append(_simulationFailedMessage);
+                }
 
                 // Memory useage text.
                 if (memoryStatus != null)

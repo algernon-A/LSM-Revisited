@@ -162,3 +162,4 @@
 "GAME_PAGE_USE","Game pagefile use","Line item for memory usage stat display on loading screen."
 "SYS_RAM_USE","System RAM use","Line item for memory usage stat display on loading screen."
 "SYS_PAGE_USE","System pagefile use","Line item for memory usage stat display on loading screen."
+"SIMULATION_FAILED","Simulation failed","Message displayed when simulation thread fails."
