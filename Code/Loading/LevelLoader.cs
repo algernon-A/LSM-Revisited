@@ -684,7 +684,7 @@
         {
             if (SteamHelper.IsDLCOwned((SteamHelper.DLC)dlc))
             {
-                if (LSMRSettings.SkipPrefabs)
+                if (LSMRSettings.SkipPrefabs && LoadingScreenMod.Settings.SkipMatcher != null)
                 {
                     return !LoadingScreenMod.Settings.SkipMatcher.Matches((int)dlc);
                 }
