@@ -5,14 +5,12 @@
 
 namespace LoadingScreenModRevisited
 {
-    using System;
-    using System.Collections.Generic;
+    using System.Collections;
     using System.Reflection;
-    using AlgernonCommons;
+    using System.Text;
     using AlgernonCommons.Patching;
     using AlgernonCommons.Translation;
     using ColossalFramework;
-    using ColossalFramework.UI;
     using LoadingScreenMod;
     using UnityEngine;
 
@@ -39,10 +37,28 @@ namespace LoadingScreenModRevisited
         /// </summary>
         internal readonly float m_meshHeight = 3 * Screen.height / 4;
 
-        /// <summary>
-        /// Text font.
-        /// </summary>
-        internal UIFont m_uifont;
+        // Private layout constants.
+        private const float ScreenMargin = 50f;
+        private const float BoxWidth = 480f;
+
+        // Is this Windows?
+        private static readonly bool IsWindows = Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor;
+
+        // Display text.
+        private static readonly StringBuilder ThreadText = new StringBuilder(256);
+        private static readonly StringBuilder AssetLoaderText = new StringBuilder(256);
+        private static StringBuilder s_memoryText = new StringBuilder(256);
+        private static StringBuilder s_scenesAndAssetsText = new StringBuilder(4096);
+
+        // Unity GUI style.
+        private static GUIStyle s_style;
+
+        // GUI overlay layout.
+        private static float s_scenesAssetsBoxHeight;
+        private static float s_timingBoxHeight;
+        private static float s_assetBoxHeight;
+        private static float s_memoryBoxHeight;
+        private static float s_threadBoxHeight;
 
         // Loading animation.
         private readonly LoadingAnimation _loadingAnimiation;
@@ -51,16 +67,15 @@ namespace LoadingScreenModRevisited
         // Camera instance reference.
         private readonly Camera _camera;
 
+        // Scene and asset status tracker.
+        private ScenesAndAssetsStatus _scenesAndAssetsStatus;
+
         // Progress timers.
         private float _timer;
         private float _progress;
-        private float _meshTime;
         private float _progressTime;
         private float _minProgress;
         private float _maxProgress = 1f;
-
-        // Mesh update counters.
-        private int _meshUpdates;
 
         // Background image components.
         private Mesh _imageMesh;
@@ -73,30 +88,19 @@ namespace LoadingScreenModRevisited
         private Material _barBGMaterial;
         private Material _barFGMaterial;
 
-        // Text components.
-        private Material textMaterial;
-        private LoadingScreenText[] texts;
-
-        // Overlay components.
-        private Mesh overlayMesh;
-        private Material overlayMaterial;
-
         // Status flags.
         private bool _imageLoaded;
         private bool _animationLoaded;
-        private bool _overlayLoaded;
-        private bool _fontLoaded;
+
+        // Asset loading progress title length.
+        private int _assetTitleLength;
+        private string _perSecondString;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LoadingScreen"/> class.
         /// </summary>
         internal LoadingScreen()
         {
-            // Create overlay components.
-            overlayMesh = CreateOverlayMesh();
-            overlayMaterial = CreateOverlayMaterial(new Color(0f, 0f, 0f, 0.8f));
-            _overlayLoaded = overlayMesh != null & overlayMaterial != null;
-
             // Set instance references.
             _loadingAnimiation = Singleton<LoadingAnimation>.instance;
             _camera = _loadingAnimiation.GetComponent<Camera>();
@@ -108,10 +112,8 @@ namespace LoadingScreenModRevisited
             _barFGMaterial = (Material)Util.Get(_loadingAnimiation, "m_barFGMaterial");
             _animationLoaded = (bool)Util.Get(_loadingAnimiation, "m_animationLoaded");
 
-            // Set up font manager.
-            UIFontManager.callbackRequestCharacterInfo = (UIFontManager.CallbackRequestCharacterInfo)Delegate.Combine(UIFontManager.callbackRequestCharacterInfo, new UIFontManager.CallbackRequestCharacterInfo(RequestCharacterInfo));
-            Font.textureRebuilt += FontTextureRebuilt;
-            SetFont();
+            // Create scene and asset status monitor.
+            _scenesAndAssetsStatus = new ScenesAndAssetsStatus();
 
             // Apply Harmony patches to the loading animation.
             PatcherManager<Patcher>.Instance.PrefixMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "SetImage");
@@ -119,55 +121,16 @@ namespace LoadingScreenModRevisited
             PatcherManager<Patcher>.Instance.PrefixMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "OnDisable");
             PatcherManager<Patcher>.Instance.PrefixMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "Update");
             PatcherManager<Patcher>.Instance.PrefixMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "OnPostRender");
+            PatcherManager<Patcher>.Instance.PostfixMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "OnGUI");
+
+            // Start Unity overlay update coroutine.
+            Singleton<LoadingManager>.instance.StartCoroutine(UpdateText());
         }
 
         /// <summary>
-        /// Gets the simulation text source.
+        /// Gets the scenes and asset status tracker.
         /// </summary>
-        internal SimpleProfilerSource SimulationSource
-        {
-            get
-            {
-                if (texts == null || texts.Length < 3)
-                {
-                    return null;
-                }
-
-                return texts[2].m_source as SimpleProfilerSource;
-            }
-        }
-
-        /// <summary>
-        /// Gets the asset loader text source.
-        /// </summary>
-        internal DualProfilerSource DualSource
-        {
-            get
-            {
-                if (texts == null || texts.Length < 1)
-                {
-                    return null;
-                }
-
-                return texts[0].m_source as DualProfilerSource;
-            }
-        }
-
-        /// <summary>
-        /// Gets the loader text source.
-        /// </summary>
-        internal LineSource LoaderSource
-        {
-            get
-            {
-                if (texts == null || texts.Length < 4)
-                {
-                    return null;
-                }
-
-                return texts[3].m_source as LineSource;
-            }
-        }
+        internal ScenesAndAssetsStatus SceneAndAssetStatus => _scenesAndAssetsStatus;
 
         /// <summary>
         /// Harmony pre-emptive prefix patch for LoadingAnimation.SetImage.
@@ -324,46 +287,70 @@ namespace LoadingScreenModRevisited
                 }
             }
 
-            // Don't do anything else if both the background image and the font haven't loaded.
-            if (!s_instance._imageLoaded | !s_instance._fontLoaded)
-            {
-                // Always pre-empt original method.
-                return false;
-            }
-
-            // Draw overlay mesh if it's ready.
-            if (s_instance._overlayLoaded && s_instance.overlayMaterial.SetPass(0))
-            {
-                Graphics.DrawMeshNow(s_instance.overlayMesh, Matrix4x4.TRS(Vector3.zero, Quaternion.identity, Vector3.one));
-            }
-
-            // Update every 0.333 seconds.
-            float time = Time.time;
-            if (time - s_instance._meshTime >= 0.333333343f | s_instance._meshUpdates < 3)
-            {
-                s_instance._meshTime = time;
-                ++s_instance._meshUpdates;
-
-                // Update texts.
-                LoadingScreenText[] array = s_instance.texts;
-                for (int i = 0; i < array.Length; ++i)
-                {
-                    array[i].UpdateText();
-                }
-            }
-
-            // Draw text.
-            if (s_instance.textMaterial.SetPass(0))
-            {
-                LoadingScreenText[] array = s_instance.texts;
-                foreach (LoadingScreenText text in array)
-                {
-                    Graphics.DrawMeshNow(text.m_mesh, Matrix4x4.TRS(text.m_position, Quaternion.identity, text.m_scale));
-                }
-            }
-
             // Always pre-empt original method.
             return false;
+        }
+
+        /// <summary>
+        /// Harmony Postfix to LoadingAnimation.OnGUI to implement Unity status ovelay.
+        /// Based on the look of Quistar's loader prototype, which I quite like.
+        /// </summary>
+        public static void OnGUI()
+        {
+            // Perform first-time setup if required.
+            if (s_style == null)
+            {
+                s_style = new GUIStyle(GUI.skin.box)
+                {
+                    alignment = TextAnchor.UpperLeft,
+                    margin = new RectOffset(10, 10, 10, 10),
+                    padding = new RectOffset(10, 10, 10, 10),
+                    fontSize = 18,
+                    fontStyle = FontStyle.Bold,
+                    border = new RectOffset(3, 3, 3, 3),
+                    richText = true,
+                };
+
+                // Set maximumum lines.
+                s_instance._scenesAndAssetsStatus.MaxLines = (int)((Screen.height - (ScreenMargin * 2f)) / s_style.lineHeight) - 1;
+
+                // Calculate text box heights.
+                s_scenesAssetsBoxHeight = Screen.height - (ScreenMargin * 2f);
+                s_timingBoxHeight = (s_style.lineHeight * 3f) + (s_style.padding.top * 2f);
+                s_assetBoxHeight = (s_style.lineHeight * 4f) + (s_style.padding.top * 2f);
+                s_memoryBoxHeight = (s_style.lineHeight * 6f) + (s_style.padding.top * 2f);
+                s_threadBoxHeight = (s_style.lineHeight * 5f) + (s_style.padding.top * 2f);
+            }
+
+            // Y-position indicator.
+            float currentY = ScreenMargin;
+
+            // Scenes and assets.
+            GUI.Box(new Rect(ScreenMargin, ScreenMargin, BoxWidth, s_scenesAssetsBoxHeight), s_scenesAndAssetsText.ToString(), s_style);
+
+            // Rightmost column relative x-position..
+            float rightColumnnX = Screen.width - ScreenMargin - BoxWidth;
+
+            // Standard box height
+
+            // Timing.
+            GUI.Box(new Rect(rightColumnnX, currentY, BoxWidth, s_timingBoxHeight), Timing.CurrentTime, s_style);
+            currentY += s_timingBoxHeight + ScreenMargin;
+
+            // Asset loader box.
+            GUI.Box(new Rect(rightColumnnX, currentY, BoxWidth, s_assetBoxHeight), AssetLoaderText.ToString(), s_style);
+            currentY += s_assetBoxHeight + ScreenMargin;
+
+            // Memory status (Windows only).
+            if (IsWindows)
+            {
+                Rect memoryRect = new Rect(rightColumnnX, currentY, BoxWidth, s_memoryBoxHeight);
+                GUI.Box(memoryRect, s_memoryText.ToString(), s_style);
+                currentY += s_memoryBoxHeight + ScreenMargin;
+            }
+
+            // Thread status.
+            GUI.Box(new Rect(rightColumnnX, currentY, BoxWidth, s_threadBoxHeight), ThreadText.ToString(), s_style);
         }
 
         /// <summary>
@@ -378,38 +365,12 @@ namespace LoadingScreenModRevisited
             PatcherManager<Patcher>.Instance.UnpatchMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "OnDisable");
             PatcherManager<Patcher>.Instance.UnpatchMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "Update");
             PatcherManager<Patcher>.Instance.UnpatchMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "OnPostRender");
-
-            // Restore font manager callback.
-            UIFontManager.callbackRequestCharacterInfo = (UIFontManager.CallbackRequestCharacterInfo)Delegate.Remove(UIFontManager.callbackRequestCharacterInfo, new UIFontManager.CallbackRequestCharacterInfo(RequestCharacterInfo));
-            Font.textureRebuilt -= FontTextureRebuilt;
+            PatcherManager<Patcher>.Instance.UnpatchMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "OnGUI");
 
             // Destroy image object.
             if (_imageMaterial != null)
             {
                 UnityEngine.Object.Destroy(_imageMaterial);
-            }
-
-            // Clear texts.
-            LoadingScreenText[] array = texts;
-            for (int i = 0; i < array.Length; i++)
-            {
-                array[i].Dispose();
-            }
-
-            // Destroy materials and meshes.
-            if (textMaterial != null)
-            {
-                UnityEngine.Object.Destroy(textMaterial);
-            }
-
-            if (overlayMesh != null)
-            {
-                UnityEngine.Object.Destroy(overlayMesh);
-            }
-
-            if (overlayMaterial != null)
-            {
-                UnityEngine.Object.Destroy(overlayMaterial);
             }
 
             // Set references to null.
@@ -419,12 +380,10 @@ namespace LoadingScreenModRevisited
             _animationMaterial = null;
             _barBGMaterial = null;
             _barFGMaterial = null;
-            textMaterial = null;
-            overlayMesh = null;
-            overlayMaterial = null;
+            _scenesAndAssetsStatus = null;
 
             // Clear status.
-            _imageLoaded = _animationLoaded = _fontLoaded = _overlayLoaded = false;
+            _imageLoaded = _animationLoaded = false;
 
             // Clear instance.
             s_instance = null;
@@ -448,9 +407,15 @@ namespace LoadingScreenModRevisited
             // Display asset loading count and time.
             if (assetsCount > 0 && nowMillis > beginMillis)
             {
-                LineSource loaderSource = LoaderSource;
-                loaderSource.Add(assetsCount + " / " + assetsTotal);
-                loaderSource.Add((assetsCount * 1000f / (nowMillis - beginMillis)).ToString("G3") + ' ' + Translations.Translate("PER_SECOND"));
+                // Set asset loader text.
+                AssetLoaderText.Length = _assetTitleLength;
+                AssetLoaderText.Append(assetsCount);
+                AssetLoaderText.Append(" / ");
+                AssetLoaderText.Append(assetsTotal);
+                AssetLoaderText.AppendLine();
+                AssetLoaderText.Append((assetsCount * 1000f / (nowMillis - beginMillis)).ToString("G3"));
+                AssetLoaderText.Append(' ');
+                AssetLoaderText.Append(_perSecondString);
             }
         }
 
@@ -470,141 +435,59 @@ namespace LoadingScreenModRevisited
         }
 
         /// <summary>
-        /// Font character request callback.
+        /// Screen text display update coroutine.
         /// </summary>
-        private void RequestCharacterInfo()
+        /// <returns>Coroutine IEnumerator yield.</returns>
+        private IEnumerator UpdateText()
         {
-            // Request required characters if we need to.
-            UIDynamicFont uIDynamicFont = m_uifont as UIDynamicFont;
-            if (!(uIDynamicFont == null) && UIFontManager.IsDirty(uIDynamicFont))
+            // Set up text generation monitors.
+            LoadingManager loadingManager = Singleton<LoadingManager>.instance;
+            ThreadStatus mainThreadStatus = new ThreadStatus(loadingManager.m_loadingProfilerMain, "MAIN");
+            ThreadStatus simulationStatus = new ThreadStatus(loadingManager.m_loadingProfilerSimulation, "SIMULATION");
+
+            // Memory status is for Windows only.
+            MemoryStatus memoryStatus = IsWindows ? new MemoryStatus() : null;
+
+            // Update every quarter second.
+            WaitForSeconds wait = new WaitForSeconds(0.25f);
+
+            // Set asset loading text title.
+            AssetLoaderText.Length = 0;
+            AssetLoaderText.Append("<color=white>");
+            AssetLoaderText.Append(Translations.Translate("CUSTOM_ASSETS_LOADED"));
+            AssetLoaderText.AppendLine("</color>");
+            AssetLoaderText.AppendLine();
+            _assetTitleLength = AssetLoaderText.Length;
+            _perSecondString = Translations.Translate("PER_SECOND");
+
+            while (true)
             {
-                uIDynamicFont.AddCharacterRequest("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890.-:", 1, FontStyle.Normal);
-            }
-        }
+                yield return null;
 
-        /// <summary>
-        /// Font texture rebuild callback.
-        /// </summary>
-        /// <param name="font">Rebuilt font.</param>
-        private void FontTextureRebuilt(Font font)
-        {
-            // Clear existing text if this font has been rebuilt.
-            if (m_uifont != null && font == m_uifont.baseFont)
-            {
-                _meshTime = -1f;
-                LoadingScreenText[] array = texts;
-                for (int i = 0; i < array.Length; i++)
+                // Scenes and assets text.
+                s_scenesAndAssetsText = _scenesAndAssetsStatus.Text;
+
+                // Thread monitoring text.
+                ThreadText.Length = 0;
+                ThreadText.Append(mainThreadStatus.Text);
+                ThreadText.AppendLine();
+                ThreadText.Append(simulationStatus.Text);
+
+                // Memory useage text.
+                if (memoryStatus != null)
                 {
-                    array[i].Clear();
-                }
-            }
-        }
-
-        /// <summary>
-        ///  Sets up the loading screen font.
-        /// </summary>
-        private void SetFont()
-        {
-            try
-            {
-                // Get font and text material.
-                m_uifont = UIView.GetAView().defaultFont;
-                textMaterial = new Material(m_uifont.material);
-                UIFontManager.Invalidate(m_uifont);
-
-                // Set text titles.
-                List<LoadingScreenText> list = new List<LoadingScreenText>(5)
-                {
-                    new LoadingScreenText(new Vector3(-1.3f, 0.7f, 10f), new DualProfilerSource(Translations.Translate("SCENES_AND_ASSETS"), 36)),
-                    new LoadingScreenText(new Vector3(-0.33f, -0.52f, 10f), new SimpleProfilerSource(Translations.Translate("MAIN"), Singleton<LoadingManager>.instance.m_loadingProfilerMain)),
-                    new LoadingScreenText(new Vector3(-0.33f, -0.62f, 10f), new SimpleProfilerSource(Translations.Translate("SIMULATION"), Singleton<LoadingManager>.instance.m_loadingProfilerSimulation)),
-                    new LoadingScreenText(new Vector3(-0.12f, 0.7f, 10f), new LineSource(Translations.Translate("ASSETS_LOADER"), 2, LevelLoader.AssetLoadingActive)),
-                    new LoadingScreenText(new Vector3(-0.08f, 0.43f, 10f), new TimeSource(), 1.4f),
-                };
-
-                // Set memory usage title if we're on Windows.
-                if (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)
-                {
-                    list.Add(new LoadingScreenText(new Vector3(-0.08f, 0.32f, 10f), new MemorySource(), 1.4f));
+                    s_memoryText = memoryStatus.Text;
                 }
 
-                // Store texts in array.
-                texts = list.ToArray();
+                // Stop coroutine if loading is finished.
+                if (loadingManager.m_loadingComplete)
+                {
+                    yield break;
+                }
 
-                // Set status flag.
-                _fontLoaded = m_uifont != null;
+                // Wait for next update.
+                yield return wait;
             }
-            catch (Exception e)
-            {
-                Logging.LogException(e, "exception during font setup");
-            }
-        }
-
-        /// <summary>
-        /// Creates the overlay mesh.
-        /// </summary>
-        /// <returns>New overlay mesh.</returns>
-        private Mesh CreateOverlayMesh()
-        {
-            // Verts and tris.
-            List<Vector3> vertices = new List<Vector3>(16);
-            List<int> triangles = new List<int>(24);
-
-            // Create background quads.
-            CreateQuad(-1.35f, 0.75f, 0.86f, 1.5f, vertices, triangles);
-            CreateQuad(-0.38f, -0.47f, 0.75f, 0.28f, vertices, triangles);
-            CreateQuad(-0.17f, 0.75f, 0.47f, 0.2f, vertices, triangles);
-            CreateQuad(-0.17f, 0.48f, 0.47f, 0.3f, vertices, triangles);
-
-            return new Mesh
-            {
-                name = "BG Quads",
-                vertices = vertices.ToArray(),
-                triangles = triangles.ToArray(),
-            };
-        }
-
-        /// <summary>
-        /// Creats a mesh quad with the given parameters.
-        /// </summary>
-        /// <param name="xPos">X position.</param>
-        /// <param name="yPos">Y position.</param>
-        /// <param name="width">Quad width.</param>
-        /// <param name="height">Quad height.</param>
-        /// <param name="vertices">Created vertices will be added to this list.</param>
-        /// <param name="triangles">Created triangles will be added to this list.</param>
-        private void CreateQuad(float xPos, float yPos, float width, float height, List<Vector3> vertices, List<int> triangles)
-        {
-            int count = vertices.Count;
-
-            // Create basic quad vertices.
-            vertices.Add(new Vector3(xPos, yPos - height, 10f));
-            vertices.Add(new Vector3(xPos + width, yPos - height, 10f));
-            vertices.Add(new Vector3(xPos, yPos, 10f));
-            vertices.Add(new Vector3(xPos + width, yPos, 10f));
-
-            // Create two tris to make up quad.
-            triangles.Add(count);
-            triangles.Add(count + 2);
-            triangles.Add(count + 1);
-            triangles.Add(count + 2);
-            triangles.Add(count + 3);
-            triangles.Add(count + 1);
-        }
-
-        /// <summary>
-        /// Creates the overlay material.
-        /// </summary>
-        /// <param name="color">Material color.</param>
-        /// <returns>New overlay material.</returns>
-        private Material CreateOverlayMaterial(Color color)
-        {
-            return new Material(Shader.Find("Custom/Loading/AlphaBlend"))
-            {
-                name = "OverlayMaterial",
-                color = color,
-                hideFlags = HideFlags.HideAndDontSave,
-            };
         }
     }
 }

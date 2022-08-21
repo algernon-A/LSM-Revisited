@@ -331,15 +331,13 @@ namespace LoadingScreenModRevisited
                 UsedAssets.Create();
             }
 
-            LoadingScreen.s_instance.DualSource.Add(Translations.Translate("CUSTOM_ASSETS"));
-
             // Gamecode.
             loadingManager.m_loadingProfilerCustomContent.BeginLoading("Calculating asset load order");
 
             // LSM - replaces game loading queue calculation.
             LogStatus();
             Package.Asset[] queue = GetLoadQueue(hashSet);
-            Util.DebugPrint("LoadQueue", queue.Length, Profiling.Millis);
+            Util.DebugPrint("LoadQueue", queue.Length, Timing.ElapsedMilliseconds);
 
             // Gamecode.
             loadingManager.m_loadingProfilerCustomContent.EndLoading();
@@ -347,7 +345,7 @@ namespace LoadingScreenModRevisited
 
             // LSM - replace game custom asset loading.
             Instance<Sharing>.instance.Start(queue);
-            _beginMillis = _lastMillis = Profiling.Millis;
+            _beginMillis = _lastMillis = Timing.ElapsedMilliseconds;
             for (int k = 0; k < queue.Length; k++)
             {
                 if ((k & 0x3F) == 0)
@@ -367,16 +365,16 @@ namespace LoadingScreenModRevisited
                     AssetFailed(asset4, asset4.package, e);
                 }
 
-                if (Profiling.Millis - _lastMillis > 350)
+                if (Timing.ElapsedMilliseconds - _lastMillis > 350)
                 {
-                    _lastMillis = Profiling.Millis;
+                    _lastMillis = Timing.ElapsedMilliseconds;
                     progress = 0.15f + ((float)(k + 1) * 0.7f / (float)queue.Length);
                     LoadingScreen.s_instance.SetProgress(progress, progress, _assetCount, _assetCount - k - 1 + queue.Length, _beginMillis, _lastMillis);
                     yield return null;
                 }
             }
 
-            _lastMillis = Profiling.Millis;
+            _lastMillis = Timing.ElapsedMilliseconds;
             LoadingScreen.s_instance.SetProgress(0.85f, 1f, _assetCount, _assetCount, _beginMillis, _lastMillis);
             loadingManager.m_loadingProfilerCustomContent.EndLoading();
             Util.DebugPrint(_assetCount, "custom assets loaded in", _lastMillis - _beginMillis);
@@ -439,7 +437,7 @@ namespace LoadingScreenModRevisited
             if (LoadingScreenMod.Settings.settings.enableDisable)
             {
                 Util.DebugPrint("Going to enable and disable assets");
-                LoadingScreen.s_instance.DualSource.Add(Translations.Translate("ENABLING_AND_DISABLING"));
+                LoadingScreen.s_instance.SceneAndAssetStatus.AddLine(Translations.Translate("ENABLING_AND_DISABLING"));
                 yield return null;
                 EnableDisableAssets();
             }
@@ -475,8 +473,8 @@ namespace LoadingScreenModRevisited
                 logMessage.Append(' ');
             }
 
-            logMessage.Append("millis: ");
-            logMessage.Append(Profiling.Millis);
+            logMessage.Append("milliseconds: ");
+            logMessage.Append(Timing.ElapsedMilliseconds);
 
             try
             {
@@ -722,7 +720,7 @@ namespace LoadingScreenModRevisited
 
                 // Log and display failure.
                 Logging.Error("asset failed: ", text);
-                LoadingScreen.s_instance.DualSource?.CustomAssetFailed(ShortAssetName(text));
+                LoadingScreen.s_instance.SceneAndAssetStatus?.AssetFailed(ShortAssetName(text));
             }
 
             // Log the exception details as well.
@@ -746,7 +744,7 @@ namespace LoadingScreenModRevisited
                 // Display missing asset name unless we're supressing this one as a known missing asset.
                 if (!_hiddenAssets.Contains(fullName))
                 {
-                    LoadingScreen.s_instance.DualSource?.CustomAssetNotFound(ShortAssetName(fullName));
+                    LoadingScreen.s_instance.SceneAndAssetStatus?.AssetNotFound(ShortAssetName(fullName));
                 }
             }
         }
@@ -1479,7 +1477,7 @@ namespace LoadingScreenModRevisited
             // Display duplicate asset name if this is a network asset, OR 'show duplicates' is selected, unless we're supressing this one as a known missing asset.
             if ((type == CustomAssetMetaData.Type.Road || LSMRSettings.ShowDuplicates) && !_hiddenAssets.Contains(fullName))
             {
-                LoadingScreen.s_instance.DualSource?.CustomAssetDuplicate(ShortAssetName(fullName));
+                LoadingScreen.s_instance.SceneAndAssetStatus?.AssetDuplicate(ShortAssetName(fullName));
             }
         }
 

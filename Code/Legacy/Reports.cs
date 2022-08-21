@@ -325,7 +325,7 @@ namespace LoadingScreenMod
             materialsShared = materials;
             meshesShared = meshes;
             string text = LoadingScreenModRevisited.AssetLoader.ShortName(LoadingScreenModRevisited.LoadLevel.CityName);
-            int millis = Profiling.Millis;
+            int millis = LoadingScreenModRevisited.Timing.ElapsedMilliseconds;
             try
             {
                 char[] array = forbidden;
@@ -481,7 +481,7 @@ namespace LoadingScreenMod
             {
                 SaveBrowser(text);
             }
-            Util.DebugPrint("Reports created in", Profiling.Millis - millis);
+            Util.DebugPrint("Reports created in", LoadingScreenModRevisited.Timing.ElapsedMilliseconds - millis);
         }
 
         internal void SaveStats()
@@ -498,8 +498,8 @@ namespace LoadingScreenMod
                 {
                     Stat(Translations.Translate("LOADING_SPEED"), ((float)LoadingScreenModRevisited.AssetLoader.Instance.AssetCount * 1000f / (float)num).ToString("F1"), Translations.Translate("ASSETS_PER_SECOND"));
                 }
-                Stat(Translations.Translate("ASSETS_LOADING_TIME"), Profiling.TimeString(num + 500), Translations.Translate("MINUTES_SECONDS"));
-                Stat(Translations.Translate("TOTAL_LOADING_TIME"), Profiling.TimeString(Profiling.Millis + 500), Translations.Translate("MINUTES_SECONDS"));
+                Stat(Translations.Translate("ASSETS_LOADING_TIME"), LoadingScreenModRevisited.Timing.TimeString(num + 500), Translations.Translate("MINUTES_SECONDS"));
+                Stat(Translations.Translate("TOTAL_LOADING_TIME"), LoadingScreenModRevisited.Timing.TimeString(LoadingScreenModRevisited.Timing.ElapsedMilliseconds + 500), Translations.Translate("MINUTES_SECONDS"));
                 if (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)
                 {
                     H3(Translations.Translate("PEAK_MEMORY_USAGE"));

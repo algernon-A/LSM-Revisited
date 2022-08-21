@@ -11,6 +11,7 @@
     using ColossalFramework.UI;
     using LoadingScreenMod;
     using UnityEngine;
+    using UnityEngine.Profiling;
     using UnityEngine.SceneManagement;
 
     /// <summary>
@@ -80,6 +81,9 @@
         // For timeout check.
         private static int s_startMillis;
 
+        // TODO: refactor this out.
+        private static FastList<LoadingProfiler.Event> s_loadingProfilerEvents = (FastList<LoadingProfiler.Event>)typeof(LoadingProfiler).GetField("m_events", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Singleton<LoadingManager>.instance.m_loadingProfilerSimulation);
+
         /// <summary>
         /// Gets a value indicating whether save deserialization has finished.
         /// </summary>
@@ -91,11 +95,11 @@
                     // Record start time if we haven't already.
                     if (s_startMillis == 0)
                     {
-                        s_startMillis = Profiling.Millis;
+                        s_startMillis = Timing.ElapsedMilliseconds;
                     }
 
                     // Check for deserialization against simulation progress, with a 12-minute timeout.
-                    bool isDeserialized = SimulationProgress > 54 || Profiling.Millis - s_startMillis > 12000;
+                    bool isDeserialized = SimulationProgress > 54 || Timing.ElapsedMilliseconds - s_startMillis > 12000;
 
                     // Reset start time if deserialization is complete.
                     if (isDeserialized)
@@ -120,7 +124,7 @@
                 try
                 {
                     // Attempt to get progres from the loading manager profiler.
-                    return Thread.VolatileRead(ref ProfilerSource.GetEvents(Singleton<LoadingManager>.instance.m_loadingProfilerSimulation).m_size);
+                    return Thread.VolatileRead(ref s_loadingProfilerEvents.m_size);
                 }
                 catch
                 {
@@ -194,7 +198,7 @@
         /// <returns>Coroutine IEnumerator yield.</returns>
         public static IEnumerator LoadLevelCoroutine(LoadingManager loadingManager, Package.Asset savegame, string playerScene, string uiScene, SimulationMetaData ngs, bool forceEnvironmentReload)
         {
-            Logging.KeyMessage("starting LoadLevelCoroutine at ", Profiling.Millis);
+            Logging.KeyMessage("starting LoadLevelCoroutine at ", Timing.ElapsedMilliseconds);
 
             // LSM.
             int i = 0;
@@ -330,7 +334,7 @@
                         loadingManager.QueueLoadingAction((IEnumerator)Util.Invoke(loadingManager, "RenderDataReady"));
 
                         // Legacy profiling.
-                        Logging.KeyMessage("commencing fast load at ", Profiling.Millis);
+                        Logging.KeyMessage("commencing fast load at ", Timing.ElapsedMilliseconds);
                     }
                     else
                     {
@@ -341,7 +345,7 @@
                         DestroyLoadedPrefabs();
                         loadingManager.m_loadedEnvironment = null;
                         loadingManager.m_loadedMapTheme = null;
-                        Logging.KeyMessage("falling back to full load at ", Profiling.Millis);
+                        Logging.KeyMessage("falling back to full load at ", Timing.ElapsedMilliseconds);
                     }
                 }
 
@@ -354,7 +358,7 @@
                     loadingManager.m_loadedMapTheme = null;
 
                     // Legacy profiling.
-                    Logging.KeyMessage("starting full load at ", Profiling.Millis);
+                    Logging.KeyMessage("starting full load at ", Timing.ElapsedMilliseconds);
                 }
             }
 
@@ -710,8 +714,8 @@
             Instance<CustomDeserializer>.instance.Dispose();
 
             // Stop profiling.
-            Logging.KeyMessage("loading completed at ", Profiling.Millis);
-            Profiling.Stop();
+            Logging.KeyMessage("loading completed at ", Timing.ElapsedMilliseconds);
+            Timing.Stop();
 
             yield break;
         }
@@ -768,7 +772,8 @@
                     }
 
                     // Display failure message.
-                    LoadingScreen.s_instance.SimulationSource?.Failed(message);
+                    // TODO: Simulation failed message.
+                    //LoadingScreen.s_instance.SimulationSource?.Failed(message);
                     return true;
                 }
                 catch (Exception e)
@@ -795,7 +800,7 @@
                 if (!(bool)Util.Get(policiesPanel, "m_Initialized"))
                 {
                     // Not initialized yet - try to force initialization via call to RefreshPanel.
-                    Logging.KeyMessage("PoliciesPanel not initialized yet. Initializing at ", Profiling.Millis);
+                    Logging.KeyMessage("PoliciesPanel not initialized yet. Initializing at ", Timing.ElapsedMilliseconds);
                     try
                     {
                         Util.InvokeVoid(policiesPanel, "RefreshPanel");
@@ -808,7 +813,7 @@
             }
             else
             {
-                Logging.Error("PoliciesPanel reference is null; initialization failed at ", Profiling.Millis);
+                Logging.Error("PoliciesPanel reference is null; initialization failed at ", Timing.ElapsedMilliseconds);
             }
 
             yield break;

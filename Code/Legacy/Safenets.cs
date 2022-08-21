@@ -25,12 +25,13 @@ namespace LoadingScreenMod
         //[HarmonyPrefix]
         public static bool ContinueLoading(LoadingProfiler __instance)
         {
-            ProfilerSource.GetEvents(__instance).Add(new LoadingProfiler.Event(LoadingProfiler.Type.ContinueLoading, null, 0L));
+            // TODO: Restore event adding.
+            //ProfilerSource.GetEvents(__instance).Add(new LoadingProfiler.Event(LoadingProfiler.Type.ContinueLoading, null, 0L));
             if (Thread.CurrentThread == Singleton<SimulationManager>.instance.m_simulationThread)
             {
                 try
                 {
-                    Util.DebugPrint("Starting recovery at", Profiling.Millis);
+                    Util.DebugPrint("Starting recovery at", LoadingScreenModRevisited.Timing.ElapsedMilliseconds);
                     Instance<Safenets>.instance.Dispose();
                     PrefabCollection<NetInfo>.BindPrefabs();
                     PrefabCollection<BuildingInfo>.BindPrefabs();
@@ -45,7 +46,7 @@ namespace LoadingScreenMod
                     RemoveBadNodes(badNodes);
                     RemoveBadSegments(badSegments);
                     Singleton<SimulationManager>.instance.SimulationPaused = true;
-                    Util.DebugPrint("Recovery finished at", Profiling.Millis);
+                    Util.DebugPrint("Recovery finished at", LoadingScreenModRevisited.Timing.ElapsedMilliseconds);
                 }
                 catch (Exception exception)
                 {
@@ -216,7 +217,7 @@ namespace LoadingScreenMod
 
         private static void RemoveNow()
         {
-            Util.DebugPrint("Removing starts at", Profiling.Millis);
+            Util.DebugPrint("Removing starts at", LoadingScreenModRevisited.Timing.ElapsedMilliseconds);
             if (Settings.settings.removeVehicles)
             {
                 RemoveVehicles();
@@ -225,7 +226,7 @@ namespace LoadingScreenMod
             {
                 RemoveCitizenInstances();
             }
-            Util.DebugPrint("Removing finished at", Profiling.Millis);
+            Util.DebugPrint("Removing finished at", LoadingScreenModRevisited.Timing.ElapsedMilliseconds);
         }
 
         private static void RemoveVehicles()

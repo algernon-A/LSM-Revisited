@@ -88,7 +88,6 @@ namespace LoadingScreenModRevisited
             // Reset progress.
             __instance.SetSceneProgress(0f);
             CityName = asset?.name ?? "NewGame";
-            Profiling.Init();
             Instance<CustomDeserializer>.Create();
             Instance<Fixes>.Create().Deploy();
 
@@ -109,8 +108,8 @@ namespace LoadingScreenModRevisited
             Util.Set(__instance, "m_sceneProgress", 0f);
             Util.Set(__instance, "m_simulationProgress", 0f);
 
-            // Start legacy LSM profiling
-            Profiling.Start();
+            // Start timer.
+            Timing.Start();
 
             // Reset game profiling.
             __instance.m_loadingProfilerMain.Reset();
