@@ -91,6 +91,7 @@ namespace LoadingScreenModRevisited
         // Status flags.
         private bool _imageLoaded;
         private bool _animationLoaded;
+        private bool _loading = true;
 
         // Asset loading progress title length.
         private int _assetTitleLength;
@@ -361,6 +362,9 @@ namespace LoadingScreenModRevisited
         /// </summary>
         internal void Dispose()
         {
+            // Stop text update coroutine.
+            _loading = false;
+
             // Revert Harmony patches.
             PatcherManager<Patcher>.Instance.UnpatchMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "SetImage");
             PatcherManager<Patcher>.Instance.UnpatchMethod(typeof(LoadingAnimation), typeof(LoadingScreen), "SetText");
@@ -428,7 +432,7 @@ namespace LoadingScreenModRevisited
         /// <param name="message">Simulation failure message.</param>
         internal void SimulationFailed(string message)
         {
-            _simulationFailedMessage = "<color=red>" + Translations.Translate("SIMULATION_FAILED") + ": " + message +"</color>";
+            _simulationFailedMessage = "<color=red>" + Translations.Translate("SIMULATION_FAILED") + ": " + message + "</color>";
         }
 
         /// <summary>
@@ -472,10 +476,10 @@ namespace LoadingScreenModRevisited
             _assetTitleLength = AssetLoaderText.Length;
             _perSecondString = Translations.Translate("PER_SECOND");
 
-            while (true)
-            {
-                yield return null;
+            yield return null;
 
+            while (_loading)
+            {
                 // Scenes and assets text.
                 s_scenesAndAssetsText = _scenesAndAssetsStatus.Text;
 
@@ -495,12 +499,6 @@ namespace LoadingScreenModRevisited
                 if (memoryStatus != null)
                 {
                     s_memoryText = memoryStatus.Text;
-                }
-
-                // Stop coroutine if loading is finished.
-                if (loadingManager.m_loadingComplete)
-                {
-                    yield break;
                 }
 
                 // Wait for next update.
