@@ -191,7 +191,7 @@ namespace LoadingScreenModRevisited
             try
             {
                 // Check asset report generation setting.
-                bool reportAssets = LoadingScreenMod.Settings.settings.reportAssets | LoadingScreenMod.Settings.settings.hideAssets;
+                bool reportAssets = LSMRSettings.ReportAssets | LSMRSettings.HideAssets;
 
                 // Iterate through each custom asset.
                 foreach (string customAsset in customAssets)

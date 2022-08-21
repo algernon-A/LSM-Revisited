@@ -218,11 +218,11 @@ namespace LoadingScreenMod
         private static void RemoveNow()
         {
             Util.DebugPrint("Removing starts at", LoadingScreenModRevisited.Timing.ElapsedMilliseconds);
-            if (Settings.settings.removeVehicles)
+            if (LoadingScreenModRevisited.LSMRSettings.RemoveVehicles)
             {
                 RemoveVehicles();
             }
-            if (Settings.settings.removeCitizenInstances)
+            if (LoadingScreenModRevisited.LSMRSettings.RemoveCitizenInstances)
             {
                 RemoveCitizenInstances();
             }

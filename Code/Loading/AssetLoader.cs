@@ -60,8 +60,8 @@ namespace LoadingScreenModRevisited
             3, 1, 0, 4, 4, 3, 3, 1, 0, 2, 2, 2,
         };
 
-        private readonly bool _recordAssets = LoadingScreenMod.Settings.settings.RecordAssets;
-        private readonly bool _checkAssets = LoadingScreenMod.Settings.settings.checkAssets;
+        private readonly bool _recordAssets = LSMRSettings.RecordAssets;
+        private readonly bool _checkAssets = LSMRSettings.CheckAssets;
         private readonly bool _hasAssetDataExtensions;
 
         private HashSet<string> _loadedIntersections = new HashSet<string>();
@@ -110,9 +110,9 @@ namespace LoadingScreenModRevisited
                 Instance<Reports>.Create();
             }
 
-            if (LoadingScreenMod.Settings.settings.hideAssets)
+            if (LSMRSettings.HideAssets)
             {
-                LoadingScreenMod.Settings.settings.LoadHiddenAssets(_hiddenAssets);
+                LoadingScreenMod.Settings.LoadHiddenAssets(_hiddenAssets);
             }
         }
 
@@ -176,7 +176,7 @@ namespace LoadingScreenModRevisited
             }
 
             // Save assets report if set to do so.
-            if (LoadingScreenMod.Settings.settings.reportAssets)
+            if (LSMRSettings.ReportAssets)
             {
                 Instance<Reports>.instance.SaveStats();
             }
@@ -242,7 +242,7 @@ namespace LoadingScreenModRevisited
                 DistrictStyle districtStyle = new DistrictStyle(DistrictStyle.kEuropeanStyleName, builtIn: true);
                 Util.InvokeVoid(Singleton<LoadingManager>.instance, "AddChildrenToBuiltinStyle", GameObject.Find("European Style new"), districtStyle, false);
                 Util.InvokeVoid(Singleton<LoadingManager>.instance, "AddChildrenToBuiltinStyle", GameObject.Find("European Style others"), districtStyle, true);
-                if (LoadingScreenMod.Settings.settings.SkipPrefabs)
+                if (LSMRSettings.SkipPrefabs)
                 {
                     PrefabLoader.RemoveSkippedFromStyle(districtStyle);
                 }
@@ -257,7 +257,7 @@ namespace LoadingScreenModRevisited
                 {
                     DistrictStyle districtStyle = new DistrictStyle(DistrictStyle.kEuropeanSuburbiaStyleName, builtIn: true);
                     Util.InvokeVoid(Singleton<LoadingManager>.instance, "AddChildrenToBuiltinStyle", GameObject.Find("Modder Pack 3"), districtStyle, false);
-                    if (LoadingScreenMod.Settings.settings.SkipPrefabs)
+                    if (LSMRSettings.SkipPrefabs)
                     {
                         PrefabLoader.RemoveSkippedFromStyle(districtStyle);
                     }
@@ -273,7 +273,7 @@ namespace LoadingScreenModRevisited
                 {
                     DistrictStyle districtStyle = new DistrictStyle(DistrictStyle.kModderPack5StyleName, builtIn: true);
                     Util.InvokeVoid(Singleton<LoadingManager>.instance, "AddChildrenToBuiltinStyle", GameObject.Find("Modder Pack 5"), districtStyle, false);
-                    if (LoadingScreenMod.Settings.settings.SkipPrefabs)
+                    if (LSMRSettings.SkipPrefabs)
                     {
                         PrefabLoader.RemoveSkippedFromStyle(districtStyle);
                     }
@@ -284,7 +284,7 @@ namespace LoadingScreenModRevisited
 
             // LSM insert.
             // Unload any skipped assets.
-            if (LoadingScreenMod.Settings.settings.SkipPrefabs)
+            if (LSMRSettings.SkipPrefabs)
             {
                 PrefabLoader.UnloadSkipped();
             }
@@ -326,7 +326,7 @@ namespace LoadingScreenModRevisited
 
             // LSM insert.
             // Create used asset instance if required.
-            if (LoadingScreenMod.Settings.settings.loadUsed & UsedAssets.Instance == null)
+            if (LSMRSettings.LoadUsed & UsedAssets.Instance == null)
             {
                 UsedAssets.Create();
             }
@@ -434,7 +434,7 @@ namespace LoadingScreenModRevisited
             }
 
             // LSM insert.
-            if (LoadingScreenMod.Settings.settings.enableDisable)
+            if (LSMRSettings.EnableDisable)
             {
                 Util.DebugPrint("Going to enable and disable assets");
                 LoadingScreen.s_instance.SceneAndAssetStatus.AddLine(Translations.Translate("ENABLING_AND_DISABLING"));
@@ -867,8 +867,8 @@ namespace LoadingScreenModRevisited
             SteamHelper.DLC_BitMask dLC_BitMask = ~SteamHelper.GetOwnedDLCMask();
 
             // 'Load enabled' and 'load used' settings.
-            bool loadEnabled = LoadingScreenMod.Settings.settings.loadEnabled & !LoadingScreenMod.Settings.settings.enableDisable;
-            bool loadUsed = LoadingScreenMod.Settings.settings.loadUsed;
+            bool loadEnabled = LSMRSettings.LoadEnabled & !LSMRSettings.EnableDisable;
+            bool loadUsed = LSMRSettings.LoadUsed;
 
             // Iterate through each package.
             foreach (Package package in packages)
@@ -1413,25 +1413,24 @@ namespace LoadingScreenModRevisited
         /// </summary>
         private void Report()
         {
-            LoadingScreenMod.Settings settings = LoadingScreenMod.Settings.settings;
-            if (settings.loadUsed)
+            if (LSMRSettings.LoadUsed)
             {
                 UsedAssets.Instance.ReportMissingAssets();
             }
 
             if (_recordAssets)
             {
-                if (settings.reportAssets)
+                if (LSMRSettings.ReportAssets)
                 {
                     Instance<Reports>.instance.Save(_hiddenAssets, Instance<Sharing>.instance.texhit, Instance<Sharing>.instance.mathit, Instance<Sharing>.instance.meshit);
                 }
 
-                if (settings.hideAssets)
+                if (LSMRSettings.HideAssets)
                 {
-                    settings.SaveHiddenAssets(_hiddenAssets, Instance<Reports>.instance.GetMissing(), Instance<Reports>.instance.GetDuplicates());
+                    LoadingScreenMod.Settings.SaveHiddenAssets(_hiddenAssets, Instance<Reports>.instance.GetMissing(), Instance<Reports>.instance.GetDuplicates());
                 }
 
-                if (!settings.enableDisable)
+                if (!LSMRSettings.EnableDisable)
                 {
                     Instance<Reports>.instance.ClearAssets();
                 }
@@ -1489,7 +1488,7 @@ namespace LoadingScreenModRevisited
             try
             {
                 // Report if we're set to do so.
-                if (!LoadingScreenMod.Settings.settings.reportAssets)
+                if (!LSMRSettings.ReportAssets)
                 {
                     Instance<Reports>.instance.SetIndirectUsages();
                 }

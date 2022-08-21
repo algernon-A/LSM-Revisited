@@ -34,13 +34,13 @@ namespace LoadingScreenMod
 
         private HashSet<string> skippedProps;
 
-        private readonly bool loadUsed = Settings.settings.loadUsed;
+        private readonly bool loadUsed = LoadingScreenModRevisited.LSMRSettings.LoadUsed;
 
-        private readonly bool recordUsed = Settings.settings.RecordAssets & Settings.settings.loadUsed;
+        private readonly bool recordUsed = LoadingScreenModRevisited.LSMRSettings.RecordAssets & LoadingScreenModRevisited.LSMRSettings.LoadUsed;
 
-        private readonly bool optimizeThumbs = Settings.settings.optimizeThumbs;
+        private readonly bool optimizeThumbs = LoadingScreenModRevisited.LSMRSettings.OptimizeThumbs;
 
-        private bool skipProps = Settings.settings.skipPrefabs;
+        private bool skipProps = LoadingScreenModRevisited.LSMRSettings.SkipPrefabs;
 
         private const int THUMBW = 109;
 

@@ -37,30 +37,30 @@ namespace LoadingScreenModRevisited
                 System.Environment.NewLine + Translations.Translate("DUPLICATE_NAMES_EXPLAIN_2");
 
             UICheckBox checkCheck = null;
-            UICheckBox reportCheck = reportingGroup.AddCheckbox(Translations.Translate("SAVE_REPORTS_IN_DIRECTORY"), LoadingScreenMod.Settings.settings.reportAssets, (isChecked) =>
+            UICheckBox reportCheck = reportingGroup.AddCheckbox(Translations.Translate("SAVE_REPORTS_IN_DIRECTORY"), LSMRSettings.ReportAssets, (isChecked) =>
             {
-                LoadingScreenMod.Settings.settings.reportAssets = isChecked;
-                LoadingScreenMod.Settings.settings.checkAssets &= isChecked;
-                checkCheck.isChecked = LoadingScreenMod.Settings.settings.checkAssets;
+                LSMRSettings.ReportAssets = isChecked;
+                LSMRSettings.CheckAssets &= isChecked;
+                checkCheck.isChecked = LSMRSettings.CheckAssets;
             }) as UICheckBox;
             reportCheck.tooltip = Translations.Translate("SAVE_REPORTS_OF_ASSETS");
 
-            TextField(reportingGroup, LoadingScreenMod.Settings.settings.reportDir, (text) =>
+            TextField(reportingGroup, LSMRSettings.ReportDirectory, (text) =>
             {
-                if (text != LoadingScreenMod.Settings.settings.reportDir)
+                if (text != LSMRSettings.ReportDirectory)
                 {
-                    LoadingScreenMod.Settings.settings.reportDir = text;
+                    LSMRSettings.ReportDirectory = text;
                 }
             });
 
-            checkCheck = reportingGroup.AddCheckbox(Translations.Translate("CHECK_FOR_ERRORS"), LoadingScreenMod.Settings.settings.checkAssets, (isChecked) =>
+            checkCheck = reportingGroup.AddCheckbox(Translations.Translate("CHECK_FOR_ERRORS"), LSMRSettings.CheckAssets, (isChecked) =>
             {
-                LoadingScreenMod.Settings.settings.checkAssets = isChecked;
-                LoadingScreenMod.Settings.settings.reportAssets |= isChecked;
-                reportCheck.isChecked = LoadingScreenMod.Settings.settings.reportAssets;
+                LSMRSettings.CheckAssets = isChecked;
+                LSMRSettings.ReportAssets |= isChecked;
+                reportCheck.isChecked = LSMRSettings.ReportAssets;
             }) as UICheckBox;
-            UICheckBox hideCheck = reportingGroup.AddCheckbox(Translations.Translate("DO_NOT_REPORT_THESE"), LoadingScreenMod.Settings.settings.hideAssets, (isChecked) => { LoadingScreenMod.Settings.settings.hideAssets = isChecked; }) as UICheckBox;
-            UIButton openHideFileButton = reportingGroup.AddButton(Translations.Translate("OPEN_FILE"), LoadingScreenMod.Settings.settings.OnAssetsButton) as UIButton;
+            UICheckBox hideCheck = reportingGroup.AddCheckbox(Translations.Translate("DO_NOT_REPORT_THESE"), LSMRSettings.HideAssets, (isChecked) => { LSMRSettings.HideAssets = isChecked; }) as UICheckBox;
+            UIButton openHideFileButton = reportingGroup.AddButton(Translations.Translate("OPEN_FILE"), LSMRSettings.OpenHideFile) as UIButton;
             openHideFileButton.tooltip = Translations.Translate("CLICK_TO_OPEN") + ' ' + LoadingScreenMod.Settings.HiddenAssetsFile;
         }
     }

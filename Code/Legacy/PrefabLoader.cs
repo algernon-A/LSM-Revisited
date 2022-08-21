@@ -30,9 +30,9 @@ namespace LoadingScreenMod
 
         private HashSet<string> keptProps = new HashSet<string>();
 
-        private Matcher skipMatcher = Settings.settings.SkipMatcher;
+        private Matcher skipMatcher = Settings.SkipMatcher;
 
-        private Matcher exceptMatcher = Settings.settings.ExceptMatcher;
+        private Matcher exceptMatcher = Settings.ExceptMatcher;
 
         private bool saveDeserialized;
 

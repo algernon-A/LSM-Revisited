@@ -104,7 +104,7 @@ namespace LoadingScreenMod
 
         private Reports()
         {
-            if (Settings.settings.checkAssets)
+            if (LoadingScreenModRevisited.LSMRSettings.CheckAssets)
             {
                 weirdTextures = new List<AssetError<int>>();
                 largeTextures = new List<AssetError<int>>();
@@ -333,7 +333,7 @@ namespace LoadingScreenMod
                 {
                     text = text.Replace(oldChar, 'x');
                 }
-                reportFilePath = Util.GetFileName(text + " - " + Translations.Translate("ASSETS_REPORT"), "htm", Settings.settings.useReportDate); ;
+                reportFilePath = Util.GetFileName(text + " - " + Translations.Translate("ASSETS_REPORT"), "htm", true); ;
                 Util.DebugPrint("Saving assets report to", reportFilePath);
                 w = new StreamWriter(reportFilePath);
                 w.WriteLine("<!DOCTYPE html><html lang=\"" + Translations.CurrentLanguage + "\"><head><meta charset=\"UTF-8\"><title>" + Translations.Translate("ASSETS_REPORT") + "</title><style>");
@@ -372,7 +372,7 @@ namespace LoadingScreenMod
                 {
                     Italics(Translations.Translate("NO_FAILED_ASSETS"));
                 }
-                if (Settings.settings.checkAssets)
+                if (LoadingScreenModRevisited.LSMRSettings.CheckAssets)
                 {
                     Br();
                     Br();
@@ -397,7 +397,7 @@ namespace LoadingScreenMod
                 SecOff();
                 Sec("#f0a840");
                 H2(Translations.Translate("ASSETS_THAT_ARE_MISSING"));
-                if (Settings.settings.loadUsed)
+                if (LoadingScreenModRevisited.LSMRSettings.LoadUsed)
                 {
                     SetIndirectUsages();
                     Item[] array3 = (from item in assets.Values.Which(32)
@@ -433,7 +433,7 @@ namespace LoadingScreenMod
                 SecOff();
                 Sec("#60b030");
                 H2(Translations.Translate("THESE_ARE_USED"));
-                if (Settings.settings.loadUsed)
+                if (LoadingScreenModRevisited.LSMRSettings.LoadUsed)
                 {
                     Item[] array4 = assets.Values.Which(6).ToArray();
                     if (array4.Length != 0)
@@ -532,7 +532,7 @@ namespace LoadingScreenMod
         {
             try
             {
-                string fileName = Util.GetFileName(cityName + " - " + Translations.Translate("ASSETS_BROWSER"), "htm", Settings.settings.useReportDate);
+                string fileName = Util.GetFileName(cityName + " - " + Translations.Translate("ASSETS_BROWSER"), "htm", true);
                 Util.DebugPrint("Saving assets browser to", fileName);
                 Item[] array = assets.Values.OrderBy(Name).ToArray();
                 Dictionary<Item, int> ids = new Dictionary<Item, int>(array.Length);
@@ -590,7 +590,7 @@ namespace LoadingScreenMod
                 w.WriteLine("<script>");
                 StringBuilder stringBuilder = new StringBuilder(640);
                 stringBuilder.Append("const d=[");
-                bool loadUsed = Settings.settings.loadUsed;
+                bool loadUsed = LoadingScreenModRevisited.LSMRSettings.LoadUsed;
                 for (int j = 0; j < array.Length; j++)
                 {
                     Item item = array[j];

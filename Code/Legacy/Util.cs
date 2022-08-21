@@ -67,27 +67,7 @@ namespace LoadingScreenMod
             return Path.Combine(GetSavePath(), fileBody + "." + extension);
         }
 
-        internal static string GetSavePath()
-        {
-            string text = Settings.settings.reportDir?.Trim();
-            if (string.IsNullOrEmpty(text))
-            {
-                text = Settings.DefaultSavePath;
-            }
-            try
-            {
-                if (!Directory.Exists(text))
-                {
-                    Directory.CreateDirectory(text);
-                }
-                return text;
-            }
-            catch (Exception)
-            {
-                DebugPrint("Cannot create directory:", text);
-            }
-            return Settings.DefaultSavePath;
-        }
+        internal static string GetSavePath() => LoadingScreenModRevisited.LSMRSettings.EnsureReportDirectory();
 
         public static List<T> ToList<T>(this T[] array, int count)
         {

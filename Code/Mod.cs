@@ -30,17 +30,6 @@ namespace LoadingScreenModRevisited
         public string Description => Translations.Translate("MOD_DESCRIPTION");
 
         /// <summary>
-        /// Called by the game when the mod is disabled.
-        /// </summary>
-        public override void OnDisabled()
-        {
-            base.OnDisabled();
-
-            // Remove legacy settings helper.
-            LoadingScreenMod.Settings.settings.helper = null;
-        }
-
-        /// <summary>
         /// Saves settings file.
         /// </summary>
         public override void SaveSettings() => LSMRSettings.Save();

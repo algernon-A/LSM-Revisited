@@ -230,7 +230,7 @@
             }
 
             // LSM.
-            DateTime skipStamp = LoadingScreenMod.Settings.settings.LoadSkipFile();
+            DateTime skipStamp = LoadingScreenMod.Settings.LoadSkipFile();
 
             // LSM.
             if (loadingManager.m_loadedEnvironment == null)
@@ -278,7 +278,7 @@
                     bool isKnownFastLoad = IsKnownFastLoad(savegame);
 
                     // Check custom asset availability, if this isn't already a known fastload candidate.
-                    if (LoadingScreenMod.Settings.settings.loadUsed && !isKnownFastLoad)
+                    if (LSMRSettings.LoadUsed && !isKnownFastLoad)
                     {
                         while (!IsSaveDeserialized)
                         {
@@ -299,7 +299,7 @@
                         }
 
                         // If we're skipping prefabs, then check that all prefabs are available.
-                        else if (LoadingScreenMod.Settings.settings.SkipPrefabs && !isKnownFastLoad)
+                        else if (LSMRSettings.SkipPrefabs && !isKnownFastLoad)
                         {
                             // Wait until save is deserialized.
                             while (!IsSaveDeserialized)
@@ -316,7 +316,7 @@
                     if (s_fastLoadEligible)
                     {
                         // Skip any prefabs.
-                        if (LoadingScreenMod.Settings.settings.SkipPrefabs && SkippedPrefabs[0] != null)
+                        if (LSMRSettings.SkipPrefabs && SkippedPrefabs[0] != null)
                         {
                             // Wait until save is deserialized.
                             while (!IsSaveDeserialized)
@@ -412,7 +412,7 @@
                 }
 
                 // LSM insert.
-                if (LoadingScreenMod.Settings.settings.SkipPrefabs)
+                if (LSMRSettings.SkipPrefabs)
                 {
                     Instance<PrefabLoader>.Create().Deploy();
                 }
@@ -454,7 +454,7 @@
 
                 // LSM inserts.
                 Instance<PrefabLoader>.instance?.Revert();
-                if (LoadingScreenMod.Settings.settings.SkipPrefabs)
+                if (LSMRSettings.SkipPrefabs)
                 {
                     loadingManager.QueueLoadingAction(PrefabLoader.RemoveSkippedFromSimulation());
                 }
@@ -479,7 +479,7 @@
                 loadingManager.QueueLoadingAction(AssetLoader.Instance.LoadCustomContent());
 
                 // LSM Safenets insert.
-                if (LoadingScreenMod.Settings.settings.recover)
+                if (LSMRSettings.TryRecover)
                 {
                     loadingManager.QueueLoadingAction(Safenets.Setup());
                 }
@@ -604,7 +604,7 @@
 
             // LSM insert.
             loadingManager.QueueLoadingAction(CheckPolicies());
-            if (LoadingScreenMod.Settings.settings.Removals)
+            if (LSMRSettings.Removals)
             {
                 loadingManager.QueueLoadingAction(Safenets.Removals());
             }
@@ -684,9 +684,9 @@
         {
             if (SteamHelper.IsDLCOwned((SteamHelper.DLC)dlc))
             {
-                if (LoadingScreenMod.Settings.settings.SkipPrefabs)
+                if (LSMRSettings.SkipPrefabs)
                 {
-                    return !LoadingScreenMod.Settings.settings.SkipMatcher.Matches((int)dlc);
+                    return !LoadingScreenMod.Settings.SkipMatcher.Matches((int)dlc);
                 }
 
                 return true;

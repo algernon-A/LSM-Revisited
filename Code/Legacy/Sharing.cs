@@ -826,11 +826,11 @@ namespace LoadingScreenMod
 
         private Sharing()
         {
-            shareTextures = Settings.settings.shareTextures;
-            shareMaterials = Settings.settings.shareMaterials;
-            shareMeshes = Settings.settings.shareMeshes;
+            shareTextures = LoadingScreenModRevisited.LSMRSettings.ShareTextures;
+            shareMaterials = LoadingScreenModRevisited.LSMRSettings.ShareMaterials;
+            shareMeshes = LoadingScreenModRevisited.LSMRSettings.ShareMeshes;
             mustPrune = !(shareTextures & shareMaterials & shareMeshes);
-            checkAssets = Settings.settings.checkAssets;
+            checkAssets = LoadingScreenModRevisited.LSMRSettings.CheckAssets;
             if (checkAssets)
             {
                 weirdMaterials = new Dictionary<MaterialData, int>();

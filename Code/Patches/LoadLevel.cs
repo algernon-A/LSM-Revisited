@@ -79,11 +79,22 @@ namespace LoadingScreenModRevisited
             // Patch Custom Animation Loader.
             PatcherManager<Patcher>.Instance.PatchCustomAnimationLoader();
 
-            // Reset legacy settings.
-            LoadingScreenMod.Settings settings = LoadingScreenMod.Settings.settings;
-            Util.DebugPrint("Options: 2205", settings.loadEnabled, settings.loadUsed, settings.shareTextures, settings.shareMaterials, settings.shareMeshes, settings.optimizeThumbs, settings.reportAssets, settings.checkAssets, settings.skipPrefabs, settings.hideAssets, settings.useReportDate);
-            LevelLoader.s_optimizeThumbs = settings.optimizeThumbs;
-            settings.enableDisable = settings.loadUsed && ShiftE;
+            // Report settings.
+            Util.DebugPrint(
+                "Options: 2205",
+                LSMRSettings.LoadEnabled,
+                LSMRSettings.LoadUsed,
+                LSMRSettings.ShareTextures,
+                LSMRSettings.ShareMaterials,
+                LSMRSettings.ShareMeshes,
+                LSMRSettings.OptimizeThumbs,
+                LSMRSettings.ReportAssets,
+                LSMRSettings.CheckAssets,
+                LSMRSettings.SkipPrefabs,
+                LSMRSettings.HideAssets,
+                true);
+            LevelLoader.s_optimizeThumbs = LSMRSettings.OptimizeThumbs;
+            LSMRSettings.EnableDisable = LSMRSettings.LoadUsed && ShiftE;
 
             // Reset progress.
             __instance.SetSceneProgress(0f);
