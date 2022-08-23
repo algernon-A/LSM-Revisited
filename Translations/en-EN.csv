@@ -164,5 +164,5 @@
 "SYS_PAGE_USE","System pagefile use","Line item for memory usage stat display on loading screen."
 "SIMULATION_FAILED","Simulation failed","Message displayed when simulation thread fails."
 "NOTE_CLOSE","Close","Notification button text - closes the notification."
-"WRONG_VERSION",""Loading Screen Mod Revisited is not compatible with this game version.","Warning displayed on startup if an incompatible game version is detected"
+"WRONG_VERSION","Loading Screen Mod Revisited is not compatible with this game version.","Warning displayed on startup if an incompatible game version is detected"
 "SHUT_DOWN","As a safety measure, the mod has shut down and will not operate.","Warning displayed on startup if an incompatible game version is detected"
