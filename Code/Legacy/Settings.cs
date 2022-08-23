@@ -154,7 +154,6 @@ namespace LoadingScreenMod
             {
                 Util.DebugPrint("Settings.LoadSkipFile");
                 UnityEngine.Debug.LogException(exception);
-                Matcher matcher3 = (SkipMatcher = (ExceptMatcher = null));
                 LoadingScreenModRevisited.LSMRSettings.SkipFileTimestamp = DateTime.MinValue;
             }
             if (!LoadingScreenModRevisited.LSMRSettings.SkipPrefabs)

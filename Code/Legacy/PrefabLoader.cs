@@ -30,10 +30,6 @@ namespace LoadingScreenMod
 
         private HashSet<string> keptProps = new HashSet<string>();
 
-        private Matcher skipMatcher = Settings.SkipMatcher;
-
-        private Matcher exceptMatcher = Settings.ExceptMatcher;
-
         private bool saveDeserialized;
 
         private const string ROUTINE = "<InitializePrefabs>c__Iterator0";
@@ -68,6 +64,17 @@ namespace LoadingScreenMod
             }
         }
 
+        private bool SkipMatcherHas(int index)
+        {
+            if (Settings.SkipMatcher != null)
+            {
+                return Settings.SkipMatcher.Has[index];
+            }
+
+            return false;
+        }
+
+
         internal void SetSkippedPrefabs(HashSet<string>[] prefabs)
         {
             prefabs.CopyTo(skippedPrefabs, 0);
@@ -76,7 +83,6 @@ namespace LoadingScreenMod
         internal override void Dispose()
         {
             base.Dispose();
-            skipMatcher = (exceptMatcher = null);
             simulationPrefabs?.Clear();
             simulationPrefabs = null;
             LoadingScreenModRevisited.LevelLoader.SetSkippedPrefabs(skippedPrefabs);
@@ -126,7 +132,7 @@ namespace LoadingScreenMod
                         Instance<PrefabLoader>.instance.Skip<PropInfo>(action, UpdatePropPrefabs, UpdatePropCollection, num);
                         break;
                     default:
-                        if (Instance<PrefabLoader>.instance.skipMatcher.Has[2] && declaringType == typeof(NetCollection))
+                        if (instance.SkipMatcherHas(2) && declaringType == typeof(NetCollection))
                         {
                             Instance<PrefabLoader>.instance.RemoveSkippedFromNets(action);
                         }
@@ -157,7 +163,7 @@ namespace LoadingScreenMod
                     return;
                 }
                 UpdateAll(array);
-                if (!skipMatcher.Has[index])
+                if (!SkipMatcherHas(index))
                 {
                     return;
                 }
@@ -238,7 +244,7 @@ namespace LoadingScreenMod
 
         private static void UpdateBuildingPrefabs(Array prefabs)
         {
-            if (!Instance<PrefabLoader>.instance.skipMatcher.Has[2])
+            if (!instance.SkipMatcherHas(2))
             {
                 return;
             }
@@ -254,7 +260,7 @@ namespace LoadingScreenMod
 
         private static void UpdateVehiclePrefabs(Array prefabs)
         {
-            if (!Instance<PrefabLoader>.instance.skipMatcher.Has[1])
+            if (!instance.SkipMatcherHas(1))
             {
                 return;
             }
@@ -270,7 +276,7 @@ namespace LoadingScreenMod
 
         private static void UpdatePropPrefabs(Array prefabs)
         {
-            if (!Instance<PrefabLoader>.instance.skipMatcher.Has[2])
+            if (!instance.SkipMatcherHas(2))
             {
                 return;
             }
@@ -325,7 +331,7 @@ namespace LoadingScreenMod
 
         private bool Skip(PrefabInfo info, string replace, int index)
         {
-            if (skipMatcher.Matches(info, index))
+            if (Settings.SkipMatcher != null && Settings.SkipMatcher.Matches(info, index))
             {
                 string name = info.name;
                 if (index == 0 && IsSimulationPrefab(name, replace))
@@ -333,7 +339,7 @@ namespace LoadingScreenMod
                     Util.DebugPrint(name + " -> not skipped because used in city");
                     return false;
                 }
-                if (exceptMatcher.Matches(info, index))
+                if (Settings.ExceptMatcher != null && Settings.ExceptMatcher.Matches(info, index))
                 {
                     Util.DebugPrint(name + " -> not skipped because excepted");
                     return false;
@@ -346,9 +352,9 @@ namespace LoadingScreenMod
 
         private bool Skip(PrefabInfo info, int index)
         {
-            if (skipMatcher.Matches(info, index))
+            if (Settings.SkipMatcher != null && Settings.SkipMatcher.Matches(info, index))
             {
-                return !exceptMatcher.Matches(info, index);
+                return !(Settings.ExceptMatcher != null && Settings.ExceptMatcher.Matches(info, index));
             }
             return false;
         }
