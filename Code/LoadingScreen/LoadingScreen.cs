@@ -23,6 +23,16 @@ namespace LoadingScreenModRevisited
     public sealed class LoadingScreen
     {
         /// <summary>
+        /// Minimum permitted text font size.
+        /// </summary>
+        internal const int MinimumTextSize = 12;
+
+        /// <summary>
+        /// Maximum permitted text font size.
+        /// </summary>
+        internal const int MaximumTextSize = 36;
+
+        /// <summary>
         /// Active instance.
         /// </summary>
         internal static LoadingScreen s_instance;
@@ -44,6 +54,9 @@ namespace LoadingScreenModRevisited
         // Is this Windows?
         private static readonly bool IsWindows = Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor;
 
+        // Overlay texture.
+        private static readonly Texture2D BackgroundTexture = Texture2D.whiteTexture;
+
         // Display text.
         private static readonly StringBuilder ThreadText = new StringBuilder(256);
         private static readonly StringBuilder AssetLoaderText = new StringBuilder(256);
@@ -59,6 +72,8 @@ namespace LoadingScreenModRevisited
         private static float s_assetBoxHeight;
         private static float s_memoryBoxHeight;
         private static float s_threadBoxHeight;
+        private static float s_overlayAlpha = 0.5f;
+        private static int s_textSize = 18;
 
         // Loading animation.
         private readonly LoadingAnimation _loadingAnimiation;
@@ -131,6 +146,16 @@ namespace LoadingScreenModRevisited
             // Start Unity overlay update coroutine.
             Singleton<LoadingManager>.instance.StartCoroutine(UpdateText());
         }
+
+        /// <summary>
+        /// Gets or sets the overlay transparency value (inverted).
+        /// </summary>
+        internal static float OverlayAlpha { get => 1f - s_overlayAlpha; set => s_overlayAlpha = 1f - Mathf.Clamp(0f, value, 1f); }
+
+        /// <summary>
+        /// Gets or sets the text font size.
+        /// </summary>
+        internal static int TextSize { get => s_textSize; set => s_textSize = Mathf.Clamp(MinimumTextSize, value, MaximumTextSize); }
 
         /// <summary>
         /// Gets the scenes and asset status tracker.
@@ -358,10 +383,15 @@ namespace LoadingScreenModRevisited
                     alignment = TextAnchor.UpperLeft,
                     margin = new RectOffset(10, 10, 10, 10),
                     padding = new RectOffset(10, 10, 10, 10),
-                    fontSize = 18,
+                    fontSize = s_textSize,
                     fontStyle = FontStyle.Bold,
                     border = new RectOffset(3, 3, 3, 3),
                     richText = true,
+                    normal = new GUIStyleState
+                    {
+                        textColor = new Color(0.75f, 0.75f, 0.75f),
+                        background = BackgroundTexture,
+                    },
                 };
 
                 // Set maximumum lines.
@@ -378,13 +408,15 @@ namespace LoadingScreenModRevisited
             // Y-position indicator.
             float currentY = ScreenMargin;
 
+            // Save and set background color.
+            Color backgroundColor = GUI.backgroundColor;
+            GUI.backgroundColor = new Color(0f, 0f, 0f, s_overlayAlpha);
+
             // Scenes and assets.
             GUI.Box(new Rect(ScreenMargin, ScreenMargin, BoxWidth, s_scenesAssetsBoxHeight), s_scenesAndAssetsText.ToString(), s_style);
 
             // Rightmost column relative x-position..
             float rightColumnnX = Screen.width - ScreenMargin - BoxWidth;
-
-            // Standard box height
 
             // Timing.
             GUI.Box(new Rect(rightColumnnX, currentY, BoxWidth, s_timingBoxHeight), Timing.CurrentTime, s_style);
@@ -404,6 +436,9 @@ namespace LoadingScreenModRevisited
 
             // Thread status.
             GUI.Box(new Rect(rightColumnnX, currentY, BoxWidth, s_threadBoxHeight), ThreadText.ToString(), s_style);
+
+            // Restore original background color.
+            GUI.backgroundColor = backgroundColor;
         }
 
         /// <summary>

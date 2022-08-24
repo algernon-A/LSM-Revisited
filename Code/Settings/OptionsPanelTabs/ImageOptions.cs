@@ -24,6 +24,8 @@ namespace LoadingScreenModRevisited
         private readonly UICheckBox _fitImageCheck;
         private readonly UICheckBox _cropImageCheck;
         private readonly UICheckBox _stretchImageCheck;
+        private readonly UILabel _textSizeLabel;
+        private readonly UILabel _alphaLabel;
 
         // Event processing.
         private bool ignoreEvents = false;
@@ -100,7 +102,43 @@ namespace LoadingScreenModRevisited
                 Translations.Translate("IMAGE_STRETCH"),
                 BackgroundImage.ImageScaling == ScaleMode.StretchToFill,
                 StretchCheckChanged) as UICheckBox;
+
+            // Scaling options.
+            UIHelperBase textGroup = helper.AddGroup(Translations.Translate("IMAGE_TEXT"));
+
+            // Text font size.
+            UISlider textSizeSlider = textGroup.AddSlider(
+                Translations.Translate("TEXT_SIZE"),
+                LoadingScreen.MinimumTextSize,
+                LoadingScreen.MaximumTextSize,
+                1f,
+                LoadingScreen.TextSize,
+                (value) =>
+                {
+                    LoadingScreen.TextSize = (int)value.RoundToNearest(1f);
+                    _textSizeLabel.text = LoadingScreen.TextSize.ToString();
+                }) as UISlider;
+            _textSizeLabel = UILabels.AddLabel(textSizeSlider, textSizeSlider.width + 5f, 0f, LoadingScreen.TextSize.ToString());
+
+            // Overlay transparency.
+            UISlider alphaSlider = textGroup.AddSlider(
+                Translations.Translate("OVERLAY_ALPHA"),
+                0f,
+                1f,
+                0.1f,
+                LoadingScreen.OverlayAlpha,
+                (value) =>
+                {
+                    LoadingScreen.OverlayAlpha = value;
+                    _alphaLabel.text = AlphaText;
+                }) as UISlider;
+            _alphaLabel = UILabels.AddLabel(alphaSlider, alphaSlider.width + 5f, 0f, AlphaText);
         }
+
+        /// <summary>
+        /// Gets the text display for the current overlay alpha value.
+        /// </summary>
+        private string AlphaText => (LoadingScreen.OverlayAlpha * 100f).ToString("N0") + '%';
 
         /// <summary>
         /// Imgur curated backgroung image check change handler.

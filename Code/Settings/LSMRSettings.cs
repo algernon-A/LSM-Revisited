@@ -56,6 +56,18 @@ namespace LoadingScreenModRevisited
         public bool XMLShowDuplicates { get => ShowDuplicates; set => ShowDuplicates = value; }
 
         /// <summary>
+        /// Gets or sets the loading screen overlay transparency.
+        /// </summary>
+        [XmlElement("OverlayAlpha")]
+        public float XMLOverlayAlpha { get => LoadingScreen.OverlayAlpha; set => LoadingScreen.OverlayAlpha = value; }
+
+        /// <summary>
+        /// Gets or sets the loading screen text font size.
+        /// </summary>
+        [XmlElement("TextSize")]
+        public int XMLTextSize { get => LoadingScreen.TextSize; set => LoadingScreen.TextSize = value; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether enabled assets should be loaded (regardless of usage).
         /// </summary>
         [XmlElement("loadEnabled")]

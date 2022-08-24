@@ -171,3 +171,6 @@
 "IMAGE_FIT","Fit entire image on screen (letterbox)","Background image scaling option in options panel."
 "IMAGE_CROP","Enlarge image to fill the whole screen (zoom and crop)","Background image scaling option in options panel."
 "IMAGE_STRETCH","Stretch image to fit the screen (distort image)","Background image scaling option in options panel."
+"IMAGE_TEXT","Loading screen text options","Group title in options panel."
+"TEXT_SIZE","Text size","Loading screen text option in options panel."
+"OVERLAY_ALPHA","Text overlay transparency","Loading screen text option in options panel."
