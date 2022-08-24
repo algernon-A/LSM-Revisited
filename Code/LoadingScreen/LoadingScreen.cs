@@ -80,7 +80,8 @@ namespace LoadingScreenModRevisited
         // Background image components.
         private Mesh _imageMesh;
         private Material _imageMaterial;
-        private float _imageScale;
+        private float _xScale;
+        private float _yScale;
 
         // Animation components.
         private Mesh _animationMesh;
@@ -156,7 +157,6 @@ namespace LoadingScreenModRevisited
             // Apply arguments.
             s_instance._imageMesh = mesh;
             s_instance._imageMaterial = new Material(material);
-            s_instance._imageScale = scale;
 
             // Check if we're using custom background images.
             if (BackgroundImage.CurrentImageMode != BackgroundImage.ImageMode.Standard)
@@ -168,6 +168,57 @@ namespace LoadingScreenModRevisited
                     // Success - apply new material instead.
                     s_instance._imageMaterial = customMaterial;
                 }
+            }
+
+            // Calculate aspect ratios.
+            Texture imageTexture = s_instance._imageMaterial?.mainTexture;
+            float imageAspectRatio = imageTexture != null ? (float)imageTexture.width / imageTexture.height : 1f;
+            float screenAspectRatio = (float)Screen.currentResolution.width / Screen.currentResolution.height;
+
+            // Scaling parameters.
+            float imageScale = 2f * scale;
+
+            // Set safe defaults.
+            s_instance._xScale = imageScale;
+            s_instance._yScale = imageScale;
+
+            // Calculate scaling.
+            switch (BackgroundImage.ImageScaling)
+            {
+                case ScaleMode.ScaleToFit:
+                    if (imageAspectRatio > screenAspectRatio)
+                    {
+                        // Wide images (aspect ratios greater than the screen).
+                        s_instance._xScale = imageScale * screenAspectRatio;
+                        s_instance._yScale = imageScale * screenAspectRatio / imageAspectRatio;
+                    }
+                    else
+                    {
+                        // Non- wide iages (aspect ratios equal or less than the screen).
+                        s_instance._xScale = imageScale * imageAspectRatio;
+                    }
+
+                    break;
+
+                case ScaleMode.ScaleAndCrop:
+                    if (imageAspectRatio > screenAspectRatio)
+                    {
+                        // Wide images (aspect ratios greater than the screen).
+                        s_instance._xScale = imageScale * imageAspectRatio;
+                    }
+                    else
+                    {
+                        // Non- wide iages (aspect ratios equal or less than the screen).
+                        s_instance._xScale = imageScale * screenAspectRatio;
+                        s_instance._yScale = imageScale * screenAspectRatio / imageAspectRatio;
+                    }
+
+                    break;
+
+                case ScaleMode.StretchToFill:
+                    // Works for ABLC BUTTONS strech previewImage AND also ABLC PREVIEW and also REPAINT and also 1.5.
+                    s_instance._xScale = imageScale * screenAspectRatio;
+                    break;
             }
 
             // Set status flag.
@@ -246,12 +297,10 @@ namespace LoadingScreenModRevisited
             // Draw background mesh.
             if (s_instance._imageLoaded)
             {
-                Texture2D imageTexture = s_instance._imageMaterial.mainTexture as Texture2D;
-                float aspectRatio = imageTexture != null ? (float)imageTexture.width / (float)imageTexture.height : 1f;
-                float scale = 2f * s_instance._imageScale;
+                // Draw image.
                 if (s_instance._imageMaterial.SetPass(0))
                 {
-                    Graphics.DrawMeshNow(s_instance._imageMesh, Matrix4x4.TRS(new Vector3(0f, 0f, 10f), Quaternion.identity, new Vector3(scale * aspectRatio, scale, scale)));
+                    Graphics.DrawMeshNow(s_instance._imageMesh, Matrix4x4.TRS(new Vector3(0f, 0f, 10f), Quaternion.identity, new Vector3(s_instance._xScale, s_instance._yScale, 1f)));
                 }
             }
 

@@ -64,6 +64,9 @@ namespace LoadingScreenModRevisited
         // Current background image mode.
         private static ImageMode s_imageMode = ImageMode.Standard;
 
+        // Current background image scaling mode.
+        private static ScaleMode s_scaleMode = ScaleMode.ScaleToFit;
+
         /// <summary>
         /// Loading image mode enum.
         /// </summary>
@@ -113,6 +116,11 @@ namespace LoadingScreenModRevisited
                 }
             }
         }
+
+        /// <summary>
+        /// Gets or sets the current background image scaling mode.
+        /// </summary>
+        internal static ScaleMode ImageScaling { get => s_scaleMode; set => s_scaleMode = value; }
 
         /// <summary>
         /// Attempts to replace the given material with one according to custom settings.
@@ -175,12 +183,15 @@ namespace LoadingScreenModRevisited
                         continue;
                     }
 
+                    Logging.Message("found image file ", imageFileName);
+
                     // Read file and convert to texture.
                     byte[] imageData = File.ReadAllBytes(imageFileName);
                     newTexture.LoadImage(imageData);
 
+                    // TODO: Removed image size check for local files.
                     // Need minimum image size of 1920x1080.
-                    if (newTexture.width >= 1920 | newTexture.height >= 1080)
+                    // if (newTexture.width >= 1920 | newTexture.height >= 1080)
                     {
                         // Got an eligible candidate - convert to material and return it.
                         return new Material(material)
@@ -189,7 +200,7 @@ namespace LoadingScreenModRevisited
                         };
                     }
 
-                    Logging.Message("image too small: ", imageFileName);
+                    // Logging.Message("image too small: ", imageFileName);
                 }
                 catch (Exception e)
                 {

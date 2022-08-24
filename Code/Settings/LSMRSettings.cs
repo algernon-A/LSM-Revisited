@@ -13,6 +13,7 @@ namespace LoadingScreenModRevisited
     using AlgernonCommons.Translation;
     using AlgernonCommons.XML;
     using ColossalFramework.IO;
+    using UnityEngine;
 
     /// <summary>
     /// The Loading Screen Mod Revisited settings file.
@@ -35,6 +36,12 @@ namespace LoadingScreenModRevisited
         /// </summary>
         [XmlElement("BackgroundImageMode")]
         public BackgroundImage.ImageMode XMLImageMode { get => BackgroundImage.CurrentImageMode; set => BackgroundImage.CurrentImageMode = value; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether attempts shoudl be made to recover from simulation errors on the next load.
+        /// </summary>
+        [XmlElement("BackgroundImageScaling")]
+        public ScaleMode XMLImageScale { get => BackgroundImage.ImageScaling; set => BackgroundImage.ImageScaling = value; }
 
         /// <summary>
         /// Gets or sets the local loading image directory.

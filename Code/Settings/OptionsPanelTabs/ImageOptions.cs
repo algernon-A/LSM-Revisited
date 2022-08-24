@@ -8,6 +8,8 @@ namespace LoadingScreenModRevisited
     using AlgernonCommons.Translation;
     using AlgernonCommons.UI;
     using ColossalFramework.UI;
+    using ICities;
+    using UnityEngine;
 
     /// <summary>
     /// Options panel for setting background loading image options.
@@ -19,6 +21,9 @@ namespace LoadingScreenModRevisited
         private readonly UICheckBox _imgurCuratedCheck;
         private readonly UICheckBox _imgurRandomCheck;
         private readonly UICheckBox _localRandomCheck;
+        private readonly UICheckBox _fitImageCheck;
+        private readonly UICheckBox _cropImageCheck;
+        private readonly UICheckBox _stretchImageCheck;
 
         // Event processing.
         private bool ignoreEvents = false;
@@ -37,40 +42,64 @@ namespace LoadingScreenModRevisited
             // Add controls.
             UIHelper helper = new UIHelper(panel);
 
+            // Image source options.
+            UIHelperBase sourceGroup = helper.AddGroup(Translations.Translate("IMAGE_SOURCE"));
+
             // Add curated imgur image check.
-            _defaultCheck = helper.AddCheckbox(
+            _defaultCheck = sourceGroup.AddCheckbox(
                 Translations.Translate("DEFAULT_BACKGROUND"),
                 BackgroundImage.CurrentImageMode == BackgroundImage.ImageMode.Standard,
                 DefaultCheckChanged) as UICheckBox;
 
             // Add curated imgur image check.
-            _imgurCuratedCheck = helper.AddCheckbox(
+            _imgurCuratedCheck = sourceGroup.AddCheckbox(
                 Translations.Translate("IMGUR_CURATED"),
                 BackgroundImage.CurrentImageMode == BackgroundImage.ImageMode.ImgurCurated,
                 CuratedCheckChanged) as UICheckBox;
             _imgurCuratedCheck.tooltip = Translations.Translate("IMGUR_CURATED_TIP");
 
             // Add random imgur image check.
-            _imgurRandomCheck = helper.AddCheckbox(
+            _imgurRandomCheck = sourceGroup.AddCheckbox(
                 Translations.Translate("IMGUR_TOP"),
                 BackgroundImage.CurrentImageMode == BackgroundImage.ImageMode.ImgurRandom,
                 RandomCheckChanged) as UICheckBox;
             _imgurRandomCheck.tooltip = Translations.Translate("IMGUR_TOP_TIP");
 
             // Random local image check.
-            _localRandomCheck = helper.AddCheckbox(
+            _localRandomCheck = sourceGroup.AddCheckbox(
                 Translations.Translate("LOCAL_IMAGE"),
                 BackgroundImage.CurrentImageMode == BackgroundImage.ImageMode.LocalRandom,
                 LocalCheckChanged) as UICheckBox;
             _localRandomCheck.tooltip = Translations.Translate("LOCAL_IMAGE_TIP");
 
-            TextField(helper, BackgroundImage.ImageDirectory, (text) =>
+            TextField(sourceGroup as UIHelper, BackgroundImage.ImageDirectory, (text) =>
             {
                 if (text != BackgroundImage.ImageDirectory)
                 {
                     BackgroundImage.ImageDirectory = text;
                 }
             });
+
+            // Scaling options.
+            UIHelperBase scaleGroup = helper.AddGroup(Translations.Translate("IMAGE_SCALE"));
+
+            // Scale to fit.
+            _fitImageCheck = scaleGroup.AddCheckbox(
+                Translations.Translate("IMAGE_FIT"),
+                BackgroundImage.ImageScaling == ScaleMode.ScaleToFit,
+                FitCheckChanged) as UICheckBox;
+
+            // Fit and crop.
+            _cropImageCheck = scaleGroup.AddCheckbox(
+                Translations.Translate("IMAGE_CROP"),
+                BackgroundImage.ImageScaling == ScaleMode.ScaleAndCrop,
+                CropCheckChanged) as UICheckBox;
+
+            // Stretch to fill.
+            _stretchImageCheck = scaleGroup.AddCheckbox(
+                Translations.Translate("IMAGE_STRETCH"),
+                BackgroundImage.ImageScaling == ScaleMode.StretchToFill,
+                StretchCheckChanged) as UICheckBox;
         }
 
         /// <summary>
@@ -91,8 +120,8 @@ namespace LoadingScreenModRevisited
                 BackgroundImage.CurrentImageMode = BackgroundImage.ImageMode.Standard;
             }
 
-            // Update all check states.
-            UpdateChecks();
+            // Update all mode check states.
+            UpdateModeChecks();
         }
 
         /// <summary>
@@ -113,8 +142,8 @@ namespace LoadingScreenModRevisited
                 BackgroundImage.CurrentImageMode = BackgroundImage.ImageMode.ImgurCurated;
             }
 
-            // Update all check states.
-            UpdateChecks();
+            // Update all mode check states.
+            UpdateModeChecks();
         }
 
         /// <summary>
@@ -135,8 +164,8 @@ namespace LoadingScreenModRevisited
                 BackgroundImage.CurrentImageMode = BackgroundImage.ImageMode.ImgurRandom;
             }
 
-            // Update all check states.
-            UpdateChecks();
+            // Update all mode check states.
+            UpdateModeChecks();
         }
 
         /// <summary>
@@ -158,13 +187,79 @@ namespace LoadingScreenModRevisited
             }
 
             // Update all check states.
-            UpdateChecks();
+            UpdateModeChecks();
         }
 
         /// <summary>
-        /// Updates checkbox states to match current settings.
+        /// Scaling check change handler.
         /// </summary>
-        private void UpdateChecks()
+        /// <param name="isChecked">New checked status.</param>
+        private void FitCheckChanged(bool isChecked)
+        {
+            // Don't do anything if events are ignored.
+            if (ignoreEvents)
+            {
+                return;
+            }
+
+            // Only update if this is being checked.
+            if (isChecked)
+            {
+                BackgroundImage.ImageScaling = ScaleMode.ScaleToFit;
+            }
+
+            // Update all scale check states.
+            UpdateScaleChecks();
+        }
+
+        /// <summary>
+        /// Scaling check change handler.
+        /// </summary>
+        /// <param name="isChecked">New checked status.</param>
+        private void CropCheckChanged(bool isChecked)
+        {
+            // Don't do anything if events are ignored.
+            if (ignoreEvents)
+            {
+                return;
+            }
+
+            // Only update if this is being checked.
+            if (isChecked)
+            {
+                BackgroundImage.ImageScaling = ScaleMode.ScaleAndCrop;
+            }
+
+            // Update all scale check states.
+            UpdateScaleChecks();
+        }
+
+        /// <summary>
+        /// Scaling check change handler.
+        /// </summary>
+        /// <param name="isChecked">New checked status.</param>
+        private void StretchCheckChanged(bool isChecked)
+        {
+            // Don't do anything if events are ignored.
+            if (ignoreEvents)
+            {
+                return;
+            }
+
+            // Only update if this is being checked.
+            if (isChecked)
+            {
+                BackgroundImage.ImageScaling = ScaleMode.StretchToFill;
+            }
+
+            // Update all scale check states.
+            UpdateScaleChecks();
+        }
+
+        /// <summary>
+        /// Updates image mode checkbox states to match current settings.
+        /// </summary>
+        private void UpdateModeChecks()
         {
             // Suspend events while updating.
             ignoreEvents = true;
@@ -174,6 +269,23 @@ namespace LoadingScreenModRevisited
             _imgurCuratedCheck.isChecked = BackgroundImage.CurrentImageMode == BackgroundImage.ImageMode.ImgurCurated;
             _imgurRandomCheck.isChecked = BackgroundImage.CurrentImageMode == BackgroundImage.ImageMode.ImgurRandom;
             _localRandomCheck.isChecked = BackgroundImage.CurrentImageMode == BackgroundImage.ImageMode.LocalRandom;
+
+            // Resume event handling.
+            ignoreEvents = false;
+        }
+
+        /// <summary>
+        /// Updates image scaling states to match current settings.
+        /// </summary>
+        private void UpdateScaleChecks()
+        {
+            // Suspend events while updating.
+            ignoreEvents = true;
+
+            // Set check states.
+            _fitImageCheck.isChecked = BackgroundImage.ImageScaling == ScaleMode.ScaleToFit;
+            _cropImageCheck.isChecked = BackgroundImage.ImageScaling == ScaleMode.ScaleAndCrop;
+            _stretchImageCheck.isChecked = BackgroundImage.ImageScaling == ScaleMode.StretchToFill;
 
             // Resume event handling.
             ignoreEvents = false;
