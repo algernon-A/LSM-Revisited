@@ -72,7 +72,7 @@ namespace LoadingScreenModRevisited
         private static float s_assetBoxHeight;
         private static float s_memoryBoxHeight;
         private static float s_threadBoxHeight;
-        private static float s_overlayAlpha = 0.5f;
+        private static float s_overlayAlpha = 0.3f;
         private static int s_textSize = 18;
 
         // Loading animation.
