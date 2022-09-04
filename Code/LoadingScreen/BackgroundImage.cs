@@ -12,6 +12,7 @@ namespace LoadingScreenModRevisited
     using System.Net;
     using System.Net.Security;
     using System.Text.RegularExpressions;
+    using System.Threading;
     using AlgernonCommons;
     using UnityEngine;
 
@@ -26,28 +27,99 @@ namespace LoadingScreenModRevisited
         // Cureated imgur images.
         private static readonly List<string> CuratedImages = new List<string>
         {
-            "rgxqLV0",
-            "jNyKCHa",
-            "lgcI6OY",
-            "vUhu5jP",
-            "B7uZk9h",
-            "ZDnQ9E6",
-            "VXq6pkf",
-            "55r4CU3",
-            "6vJwZMc",
-            "1XFZ7R4",
-            "ZFYmaxe",
-            "J4iPKta",
-            "flntFdZ",
-            "eHxXttn",
-            "wRb2zpm",
-            "6v3CNXO",
-            "KENCQU6",
-            "IcyyO0Y",
-            "SopTi2R",
-            "VsemQRg",
-            "CrXy9hx",
-            "FsDd12C",
+            "xKv1IXE",
+            "bkrnxbs",
+            "N75RlZw",
+            "L04Xquk",
+            "3dLIYdW",
+            "fLooD1S",
+            "56wgof3",
+            "hJkVHOV",
+            "wHikRDm",
+            "auUxPsy",
+            "2dcmsLl",
+            "mTNA6of",
+            "MtJiG0x",
+            "w6hHEsE",
+            "6vs9wYs",
+            "FkMBrDR",
+            "jeqpvkb",
+            "falRocy",
+            "QYA95jw",
+            "mW2av7v",
+            "65FTls3",
+            "bDd7f1z",
+            "bDd7f1z",
+            "bDd7f1z",
+            "bDd7f1z",
+            "bDd7f1z",
+            "bDd7f1z",
+            "bDd7f1z",
+            "bDd7f1z",
+            "bDd7f1z",
+            "bDd7f1z",
+            "SI9l1Im",
+            "hLakgLG",
+            "t1tMMzB",
+            "AaZAYIL",
+            "Kx0XE1A",
+            "5j86fMi",
+            "zrnNUxO",
+            "rdtwLnF",
+            "0Wdbcwg",
+            "IKSjOqg",
+            "oho7hy8",
+            "zFo2F95",
+            "J57csCQ",
+            "1fuidqs",
+            "kUWSn7b",
+            "UovZaHz",
+            "XennCqw",
+            "r0FLa3N",
+            "WJfNPms",
+            "BuLmBmv",
+            "257qPwi",
+            "cfEuNQ8",
+            "ZQW8mUS",
+            "zQHsYoX",
+            "gZfOaoW",
+            "SAV82cF",
+            "T7Yh0hU",
+            "knmDtAR",
+            "r7co2La",
+            "X4l8whG",
+            "5qBm3J1",
+            "Byff99p",
+            "9d7BLCu",
+            "NzWiWfy",
+            "dBQozfx",
+            "1v87xzW",
+            "kovEmSI",
+            "W6vMrk5",
+            "1MN9jf3",
+            "03w1ODF",
+            "Rf6LE5c",
+            "ypTHCHR",
+            "fbcMbbv",
+            "wvOlj1J",
+            "ZmWw64y",
+            "TVQekcM",
+            "zXc0i4h",
+            "P3vji3g",
+            "1DUCn0j",
+            "pXjZGxN",
+            "QbsgfO3",
+            "6PnjWQk",
+            "2PG64TR",
+            "M4hZxn9",
+            "EOddjuN",
+            "4u5ezDo",
+            "gyBnR7F",
+            "L4VudOX",
+            "HNxg48S",
+            "ODBgGgd",
+            "Otgb4KZ",
+            "0mKDIF6",
         };
 
         /// <summary>
@@ -113,6 +185,15 @@ namespace LoadingScreenModRevisited
                 {
                     // Ensure random image list is populated.
                     PopulateImgurRandomList();
+
+                    // Download asynchronously.
+                    ImageDownloader.StartImgurImageDownload(RandomImages);
+                }
+
+                // Curated images - download asynchronously.
+                if (value == ImageMode.ImgurCurated)
+                {
+                    ImageDownloader.StartImgurImageDownload(CuratedImages);
                 }
             }
         }
@@ -125,17 +206,17 @@ namespace LoadingScreenModRevisited
         /// <summary>
         /// Attempts to replace the given material with one according to custom settings.
         /// </summary>
-        /// <param name="material">Original material.</param>
+        /// <param name="originalMaterial">Original material.</param>
         /// <returns>New material based on original with new texture, or null if failed.</returns>
-        internal static Material GetImage(Material material)
+        internal static Material GetImage(Material originalMaterial)
         {
             switch (s_imageMode)
             {
                 case ImageMode.LocalRandom:
-                    return GetLocalImage(material);
+                    return GetLocalImage(originalMaterial);
 
                 case ImageMode.ImgurCurated:
-                    return GetImgurImage(material, CuratedImages);
+                    return GetDownloadedMaterial(originalMaterial, CuratedImages);
 
                 case ImageMode.ImgurRandom:
                     // Try to populate the random list if we haven't already.
@@ -144,11 +225,58 @@ namespace LoadingScreenModRevisited
                         PopulateImgurRandomList();
                     }
 
-                    return GetImgurImage(material, RandomImages);
+                    return GetDownloadedMaterial(originalMaterial, RandomImages);
 
                 default:
                     return null;
             }
+        }
+
+        /// <summary>
+        /// Retrieves any downloaded image data and applies it to the given material.
+        /// Performs a minimum size check of 1920x1080.
+        /// </summary>
+        /// <param name="originalMaterial">Original material to update.</param>
+        /// <param name="imageList">Image list to attempt next download from if this attempt was unsuccessful.</param>
+        /// <returns>Updated material, or null if unusccessful (no download, downloaded image too small, or other failure).</returns>
+        private static Material GetDownloadedMaterial(Material originalMaterial, List<string> imageList)
+        {
+            if (Monitor.TryEnter(ImageDownloader.Lock) && ImageDownloader.ImageData is byte[] imageData)
+            {
+                try
+                {
+                    // Clear the image ready flag to show we've done this one..
+                    ImageDownloader.DownloadReady = false;
+
+                    Texture2D newTexture = new Texture2D(1, 1);
+                    if (newTexture.LoadImage(imageData))
+                    {
+                        // Need minimum image size of 1920x1080.
+                        if (newTexture.width >= 1920 & newTexture.height >= 1080)
+                        {
+                            // Convert to material and return it.
+                            return new Material(originalMaterial)
+                            {
+                                mainTexture = newTexture,
+                            };
+                        }
+
+                        Logging.Message("downloaded image was too small; skipping");
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logging.LogException(e, "exception creating downloaded image material");
+                }
+                finally
+                {
+                    Monitor.Exit(ImageDownloader.Lock);
+                }
+            }
+
+            // If we got here, we didn't get an image; return null (for now) after triggering a new download attempt.
+            ImageDownloader.StartImgurImageDownload(imageList);
+            return null;
         }
 
         /// <summary>
@@ -189,79 +317,16 @@ namespace LoadingScreenModRevisited
                     byte[] imageData = File.ReadAllBytes(imageFileName);
                     newTexture.LoadImage(imageData);
 
-                    // TODO: Removed image size check for local files.
-                    // Need minimum image size of 1920x1080.
-                    // if (newTexture.width >= 1920 | newTexture.height >= 1080)
+                    // Got an eligible candidate - convert to material and return it.
+                    return new Material(material)
                     {
-                        // Got an eligible candidate - convert to material and return it.
-                        return new Material(material)
-                        {
-                            mainTexture = newTexture,
-                        };
-                    }
-
-                    // Logging.Message("image too small: ", imageFileName);
+                        mainTexture = newTexture,
+                    };
                 }
                 catch (Exception e)
                 {
                     // Don't let a single exception stop us.
                     Logging.LogException(e, "exception reading texture file ", imageFileName ?? "null");
-                }
-            }
-
-            // If we got here, we didn't get an image; return null.
-            return null;
-        }
-
-        /// <summary>
-        /// Attempts to replace the given material with one based on a imgur image download.
-        /// </summary>
-        /// <param name="material">Original material.</param>
-        /// <param name="imageList">Image list to use.</param>
-        /// <returns>New material based on original with new texture, or null if failed.</returns>
-        private static Material GetImgurImage(Material material, List<string> imageList)
-        {
-            // Background texture base.
-            Texture2D newTexture = new Texture2D(1, 1);
-
-            // Randomise list order.
-            System.Random random = new System.Random();
-            foreach (string imageName in imageList.OrderBy(x => random.Next()))
-            {
-                try
-                {
-                    // Add certificate validation callback, because Mono has no certificates by default and https will automatically fail if we don't do this.
-                    ServicePointManager.ServerCertificateValidationCallback += CertificateValidationFudge;
-
-                    // Recreate direct image URL from image name.
-                    string imageURL = "http://i.imgur.com/" + imageName + ".jpg";
-                    Logging.Message("downloading image from ", imageURL);
-
-                    // Download image and convert to texture.
-                    byte[] imageData = new WebClient().DownloadData(imageURL);
-                    newTexture.LoadImage(imageData);
-
-                    // Need minimum image size of 1920x1080.
-                    if (newTexture.width >= 1920 & newTexture.height >= 1080)
-                    {
-                        // Got an eligible candidate - convert to material and return it.
-                        return new Material(material)
-                        {
-                            mainTexture = newTexture,
-                        };
-                    }
-
-                    Logging.Message("image too small");
-                }
-                catch (Exception e)
-                {
-                    // Don't let a single exception stop us.
-                    Logging.LogException(e, "exception creating new background texture from imgur download");
-                }
-                finally
-                {
-                    // Remove certificate validation callback (don't leave this hanging around).
-                    ServicePointManager.ServerCertificateValidationCallback -= CertificateValidationFudge;
                 }
             }
 

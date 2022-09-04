@@ -8,6 +8,7 @@ namespace LoadingScreenModRevisited
     using System.Collections;
     using System.Reflection;
     using System.Text;
+    using System.Threading;
     using AlgernonCommons.Patching;
     using AlgernonCommons.Translation;
     using ColossalFramework;
@@ -95,6 +96,7 @@ namespace LoadingScreenModRevisited
         // Background image components.
         private Mesh _imageMesh;
         private Material _imageMaterial;
+        private float _baseScale;
         private float _xScale;
         private float _yScale;
 
@@ -182,6 +184,7 @@ namespace LoadingScreenModRevisited
             // Apply arguments.
             s_instance._imageMesh = mesh;
             s_instance._imageMaterial = new Material(material);
+            s_instance._baseScale = scale;
 
             // Check if we're using custom background images.
             if (BackgroundImage.CurrentImageMode != BackgroundImage.ImageMode.Standard)
@@ -241,7 +244,6 @@ namespace LoadingScreenModRevisited
                     break;
 
                 case ScaleMode.StretchToFill:
-                    // Works for ABLC BUTTONS strech previewImage AND also ABLC PREVIEW and also REPAINT and also 1.5.
                     s_instance._xScale = imageScale * screenAspectRatio;
                     break;
             }
@@ -322,6 +324,23 @@ namespace LoadingScreenModRevisited
             // Draw background mesh.
             if (s_instance._imageLoaded)
             {
+                // Check for any downloaded image updates.
+                if (Monitor.TryEnter(ImageDownloader.Lock))
+                {
+                    try
+                    {
+                        if (ImageDownloader.DownloadReady)
+                        {
+                            // A new image download is ready.
+                            SetImage(s_instance._imageMesh, s_instance._imageMaterial, s_instance._baseScale);
+                        }
+                    }
+                    finally
+                    {
+                        Monitor.Exit(ImageDownloader.Lock);
+                    }
+                }
+
                 // Draw image.
                 if (s_instance._imageMaterial.SetPass(0))
                 {
