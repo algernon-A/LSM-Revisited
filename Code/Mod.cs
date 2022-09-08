@@ -22,7 +22,7 @@ namespace LoadingScreenModRevisited
         /// <summary>
         /// Gets the mod's base display name (name only).
         /// </summary>
-        public override string BaseName => "LSM Revisited";
+        public override string BaseName => "Loading Screen Mod Revisited";
 
         /// <summary>
         /// Gets the mod's unique Harmony identfier.

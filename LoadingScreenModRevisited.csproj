@@ -2,7 +2,12 @@
 	<PropertyGroup>
 		<TargetFramework>net35</TargetFramework>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<Title>Loading Screen Mod Revisited</Title>
+		<AssemblyTitle>$(Title)</AssemblyTitle>
 		<Description>A Cities: Skylines mod.</Description>
+		<Authors>algernon,thale5</Authors>
+		<Copyright>Copyright © 2016-2022 algernon, thale5</Copyright>
+		<Product>$(Title)</Product>
 		<Version>0.4</Version>
 		<ManagedDLLPath>$(MSBuildProgramFiles32)/Steam/steamapps/common/Cities_Skylines/Cities_Data/Managed</ManagedDLLPath>
 		<AssemblySearchPaths>
