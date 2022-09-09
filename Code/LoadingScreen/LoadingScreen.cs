@@ -519,6 +519,7 @@ namespace LoadingScreenModRevisited
             {
                 // Set asset loader text.
                 AssetLoaderText.Length = _assetTitleLength;
+                AssetLoaderText.Append(_scenesAndAssetsStatus.ProblemString);
                 AssetLoaderText.Append(assetsCount);
                 AssetLoaderText.Append(" / ");
                 AssetLoaderText.Append(assetsTotal);
@@ -575,7 +576,6 @@ namespace LoadingScreenModRevisited
             AssetLoaderText.Append("<color=white>");
             AssetLoaderText.Append(Translations.Translate("CUSTOM_ASSETS_LOADED"));
             AssetLoaderText.AppendLine("</color>");
-            AssetLoaderText.AppendLine();
             _assetTitleLength = AssetLoaderText.Length;
             _perSecondString = Translations.Translate("PER_SECOND");
 
