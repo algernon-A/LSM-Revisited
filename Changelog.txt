@@ -1,0 +1,6 @@
+﻿Version 0.5 -
+
+- Automatically create new LSMR settings file after reading legacy LSM settings (don't wait for user to open options panel)
+- Update display name in content manager and options panel (LSM -> Loading Screen Mod)
+- Add failed and missing asset count display on loading screen
+- Add more curated images (thanks? to LeaderOfTheMonkeys)
