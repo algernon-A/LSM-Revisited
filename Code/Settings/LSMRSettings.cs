@@ -347,6 +347,9 @@ namespace LoadingScreenModRevisited
                     SkipFile = lsmSettings.skipFile;
                     HideAssets = lsmSettings.hideAssets;
                 }
+
+                // Save new settings file.
+                Save();
             }
         }
 
