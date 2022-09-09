@@ -108,9 +108,11 @@ namespace LoadingScreenModRevisited
 
                 // Status has changed; regenerate string.
                 _problemCountText.Length = 0;
+                _problemCountText.AppendLine();
+
+                // Failed assets
                 if (_assetsFailed != 0)
                 {
-                    // Failed assets
                     _problemCountText.Append("<color=red>");
                     _problemCountText.Append(_assetsFailed);
                     _problemCountText.Append(' ');
@@ -118,6 +120,7 @@ namespace LoadingScreenModRevisited
                     _problemCountText.Append("</color>");
                 }
 
+                // Missing assets.
                 if (_assetsNotFound != 0)
                 {
                     // Append comma if we've also got failed assets.
@@ -133,9 +136,6 @@ namespace LoadingScreenModRevisited
                     _problemCountText.Append(_missingString);
                     _problemCountText.Append("</color> ");
                 }
-
-                // Trailing newline.
-                _problemCountText.AppendLine();
 
                 // Reset changed flag.
                 _problemCountChanged = false;

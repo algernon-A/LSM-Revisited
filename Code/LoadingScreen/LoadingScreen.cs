@@ -419,7 +419,7 @@ namespace LoadingScreenModRevisited
                 // Calculate text box heights.
                 s_scenesAssetsBoxHeight = Screen.height - (ScreenMargin * 2f);
                 s_timingBoxHeight = (s_style.lineHeight * 3f) + (s_style.padding.top * 2f);
-                s_assetBoxHeight = (s_style.lineHeight * 4f) + (s_style.padding.top * 2f);
+                s_assetBoxHeight = (s_style.lineHeight * 5f) + (s_style.padding.top * 2f);
                 s_memoryBoxHeight = (s_style.lineHeight * 6f) + (s_style.padding.top * 2f);
                 s_threadBoxHeight = (s_style.lineHeight * 6f) + (s_style.padding.top * 2f);
             }
@@ -519,14 +519,14 @@ namespace LoadingScreenModRevisited
             {
                 // Set asset loader text.
                 AssetLoaderText.Length = _assetTitleLength;
-                AssetLoaderText.Append(_scenesAndAssetsStatus.ProblemString);
                 AssetLoaderText.Append(assetsCount);
                 AssetLoaderText.Append(" / ");
                 AssetLoaderText.Append(assetsTotal);
                 AssetLoaderText.AppendLine();
                 AssetLoaderText.Append((assetsCount * 1000f / (nowMillis - beginMillis)).ToString("G3"));
                 AssetLoaderText.Append(' ');
-                AssetLoaderText.Append(_perSecondString);
+                AssetLoaderText.AppendLine(_perSecondString);
+                AssetLoaderText.Append(_scenesAndAssetsStatus.ProblemString);
             }
         }
 
