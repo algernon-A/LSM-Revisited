@@ -18,6 +18,11 @@ namespace LoadingScreenModRevisited
         private readonly string _failedText = " (" + Translations.Translate("FAILED") + ')';
         private readonly string _duplicateText = " (" + Translations.Translate("DUPLICATE") + ')';
         private readonly string _missingText = " (" + Translations.Translate("MISSING") + ')';
+        private readonly string _failedString = Translations.Translate("FAILED");
+        private readonly string _missingString = Translations.Translate("MISSING");
+
+        // Missing/failed asset message.
+        private readonly StringBuilder _problemCountText;
 
         // Line counters.
         private readonly int _titleLength;
@@ -28,6 +33,7 @@ namespace LoadingScreenModRevisited
         private int _assetsNotFound = 0;
         private int _assetsFailed = 0;
         private int _assetsDuplicate = 0;
+        private bool _problemCountChanged = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ScenesAndAssetsStatus"/> class.
@@ -42,6 +48,10 @@ namespace LoadingScreenModRevisited
             m_text.AppendLine("</color>");
             m_text.AppendLine();
             _titleLength = m_text.Length;
+
+            // Intialize problem count stringbuilder.
+            _problemCountText = new StringBuilder(128);
+            _problemCountText.AppendLine();
         }
 
         /// <summary>
@@ -84,6 +94,57 @@ namespace LoadingScreenModRevisited
         }
 
         /// <summary>
+        /// Gets the current asset problem count string.
+        /// </summary>
+        internal StringBuilder ProblemString
+        {
+            get
+            {
+                // If nothing's changed since last time, just return the current text.
+                if (!_problemCountChanged)
+                {
+                    return _problemCountText;
+                }
+
+                // Status has changed; regenerate string.
+                _problemCountText.Length = 0;
+                if (_assetsFailed != 0)
+                {
+                    // Failed assets
+                    _problemCountText.Append("<color=red>");
+                    _problemCountText.Append(_assetsFailed);
+                    _problemCountText.Append(' ');
+                    _problemCountText.Append(_failedString);
+                    _problemCountText.Append("</color>");
+                }
+
+                if (_assetsNotFound != 0)
+                {
+                    // Append comma if we've also got failed assets.
+                    if (_assetsFailed != 0)
+                    {
+                        _problemCountText.Append(", ");
+                    }
+
+                    // Missing assets.
+                    _problemCountText.Append("<color=orange>");
+                    _problemCountText.Append(_assetsNotFound);
+                    _problemCountText.Append(' ');
+                    _problemCountText.Append(_missingString);
+                    _problemCountText.Append("</color> ");
+                }
+
+                // Trailing newline.
+                _problemCountText.AppendLine();
+
+                // Reset changed flag.
+                _problemCountChanged = false;
+
+                return _problemCountText;
+            }
+        }
+
+        /// <summary>
         /// Adds a text line to the output text.
         /// </summary>
         /// <param name="line">Line to add.</param>
@@ -110,6 +171,7 @@ namespace LoadingScreenModRevisited
         internal void AssetNotFound(string assetName)
         {
             ++_assetsNotFound;
+            _problemCountChanged = true;
             EnsureLines();
             m_text.Append("<color=orange>");
             m_text.Append(assetName);
@@ -124,6 +186,7 @@ namespace LoadingScreenModRevisited
         internal void AssetFailed(string assetName)
         {
             ++_assetsFailed;
+            _problemCountChanged = true;
             EnsureLines();
             m_text.Append("<color=red>");
             m_text.Append(assetName);
