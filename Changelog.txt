@@ -4,3 +4,4 @@
 - Update display name in content manager and options panel (LSM -> Loading Screen Mod)
 - Add failed and missing asset count display on loading screen
 - Add more curated images (thanks? to LeaderOfTheMonkeys)
+- Update API to restore GetMateral and GetMesh overloads with isLod parameter
