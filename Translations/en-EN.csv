@@ -104,6 +104,7 @@
 "SAVE_REPORTS_OF_ASSETS","Save reports of missing, failed and used assets"
 "CHECK_FOR_ERRORS","Check assets for errors"
 "DO_NOT_REPORT_THESE","Do not report these custom assets as missing or duplicate:"
+"DO_NOT_REPORT_THESE_TOOLTIP","When this is selected, the custom assets listed will not be included in missing or duplicate asset reports."
 "OPEN_FILE","Open text file"
 "CLICK_TO_OPEN","Click to open"
 "PREFAB_SKIPPING","Prefab skipping"

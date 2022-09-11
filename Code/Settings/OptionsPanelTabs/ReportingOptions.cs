@@ -60,6 +60,8 @@ namespace LoadingScreenModRevisited
                 reportCheck.isChecked = LSMRSettings.ReportAssets;
             }) as UICheckBox;
             UICheckBox hideCheck = reportingGroup.AddCheckbox(Translations.Translate("DO_NOT_REPORT_THESE"), LSMRSettings.HideAssets, (isChecked) => { LSMRSettings.HideAssets = isChecked; }) as UICheckBox;
+            hideCheck.tooltipBox = UIToolTips.WordWrapToolTip;
+            hideCheck.tooltip = Translations.Translate("DO_NOT_REPORT_THESE_TOOLTIP");
             UIButton openHideFileButton = reportingGroup.AddButton(Translations.Translate("OPEN_FILE"), LSMRSettings.OpenHideFile) as UIButton;
             openHideFileButton.tooltip = Translations.Translate("CLICK_TO_OPEN") + ' ' + LoadingScreenMod.Settings.HiddenAssetsFile;
         }
