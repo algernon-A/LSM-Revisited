@@ -415,5 +415,25 @@ namespace LoadingScreenModRevisited
                 Logging.LogException(e, "exception opening hidden assets file ", HiddenAssetsFile ?? "null");
             }
         }
+
+        /// <summary>
+        /// Opens the asset report directory.
+        /// </summary>
+        internal static void OpenReportDirectory()
+        {
+            // Check to see if the directory already exists.
+            if (Directory.Exists(s_reportsDirectory))
+            {
+                // Open it.
+                try
+                {
+                    Process.Start(s_reportsDirectory);
+                }
+                catch (Exception e)
+                {
+                    Logging.LogException(e, "exception opening reports directory ", s_reportsDirectory ?? "null");
+                }
+            }
+        }
     }
 }

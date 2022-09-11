@@ -36,8 +36,15 @@ namespace LoadingScreenModRevisited
                 System.Environment.NewLine + Translations.Translate("DUPLICATE_NAMES_EXPLAIN_1") +
                 System.Environment.NewLine + Translations.Translate("DUPLICATE_NAMES_EXPLAIN_2");
 
-            UICheckBox checkCheck = null;
-            UICheckBox reportCheck = reportingGroup.AddCheckbox(Translations.Translate("SAVE_REPORTS_IN_DIRECTORY"), LSMRSettings.ReportAssets, (isChecked) =>
+            UICheckBox reportCheck = null;
+            UICheckBox checkCheck = reportingGroup.AddCheckbox(Translations.Translate("CHECK_FOR_ERRORS"), LSMRSettings.CheckAssets, (isChecked) =>
+            {
+                LSMRSettings.CheckAssets = isChecked;
+                LSMRSettings.ReportAssets |= isChecked;
+                reportCheck.isChecked = LSMRSettings.ReportAssets;
+            }) as UICheckBox;
+
+            reportCheck = reportingGroup.AddCheckbox(Translations.Translate("SAVE_REPORTS_IN_DIRECTORY"), LSMRSettings.ReportAssets, (isChecked) =>
             {
                 LSMRSettings.ReportAssets = isChecked;
                 LSMRSettings.CheckAssets &= isChecked;
@@ -53,16 +60,16 @@ namespace LoadingScreenModRevisited
                 }
             });
 
-            checkCheck = reportingGroup.AddCheckbox(Translations.Translate("CHECK_FOR_ERRORS"), LSMRSettings.CheckAssets, (isChecked) =>
-            {
-                LSMRSettings.CheckAssets = isChecked;
-                LSMRSettings.ReportAssets |= isChecked;
-                reportCheck.isChecked = LSMRSettings.ReportAssets;
-            }) as UICheckBox;
-            UICheckBox hideCheck = reportingGroup.AddCheckbox(Translations.Translate("DO_NOT_REPORT_THESE"), LSMRSettings.HideAssets, (isChecked) => { LSMRSettings.HideAssets = isChecked; }) as UICheckBox;
+            UIButton openReportDirectoryButton = reportingGroup.AddButton(Translations.Translate("OPEN_DIRECTORY"), LSMRSettings.OpenReportDirectory) as UIButton;
+            openReportDirectoryButton.tooltip = Translations.Translate("CLICK_TO_OPEN") + ' ' + LoadingScreenMod.Settings.HiddenAssetsFile;
+
+            // Suprressing options.
+            UIHelper suppressingGroup = AddGroup(helper, Translations.Translate("DO_NOT_REPORT"));
+
+            UICheckBox hideCheck = suppressingGroup.AddCheckbox(Translations.Translate("DO_NOT_REPORT_THESE"), LSMRSettings.HideAssets, (isChecked) => { LSMRSettings.HideAssets = isChecked; }) as UICheckBox;
             hideCheck.tooltipBox = UIToolTips.WordWrapToolTip;
             hideCheck.tooltip = Translations.Translate("DO_NOT_REPORT_THESE_TOOLTIP");
-            UIButton openHideFileButton = reportingGroup.AddButton(Translations.Translate("OPEN_FILE"), LSMRSettings.OpenHideFile) as UIButton;
+            UIButton openHideFileButton = suppressingGroup.AddButton(Translations.Translate("OPEN_FILE"), LSMRSettings.OpenHideFile) as UIButton;
             openHideFileButton.tooltip = Translations.Translate("CLICK_TO_OPEN") + ' ' + LoadingScreenMod.Settings.HiddenAssetsFile;
         }
     }
