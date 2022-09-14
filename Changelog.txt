@@ -1,4 +1,9 @@
-﻿Version 0.5 -
+﻿Version 0.6 -
+
+- Compatibility updates for game version 1.15
+
+
+Version 0.5 -
 
 - Automatically create new LSMR settings file after reading legacy LSM settings (don't wait for user to open options panel)
 - Update display name in content manager and options panel (LSM -> Loading Screen Mod)

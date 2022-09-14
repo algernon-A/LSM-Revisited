@@ -319,7 +319,6 @@ namespace LoadingScreenModRevisited
             "BYNpq0K",
             "fG9WMwM",
             "VcTIBOP",
-            "zAQqAIi",
             "0mCvYIj",
             "puUjIqb",
             "IuzQQf1",
