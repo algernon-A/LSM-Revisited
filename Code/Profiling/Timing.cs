@@ -20,7 +20,7 @@ namespace LoadingScreenModRevisited
         // Text output.
         private static readonly StringBuilder TimeText = new StringBuilder(64);
 
-        // Text title lentgh.
+        // Text title length.
         private static int s_textTitleLength;
 
         /// <summary>
