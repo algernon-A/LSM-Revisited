@@ -1,4 +1,6 @@
-﻿- Add support for new radio stations (Paradise Radio and Shoreline Radio)
+﻿Version 0.6.1 -
+
+- Add support for new radio stations (Paradise Radio and Shoreline Radio)
 
 
 Version 0.6 -
