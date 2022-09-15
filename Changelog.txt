@@ -1,4 +1,7 @@
-﻿Version 0.6 -
+﻿- Add support for new radio stations (Paradise Radio and Shoreline Radio)
+
+
+Version 0.6 -
 
 - Compatibility updates for game version 1.15
 

@@ -1080,6 +1080,14 @@
             {
                 prefabScenes.Add(new KeyValuePair<string, float>("Station13Prefabs", 0.01f));
             }
+            if (DLC(1992292u))
+            {
+                prefabScenes.Add(new KeyValuePair<string, float>("Station14Prefabs", 0.01f));
+            }
+            if (DLC(1992293u))
+            {
+                prefabScenes.Add(new KeyValuePair<string, float>("Station15Prefabs", 0.01f));
+            }
 
             if (DLC(1992290u))
             {
