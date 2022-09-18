@@ -368,6 +368,16 @@ namespace LoadingScreenModRevisited
             "kzTuN7c",
             "FmKez9P",
             "y5qNrHQ",
+            "xQTNcYt",
+            "iW3lrEL",
+            "8iRpRA6",
+            "Qg64omI",
+            "7dp2I91",
+            "FXv5BIw",
+            "lbnOQ5X",
+            "1I6RxZC",
+            "HM1clW6",
+            "wYG9sRD",
         };
 
         /// <summary>
