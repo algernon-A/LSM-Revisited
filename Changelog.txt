@@ -1,4 +1,7 @@
-﻿Version 0.6.1 -
+﻿- Restore memory text color changes based on usage
+
+
+Version 0.6.1 -
 
 - Add support for new radio stations (Paradise Radio and Shoreline Radio)
 

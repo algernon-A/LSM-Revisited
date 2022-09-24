@@ -71,11 +71,11 @@ namespace LoadingScreenModRevisited
                 // Get system RAM use.
                 GlobalMemoryStatusEx(ref _statusEX);
                 ulong memInUse = _statusEX.TotalPhysical - _statusEX.AvailablePhysical;
-                double memUseRatio = memInUse / _statusEX.TotalPhysical;
+                double memUseRatio = (double)memInUse / _statusEX.TotalPhysical;
 
                 // Calculate pagefile stats.
                 ulong pageInInUse = _statusEX.TotalPageFile - _statusEX.AvailablePageFile;
-                double pageUseRatio = pageInInUse / _statusEX.TotalPageFile;
+                double pageUseRatio = (double)pageInInUse / _statusEX.TotalPageFile;
 
                 // Add usage strings.
                 SetMemoryText(_gameRAMTitle, memUseRatio, _processCounters.WorkingSetSize);
