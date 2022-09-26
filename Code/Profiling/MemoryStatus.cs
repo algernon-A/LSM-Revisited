@@ -153,15 +153,15 @@ namespace LoadingScreenModRevisited
         /// <returns>Text display color string.</returns>
         private string GetMemoryColor(double memUseRatio)
         {
-            if (memUseRatio >= 0.95d)
+            if (memUseRatio >= 0.98d)
             {
                 return "<color=red>";
             }
-            else if (memUseRatio >= 0.90d)
+            else if (memUseRatio >= 0.95d)
             {
                 return "<color=orange>";
             }
-            else if (memUseRatio >= 0.80d)
+            else if (memUseRatio >= 0.85d)
             {
                 return "<color=yellow>";
             }
