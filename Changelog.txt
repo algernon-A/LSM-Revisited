@@ -1,4 +1,5 @@
 ﻿- Restore memory text color changes based on usage
+- Add data tags in asset report for future Loading Order Mod use 
 
 
 Version 0.6.1 -

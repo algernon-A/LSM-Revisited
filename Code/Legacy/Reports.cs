@@ -364,7 +364,7 @@ namespace LoadingScreenMod
                 Item[] array2 = assets.Values.Which(8).ToArray();
                 if (array2.Length != 0)
                 {
-                    Report(array2, headings, types);
+                    Report("failed", array2, headings, types);
                     Array.Clear(array2, 0, array2.Length);
                     array2 = null;
                 }
@@ -438,7 +438,7 @@ namespace LoadingScreenMod
                     Item[] array4 = assets.Values.Which(6).ToArray();
                     if (array4.Length != 0)
                     {
-                        Report(array4, allHeadings, allTypes, 2, 2, 2, 2, 2, 2, 4);
+                        Report("used", array4, allHeadings, allTypes, 2, 2, 2, 2, 2, 2, 4);
                         Array.Clear(array4, 0, array4.Length);
                         array4 = null;
                     }
@@ -453,7 +453,7 @@ namespace LoadingScreenMod
                     if (array5.Length != 0)
                     {
                         Italics(Translations.Translate("ENABLED_BUT_UNNECESSARY"));
-                        Report(array5, headings, types);
+                        Report("unused", array5, headings, types);
                         Array.Clear(array5, 0, array5.Length);
                         array5 = null;
                     }
@@ -637,7 +637,7 @@ namespace LoadingScreenMod
             }
         }
 
-        private void Report(IEnumerable<Item> items, string[] headings, CustomAssetMetaData.Type[] types, params int[] usages)
+        private void Report(string lomTag, IEnumerable<Item> items, string[] headings, CustomAssetMetaData.Type[] types, params int[] usages)
         {
             int usage = 0;
             for (int i = 0; i < headings.Length; i++)
@@ -653,7 +653,7 @@ namespace LoadingScreenMod
                     Item[] array2 = array;
                     foreach (Item item in array2)
                     {
-                        Div(Ref(item));
+                        Div(Ref(item, lomTag));
                     }
                 }
             }
@@ -680,7 +680,7 @@ namespace LoadingScreenMod
                 Item[] array2 = array;
                 foreach (Item item2 in array2)
                 {
-                    string text = Ref(item2);
+                    string text = Ref(item2, "missing");
                     string text2 = (item2.NameChanged ? GetNameChangedDesc(item2) : string.Empty);
                     if (num == 2)
                     {
@@ -691,12 +691,13 @@ namespace LoadingScreenMod
                         Div(text);
                         continue;
                     }
+                    text = Ref(item2, "missingreq");
                     stringBuilder.Length = 0;
                     stringBuilder.Append(Translations.Translate("USED_BY")).Append(':');
                     int num2 = 0;
                     foreach (Item item3 in usedBy[item2])
                     {
-                        stringBuilder.Append("<br>" + Ref(item3));
+                        stringBuilder.Append("<br>" + Ref(item3, "missingreqs"));
                         if (num2 < 2 && FromWorkshop(item3))
                         {
                             num2++;
@@ -751,7 +752,7 @@ namespace LoadingScreenMod
                     Item[] array2 = array;
                     foreach (Item item2 in array2)
                     {
-                        stringBuilder.Append("<br>" + Ref(item2));
+                        stringBuilder.Append("<br>" + Ref(item2, "duplicate"));
                     }
                     Div("my", Cl("mi", text) + Cl("bx", stringBuilder.ToString()));
                     num++;
@@ -771,7 +772,7 @@ namespace LoadingScreenMod
                                                                  orderby g.Key.name
                                                                  select g)
             {
-                Div("my", Cl("mi", Ref(item.Key)) + Cl("bx", "<i>" + string.Join("<br>", (from e in item.Distinct()
+                Div("my", Cl("mi", Ref(item.Key, "warning")) + Cl("bx", "<i>" + string.Join("<br>", (from e in item.Distinct()
                                                                                           select e.value).ToArray()) + "</i>"));
             }
         }
@@ -819,7 +820,7 @@ namespace LoadingScreenMod
         {
             List<Package> packages = Instance<CustomDeserializer>.instance.GetPackages(missing.packageName);
             Package.Asset asset = ((packages.Count == 1) ? LoadingScreenModRevisited.AssetLoader.FindMainAssetRef(packages[0]) : null);
-            string text = ((asset != null) ? Ref(asset.package.packageName, LoadingScreenModRevisited.AssetLoader.ShortName(asset.name)) : Ref(missing.packageName));
+            string text = (asset != null) ? Ref(asset.package.packageName, LoadingScreenModRevisited.AssetLoader.ShortName(asset.name), "name_missing") : Ref(missing.packageName);
             return Translations.Translate("YOU_HAVE") + ' ' + text + ' ' +
                 Translations.Translate("DOES_NOT_CONTAIN") + " " + Enc(missing.name) +
                 ".<br><a target=\"_blank\" href=\"https://steamcommunity.com/workshop/filedetails/discussion/667342976/141136086940263481/\">" +
@@ -964,22 +965,22 @@ namespace LoadingScreenMod
             return false;
         }
 
-        private static string Ref(Item item)
+        private static string Ref(Item item, string lomTag)
         {
             if (!item.NameChanged)
             {
-                return Ref(item.packageName, item.name);
+                return Ref(item.packageName, item.name, lomTag);
             }
             return Enc(item.name);
         }
 
-        private static string Ref(string packageName, string name)
+        private static string Ref(string packageName, string name, string lomTag)
         {
             if (!FromWorkshop(packageName))
             {
                 return Enc(name);
             }
-            return "<a target=\"_blank\" href=\"https://steamcommunity.com/sharedfiles/filedetails/?id=" + packageName + "\">" + Enc(name) + "</a>";
+            return "<a data-lomtag=\"" + lomTag + "\" target=\"_blank\" href=\"https://steamcommunity.com/sharedfiles/filedetails/?id=" + packageName + "\">" + Enc(name) + "</a>";
         }
 
         private static string Ref(string packageName)
