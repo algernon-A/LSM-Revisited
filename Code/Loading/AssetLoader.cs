@@ -491,17 +491,22 @@ namespace LoadingScreenModRevisited
 
             logMessage.Append("milliseconds: ");
             logMessage.Append(Timing.ElapsedMilliseconds);
+            logMessage.AppendLine();
 
             try
             {
                 // Include memory usage if on Windows.
                 if (Application.platform == RuntimePlatform.WindowsPlayer)
                 {
-                    MemoryAPI.GetUsage(out var pfMegas, out var wsMegas);
-                    logMessage.Append(" RAM: ");
-                    logMessage.Append(wsMegas);
-                    logMessage.Append(" Page: ");
-                    logMessage.Append(pfMegas);
+                    MemoryAPI.GetMemoryUse(out double gameUsedPhyiscal, out double sysUsedPhysical, out double totalPhysical, out double gameUsedPage, out double sysUsedPage, out double totalPage);
+                    logMessage.Append(" Game RAM use: ");
+                    logMessage.AppendLine(gameUsedPhyiscal.ToString("N2"));
+                    logMessage.Append(" System RAM use: ");
+                    logMessage.AppendLine(sysUsedPhysical.ToString("N2"));
+                    logMessage.Append(" Game page use: ");
+                    logMessage.AppendLine(gameUsedPage.ToString("N2"));
+                    logMessage.Append(" System page use: ");
+                    logMessage.AppendLine(sysUsedPage.ToString("N2"));
                 }
 
                 // Include sharing status.

@@ -503,9 +503,13 @@ namespace LoadingScreenMod
                 if (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)
                 {
                     H3(Translations.Translate("PEAK_MEMORY_USAGE"));
-                    Stat("RAM", ((float)MemoryAPI.wsMax / 1024f).ToString("F1"), "GB");
-                    Stat(Translations.Translate("VIRTUAL_MEMORY"), ((float)MemoryAPI.pfMax / 1024f).ToString("F1"), "GB");
+                    LoadingScreenModRevisited.MemoryAPI.GetPeakMemoryUse(out double maxGameRAM, out double maxGamePage, out double maxSysRAM, out double maxSysPage);
+                    Stat(Translations.Translate("GAME_RAM_USE"), maxGameRAM.ToString("N2"), "GB");
+                    Stat(Translations.Translate("GAME_PAGE_USE"), maxGamePage.ToString("N2"), "GB");
+                    Stat(Translations.Translate("SYS_RAM_USE"), maxSysRAM.ToString("N2"), "GB");
+                    Stat(Translations.Translate("SYS_PAGE_USE"), maxSysPage.ToString("N2"), "GB");
                 }
+
                 H3(Translations.Translate("SHARING_OF_RESOURCES"));
                 Stat(Translations.Translate("TEXTURES"), texturesShared, Translations.Translate("TIMES"));
                 Stat(Translations.Translate("MATERIALS"), materialsShared, Translations.Translate("TIMES"));
