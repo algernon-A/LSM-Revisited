@@ -3,6 +3,7 @@
 - Restore memory text color changes based on usage (Windows only)
 - Add additional system peak use memory data in asset reports (Windows only)
 - Add data tags in asset report for future Loading Order Mod use
+- Add more curated background images (thanks to Teddy Radko)
 
 
 Version 0.6.1 -
