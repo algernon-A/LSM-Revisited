@@ -107,11 +107,11 @@ namespace LoadingScreenModRevisited
         /// <returns>Text display color string.</returns>
         private string GetMemoryColor(double memUseRatio)
         {
-            if (memUseRatio >= 0.98d)
+            if (memUseRatio >= 0.97d)
             {
                 return "<color=red>";
             }
-            else if (memUseRatio >= 0.95d)
+            else if (memUseRatio >= 0.92d)
             {
                 return "<color=orange>";
             }
