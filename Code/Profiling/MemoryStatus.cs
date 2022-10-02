@@ -5,7 +5,6 @@
 
 namespace LoadingScreenModRevisited
 {
-    using System;
     using System.Text;
     using AlgernonCommons.Translation;
 
