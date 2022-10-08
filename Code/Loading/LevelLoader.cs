@@ -82,7 +82,7 @@
         private static int s_startMillis;
 
         // TODO: refactor this out.
-        private static FastList<LoadingProfiler.Event> s_loadingProfilerEvents = (FastList<LoadingProfiler.Event>)typeof(LoadingProfiler).GetField("m_events", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Singleton<LoadingManager>.instance.m_loadingProfilerSimulation);
+        private static readonly FastList<LoadingProfiler.Event> s_loadingProfilerEvents = (FastList<LoadingProfiler.Event>)typeof(LoadingProfiler).GetField("m_events", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Singleton<LoadingManager>.instance.m_loadingProfilerSimulation);
 
         /// <summary>
         /// Gets a value indicating whether save deserialization has finished.
