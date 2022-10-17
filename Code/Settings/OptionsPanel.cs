@@ -19,7 +19,7 @@ namespace LoadingScreenModRevisited
         public OptionsPanel()
         {
             // Add tabstrip.
-            UITabstrip tabStrip = UITabstrips.AddTabStrip(this, 0f, 0f, OptionsPanelManager<OptionsPanel>.PanelWidth, OptionsPanelManager<OptionsPanel>.PanelHeight, out UITabContainer _);
+            UITabstrip tabStrip = UITabstrips.AddTabstrip(this, 0f, 0f, OptionsPanelManager<OptionsPanel>.PanelWidth, OptionsPanelManager<OptionsPanel>.PanelHeight, out UITabContainer _);
             tabStrip.clipChildren = false;
 
             // Add tabs and panels.
