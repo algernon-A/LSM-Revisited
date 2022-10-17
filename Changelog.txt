@@ -1,4 +1,10 @@
-﻿Version 0.7 -
+﻿Version 0.7.1 -
+
+- Add 'open skip file' button
+- Update AlgernonCommons
+
+
+Version 0.7 -
 
 - Restore memory text color changes based on usage (Windows only)
 - Add additional system peak use memory data in asset reports (Windows only)
