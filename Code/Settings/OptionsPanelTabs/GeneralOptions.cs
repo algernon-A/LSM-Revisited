@@ -5,6 +5,8 @@
 
 namespace LoadingScreenModRevisited
 {
+    using System;
+    using System.Diagnostics;
     using AlgernonCommons;
     using AlgernonCommons.Translation;
     using AlgernonCommons.UI;
@@ -79,6 +81,8 @@ namespace LoadingScreenModRevisited
             UIHelper skippingGroup = AddGroup(helper, Translations.Translate("PREFAB_SKIPPING"), Translations.Translate("PREFAB_MEANS"));
             UICheckBox skipCheck = skippingGroup.AddCheckbox(Translations.Translate("SKIP_THESE"), LSMRSettings.SkipPrefabs, (isChecked) => { LSMRSettings.SkipPrefabs = isChecked; }) as UICheckBox;
             TextField(skippingGroup, LSMRSettings.SkipFile, (value) => LSMRSettings.SkipFile = value);
+            UIButton openSkipFileButton = skippingGroup.AddButton(Translations.Translate("OPEN_FILE"), OpenSkipFile) as UIButton;
+            openSkipFileButton.tooltip = Translations.Translate("CLICK_TO_OPEN");
 
             // Recovery options.
             UIHelper recoveryGroup = AddGroup(helper, Translations.Translate("SAFE_MODE"), Translations.Translate("AUTOMATICALLY_DISABLED"));
@@ -91,6 +95,22 @@ namespace LoadingScreenModRevisited
             recoveryGroup.AddCheckbox(Translations.Translate("REMOVE_VEHICLE_AGENTS"), LSMRSettings.RemoveVehicles, (isChecked) => { LSMRSettings.RemoveVehicles = isChecked; });
             recoveryGroup.AddCheckbox(Translations.Translate("REMOVE_CITIZEN_AGENTS"), LSMRSettings.RemoveCitizenInstances, (isChecked) => { LSMRSettings.RemoveCitizenInstances = isChecked; });
             recoveryGroup.AddCheckbox(Translations.Translate("TRY_TO_RECOVER"), LSMRSettings.TryRecover, (isChecked) => { LSMRSettings.TryRecover = isChecked; });
+        }
+
+        /// <summary>
+        /// Opens the current skip prefabs file.
+        /// </summary>
+        private void OpenSkipFile()
+        {
+            // Open the file.
+            try
+            {
+                Process.Start(LSMRSettings.SkipFile);
+            }
+            catch (Exception e)
+            {
+                Logging.LogException(e, "exception opening skip file ", LSMRSettings.SkipFile);
+            }
         }
     }
 }
