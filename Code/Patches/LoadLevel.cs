@@ -99,7 +99,7 @@ namespace LoadingScreenModRevisited
             // Reset progress.
             __instance.SetSceneProgress(0f);
             CityName = asset?.name ?? "NewGame";
-            Instance<CustomDeserializer>.Create();
+            new CustomDeserializer();
             Instance<Fixes>.Create().Deploy();
 
             // Initialize loading screen.

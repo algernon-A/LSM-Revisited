@@ -7,6 +7,7 @@ namespace LSM
 {
     using ColossalFramework.Packaging;
     using LoadingScreenMod;
+    using LoadingScreenModRevisited;
     using UnityEngine;
 
     /// <summary>

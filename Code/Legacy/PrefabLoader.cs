@@ -406,7 +406,7 @@ namespace LoadingScreenMod
 
         internal bool AllPrefabsAvailable()
         {
-            return CustomDeserializer.AllAvailable<BuildingInfo>(simulationPrefabs, new HashSet<string>());
+            return LoadingScreenModRevisited.CustomDeserializer.AllAvailable<BuildingInfo>(simulationPrefabs, new HashSet<string>());
         }
 
         private bool IsSimulationPrefab(string name, string replace)

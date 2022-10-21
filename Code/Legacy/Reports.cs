@@ -157,7 +157,7 @@ namespace LoadingScreenMod
 
         internal void AddPackage(Package p)
         {
-            Package.Asset asset = LoadingScreenModRevisited.AssetLoader.FindMainAssetRef(p);
+            Package.Asset asset = LoadingScreenModRevisited.AssetLoader.FindMainAsset(p);
             string text = asset?.fullName;
             if (!string.IsNullOrEmpty(text) && !IsKnown(text))
             {
@@ -277,7 +277,7 @@ namespace LoadingScreenMod
         {
             foreach (Item item in missingItems)
             {
-                if (item.HasPackageName && Instance<CustomDeserializer>.instance.HasPackages(item.packageName))
+                if (item.HasPackageName && LoadingScreenModRevisited.CustomDeserializer.Instance.HasPackages(item.packageName))
                 {
                     item.NameChanged = true;
                 }
@@ -822,8 +822,8 @@ namespace LoadingScreenMod
 
         private static string GetNameChangedDesc(Item missing)
         {
-            List<Package> packages = Instance<CustomDeserializer>.instance.GetPackages(missing.packageName);
-            Package.Asset asset = ((packages.Count == 1) ? LoadingScreenModRevisited.AssetLoader.FindMainAssetRef(packages[0]) : null);
+            List<Package> packages = LoadingScreenModRevisited.CustomDeserializer.Instance.GetPackages(missing.packageName);
+            Package.Asset asset = ((packages.Count == 1) ? LoadingScreenModRevisited.AssetLoader.FindMainAsset(packages[0]) : null);
             string text = (asset != null) ? Ref(asset.package.packageName, LoadingScreenModRevisited.AssetLoader.ShortName(asset.name), "name_missing") : Ref(missing.packageName);
             return Translations.Translate("YOU_HAVE") + ' ' + text + ' ' +
                 Translations.Translate("DOES_NOT_CONTAIN") + " " + Enc(missing.name) +
@@ -1037,7 +1037,7 @@ namespace LoadingScreenMod
 
         private Item FindItem(Package package)
         {
-            string text = LoadingScreenModRevisited.AssetLoader.FindMainAssetRef(package)?.fullName;
+            string text = LoadingScreenModRevisited.AssetLoader.FindMainAsset(package)?.fullName;
             if (string.IsNullOrEmpty(text) || !assets.TryGetValue(text, out var value))
             {
                 return null;

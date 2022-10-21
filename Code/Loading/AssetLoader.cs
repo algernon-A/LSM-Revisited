@@ -103,7 +103,6 @@ namespace LoadingScreenModRevisited
                 Util.DebugPrint("IAssetDataExtensions:", list.Count);
             }
 
-            Instance<CustomDeserializer>.instance.Setup();
             Instance<Sharing>.Create();
             if (_recordAssets)
             {
@@ -394,7 +393,7 @@ namespace LoadingScreenModRevisited
             LoadingScreen.s_instance.SetProgress(0.85f, 1f, _assetCount, _assetCount, _beginMillis, _lastMillis);
             loadingManager.m_loadingProfilerCustomContent.EndLoading();
             Util.DebugPrint(_assetCount, "custom assets loaded in", _lastMillis - _beginMillis);
-            Instance<CustomDeserializer>.instance.SetCompleted();
+            CustomDeserializer.Instance.SetCompleted();
             LogStatus();
             _assetStack.Clear();
             Report();
@@ -472,7 +471,7 @@ namespace LoadingScreenModRevisited
         /// </summary>
         /// <param name="package">Package.</param>
         /// <returns>Main asset.</returns>
-        internal static Package.Asset FindMainAssetRef(Package package) => package.FilterAssets(Package.AssetType.Object).LastOrDefault((Package.Asset a) => a.name.EndsWith("_Data"));
+        internal static Package.Asset FindMainAsset(Package package) => package.FilterAssets(Package.AssetType.Object).LastOrDefault((Package.Asset a) => a.name.EndsWith("_Data"));
 
         /// <summary>
         /// Logs memory usage and other stats.
@@ -726,7 +725,7 @@ namespace LoadingScreenModRevisited
             string text = assetRef?.fullName;
             if (text == null)
             {
-                assetRef = FindMainAssetRef(package);
+                assetRef = FindMainAsset(package);
                 text = assetRef?.fullName;
             }
 
@@ -897,7 +896,7 @@ namespace LoadingScreenModRevisited
                 Package.Asset finalAsset = null;
                 try
                 {
-                    Instance<CustomDeserializer>.instance.AddPackage(package);
+                    CustomDeserializer.Instance.AddPackage(package);
                     Package.Asset mainAsset = package.Find(package.packageMainAsset);
                     string packageName = package.packageName;
 
@@ -1427,7 +1426,7 @@ namespace LoadingScreenModRevisited
         /// </summary>
         /// <param name="assetRef">Asset.</param>
         /// <returns>True if the asset is the package's main asset, false otherwise.</returns>
-        private bool IsMainAssetRef(Package.Asset assetRef) => (object)FindMainAssetRef(assetRef.package) == assetRef;
+        private bool IsMainAssetRef(Package.Asset assetRef) => (object)FindMainAsset(assetRef.package) == assetRef;
 
         /// <summary>
         /// Triggers LSM report generation and disposes of sharing instance.
@@ -1515,7 +1514,7 @@ namespace LoadingScreenModRevisited
                 }
 
                 // Iterate through all packages.
-                foreach (object item in Instance<CustomDeserializer>.instance.AllPackages())
+                foreach (object item in LoadingScreenModRevisited.CustomDeserializer.Instance.AllPackages)
                 {
                     // Single-package items.
                     if (item is Package singlePackage)
@@ -1550,7 +1549,7 @@ namespace LoadingScreenModRevisited
         private void EnableDisableAssets(Package package)
         {
             // Determine if package is in use.
-            bool isUsed = Instance<Reports>.instance.IsUsed(FindMainAssetRef(package));
+            bool isUsed = Instance<Reports>.instance.IsUsed(FindMainAsset(package));
 
             // Enable/disable each item in the package based on used status.
             foreach (Package.Asset item in package.FilterAssets(UserAssetType.CustomAssetMetaData))

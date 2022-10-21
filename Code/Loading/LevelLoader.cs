@@ -510,7 +510,7 @@
                         // LSM insert.
                         if (s_optimizeThumbs)
                         {
-                            Instance<CustomDeserializer>.instance.ReceiveAvailable();
+                            CustomDeserializer.Instance.ReceiveAvailableThumbnails();
                         }
 
                         // Resume gamecode.
@@ -539,7 +539,7 @@
                         // LSM insert.
                         if (s_optimizeThumbs)
                         {
-                            Instance<CustomDeserializer>.instance.ReceiveAvailable();
+                            CustomDeserializer.Instance.ReceiveAvailableThumbnails();
                         }
 
                         // Resume gamecode.
@@ -555,7 +555,7 @@
                 // LSM insert.
                 if (s_optimizeThumbs)
                 {
-                    Instance<CustomDeserializer>.instance.ReceiveRemaining();
+                    CustomDeserializer.Instance.ReceiveRemainingThumbnails();
                 }
 
                 // End LSM insert.
@@ -711,7 +711,7 @@
             // Dispose of loader instances.
             AssetLoader.Dispose();
             Instance<Fixes>.instance.Dispose();
-            Instance<CustomDeserializer>.instance.Dispose();
+            CustomDeserializer.Instance.Dispose();
 
             // Stop profiling.
             Logging.KeyMessage("loading completed at ", Timing.ElapsedMilliseconds);

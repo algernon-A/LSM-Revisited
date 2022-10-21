@@ -205,7 +205,7 @@ namespace LoadingScreenModRevisited
         private object DeserializeSingleObject(Type type, Type expectedType)
         {
             // Attempt custom deserialization.
-            object obj = Instance<CustomDeserializer>.instance.CustomDeserialize(_package, type, _reader);
+            object obj = CustomDeserializer.Instance.CustomDeserialize(_package, type, _reader);
             if (obj != null)
             {
                 // Success - return object.
