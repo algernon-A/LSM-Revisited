@@ -8,7 +8,6 @@ namespace LoadingScreenModRevisited
     using System;
     using System.IO;
     using System.Reflection;
-    using System.Runtime.CompilerServices;
     using AlgernonCommons;
     using ColossalFramework.Importers;
     using ColossalFramework.Packaging;
@@ -21,6 +20,12 @@ namespace LoadingScreenModRevisited
     /// </summary>
     internal sealed class AssetDeserializer
     {
+        // Delegates to game private methods.
+        private static DeserializeHeaderDelegate s_deserializeHeader;
+        private static DeserializeHeaderNameDelegate s_deserializeHeaderName;
+        private static ResolveLegacyMemberDelegate s_resolveLegacyMember;
+
+        // Package fields.
         private readonly Package _package;
         private readonly PackageReader _reader;
         private readonly bool _isTop;
@@ -39,6 +44,41 @@ namespace LoadingScreenModRevisited
             _reader = reader;
             _isMain = isMain;
             _isTop = isTop;
+        }
+
+        // Delegate for private method ColossalFramework.Packaging.AssetSerializer.DeserializeHeader.
+        private delegate bool DeserializeHeaderDelegate(out Type type, PackageReader reader);
+
+        // Delegate for private method ColossalFramework.Packaging.AssetSerializer.DeserializeHeader.
+        private delegate bool DeserializeHeaderNameDelegate(out Type type, out string name, PackageReader reader);
+
+        // Delegate for private method ColossalFramework.Packaging.PackageDeserializer.ResolveLegacyMember.
+        private delegate string ResolveLegacyMemberDelegate(Type fieldType, Type classType, string member);
+
+        /// <summary>
+        /// Initializes delegates to game private methods.
+        /// </summary>
+        internal static void SetDelegates()
+        {
+            s_deserializeHeader = (DeserializeHeaderDelegate)Delegate.CreateDelegate(
+                typeof(DeserializeHeaderDelegate),
+                AccessTools.Method(
+                    Type.GetType("ColossalFramework.Packaging.AssetSerializer,ColossalManaged"),
+                    "DeserializeHeader",
+                    new Type[] { typeof(Type).MakeByRefType(), typeof(PackageReader) }));
+
+            s_deserializeHeaderName = (DeserializeHeaderNameDelegate)Delegate.CreateDelegate(
+                typeof(DeserializeHeaderNameDelegate),
+                AccessTools.Method(
+                    Type.GetType("ColossalFramework.Packaging.AssetSerializer,ColossalManaged"),
+                    "DeserializeHeader",
+                    new Type[] { typeof(Type).MakeByRefType(), typeof(string).MakeByRefType(), typeof(PackageReader) }));
+
+            s_resolveLegacyMember = (ResolveLegacyMemberDelegate)Delegate.CreateDelegate(
+                typeof(ResolveLegacyMemberDelegate),
+                AccessTools.Method(
+                    typeof(PackageDeserializer),
+                    "ResolveLegacyMember"));
         }
 
         /// <summary>
@@ -98,37 +138,6 @@ namespace LoadingScreenModRevisited
         }
 
         /// <summary>
-        /// Harmomny reverse-patched method stub for AssetSerializer.DeserializeHeader(out Type, PackageReader).
-        /// </summary>
-        /// <param name="type">Asset type.</param>
-        /// <param name="reader">PackageReader instance.</param>
-        /// <returns>True if a known type was extracted, false otherwise (after throwing an exception).</returns>
-        /// <exception cref="NotImplementedException">Thrown if reverse patch wasn't successful.</exception>
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static bool DeserializeHeader(out Type type, PackageReader reader)
-        {
-            Logging.Error("DeserializeHeader reverse Harmony patch wasn't applied with args ", reader);
-            type = null;
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Harmomny reverse-patched method stub for AssetSerializer.DeserializeHeader(out Type, out string, PackageReader).
-        /// </summary>
-        /// <param name="type">Asset type.</param>
-        /// <param name="name">Asset name.</param>
-        /// <param name="reader">PackageReader instance.</param>
-        /// <returns>True if a known type was extracted, false otherwise (after throwing an exception).</returns>
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static bool DeserializeHeaderName(out Type type, out string name, PackageReader reader)
-        {
-            Logging.Error("DeserializeHeaderName reverse Harmony patch wasn't applied with args ", reader);
-            type = null;
-            name = null;
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
         /// Gets a reader for the specified stream.
         /// </summary>
         /// <param name="stream">Stream to read from.</param>
@@ -152,7 +161,7 @@ namespace LoadingScreenModRevisited
         /// <returns>Deserialized object.</returns>
         private object Deserialize()
         {
-            if (!DeserializeHeader(out Type type, _reader))
+            if (!s_deserializeHeader(out Type type, _reader))
             {
                 return null;
             }
@@ -243,7 +252,7 @@ namespace LoadingScreenModRevisited
             int fieldCount = _reader.ReadInt32();
             for (int i = 0; i < fieldCount; ++i)
             {
-                if (!DeserializeHeaderName(out Type headerType, out string name, _reader))
+                if (!s_deserializeHeaderName(out Type headerType, out string name, _reader))
                 {
                     continue;
                 }
@@ -251,7 +260,7 @@ namespace LoadingScreenModRevisited
                 FieldInfo field = type.GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                 if (field == null && resolveMember)
                 {
-                    field = type.GetField(ResolveLegacyMember(headerType, type, name), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                    field = type.GetField(s_resolveLegacyMember(headerType, type, name), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                 }
 
                 // Rapid reads of simple types.
@@ -333,7 +342,7 @@ namespace LoadingScreenModRevisited
             // Unwrapped ColossalFramework.Packaging.PackageDeserializer.DeserializeComponent.
             for (int i = 0; i < count; ++i)
             {
-                if (!DeserializeHeader(out Type type, _reader))
+                if (!s_deserializeHeader(out Type type, _reader))
                 {
                     continue;
                 }
@@ -591,23 +600,6 @@ namespace LoadingScreenModRevisited
             animator.applyRootMotion = _reader.ReadBoolean();
             animator.updateMode = (AnimatorUpdateMode)_reader.ReadInt32();
             animator.cullingMode = (AnimatorCullingMode)_reader.ReadInt32();
-        }
-
-        /// <summary>
-        /// Harmomny reverse-patched method stub for PackageDeserializer.ResolveLegacyMember.
-        /// Attempts to resolve any legacy members using the game's legacy member handler.
-        /// </summary>
-        /// <param name="fieldType">Field type to resolve.</param>
-        /// <param name="classType">Class type to resolve.</param>
-        /// <param name="member">Member name.</param>
-        /// <returns>Updated member name (if available), or original text.</returns>
-        [HarmonyReversePatch]
-        [HarmonyPatch(typeof(PackageDeserializer), "ResolveLegacyMember")]
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        private string ResolveLegacyMember(Type fieldType, Type classType, string member)
-        {
-            Logging.Error("DeserializeHeaderName reverse Harmony patch wasn't applied with args ", fieldType, classType, member);
-            throw new NotImplementedException();
         }
     }
 }

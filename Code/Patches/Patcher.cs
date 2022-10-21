@@ -9,7 +9,6 @@ namespace LoadingScreenModRevisited
     using System.Reflection;
     using AlgernonCommons;
     using AlgernonCommons.Patching;
-    using ColossalFramework.Packaging;
     using HarmonyLib;
 
     /// <summary>
@@ -57,28 +56,6 @@ namespace LoadingScreenModRevisited
         /// Peforms any additional actions (such as custom patching) after PatchAll is called.
         /// </summary>
         /// <param name="harmonyInstance">Haromny instance for patching.</param>
-        protected override void OnPatchAll(Harmony harmonyInstance) => ApplyAssetSerializerReverses(harmonyInstance);
-
-        /// <summary>
-        /// Applies reverse patches to access methods of private type ColossalFramework.Packaging.AssetSerializer.
-        /// </summary>
-        /// <param name="harmonyInstance">Haromny instance for patching.</param>
-        private void ApplyAssetSerializerReverses(Harmony harmonyInstance)
-        {
-            // No try...catch here, if something goes wrong we want to have the unmanaged exception (at least for now).
-            // Any failure needs to be immediately obvious to the user.
-            // TODO: More graceful disabling and user notification.
-
-            // Reflect AssetSerializer target methods.
-            Type assetSerializer = Type.GetType("ColossalFramework.Packaging.AssetSerializer,ColossalManaged");
-            MethodInfo deserializeHeader = assetSerializer.GetMethod("DeserializeHeader", BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(Type).MakeByRefType(), typeof(PackageReader) }, null);
-            MethodInfo deserializeHeaderName = assetSerializer.GetMethod("DeserializeHeader", BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(Type).MakeByRefType(), typeof(string).MakeByRefType(), typeof(PackageReader) }, null);
-
-            // Reverse patch.
-            ReversePatcher reversePatcher = harmonyInstance.CreateReversePatcher(deserializeHeader, new HarmonyMethod(typeof(AssetDeserializer).GetMethod(nameof(AssetDeserializer.DeserializeHeader), BindingFlags.Static | BindingFlags.NonPublic)));
-            ReversePatcher reversePatcherName = harmonyInstance.CreateReversePatcher(deserializeHeaderName, new HarmonyMethod(typeof(AssetDeserializer).GetMethod(nameof(AssetDeserializer.DeserializeHeaderName), BindingFlags.Static | BindingFlags.NonPublic)));
-            reversePatcher.Patch();
-            reversePatcherName.Patch();
-        }
+        protected override void OnPatchAll(Harmony harmonyInstance) => AssetDeserializer.SetDelegates();
     }
 }

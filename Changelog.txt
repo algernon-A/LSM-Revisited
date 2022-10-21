@@ -1,4 +1,7 @@
-﻿Version 0.7.1 -
+﻿- Replace now-redundant Harmony reverse patches with delegates
+
+
+Version 0.7.1 -
 
 - Add 'open skip file' button
 - Update AlgernonCommons
