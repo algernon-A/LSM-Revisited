@@ -1,4 +1,5 @@
 ﻿- Replace now-redundant Harmony reverse patches with delegates
+- Refactor CustomDeserializer
 
 
 Version 0.7.1 -
