@@ -78,16 +78,5 @@ namespace LoadingScreenMod
             }
             return list;
         }
-
-        public static Dictionary<string, int> GetEnumMap(Type enumType)
-        {
-            Array values = Enum.GetValues(enumType);
-            Dictionary<string, int> dictionary = new Dictionary<string, int>(values.Length);
-            foreach (object item in values)
-            {
-                dictionary[item.ToString().ToUpperInvariant()] = (int)item;
-            }
-            return dictionary;
-        }
     }
 }

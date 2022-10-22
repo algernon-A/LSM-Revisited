@@ -75,9 +75,9 @@ namespace LoadingScreenMod
         }
 
 
-        internal static Matcher SkipMatcher { get; private set; }
+        internal static LoadingScreenModRevisited.Skipping SkipMatcher { get; private set; }
 
-        internal static Matcher ExceptMatcher { get; private set; }
+        internal static LoadingScreenModRevisited.Skipping ExceptMatcher { get; private set; }
 
         internal static string DefaultSavePath => Path.Combine(Path.Combine(DataLocation.localApplicationData, "Report"), "LoadingScreenMod");
 
@@ -139,7 +139,7 @@ namespace LoadingScreenMod
                     DateTime lastWriteTimeUtc;
                     if (flag && LoadingScreenModRevisited.LSMRSettings.SkipFileTimestamp != (lastWriteTimeUtc = File.GetLastWriteTimeUtc(LoadingScreenModRevisited.LSMRSettings.SkipFile)))
                     {
-                        Matcher[] array = Matcher.Load(LoadingScreenModRevisited.LSMRSettings.SkipFile);
+                        LoadingScreenModRevisited.Skipping[] array = LoadingScreenModRevisited.Skipping.Load(LoadingScreenModRevisited.LSMRSettings.SkipFile);
                         SkipMatcher = array[0];
                         ExceptMatcher = array[1];
                         LoadingScreenModRevisited.LSMRSettings.SkipFileTimestamp = lastWriteTimeUtc;
