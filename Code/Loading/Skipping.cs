@@ -20,7 +20,7 @@ namespace LoadingScreenModRevisited
         private const int Buildings = 0;
         private const int Vehicles = 1;
         private const int Props = 2;
-        private const int Levels = 2;
+        private const int Levels = 3;
         private const int NameTypes = 3;
 
         // Service index.
