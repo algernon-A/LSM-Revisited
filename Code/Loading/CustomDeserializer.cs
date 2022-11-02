@@ -170,14 +170,9 @@ namespace LoadingScreenModRevisited
         internal static CustomDeserializer Instance => s_instance;
 
         /// <summary>
-        /// Gets the current collection of recorded packages.
-        /// </summary>
-        internal ICollection<object> AllPackages => _packages.Values;
-
-        /// <summary>
         /// Gets the active asset array.
         /// </summary>
-        private static Package.Asset[] Assets
+        internal static Package.Asset[] Assets
         {
             get
             {
@@ -190,6 +185,11 @@ namespace LoadingScreenModRevisited
                 return s_instance._assets;
             }
         }
+
+        /// <summary>
+        /// Gets the current collection of recorded packages.
+        /// </summary>
+        internal ICollection<object> AllPackages => _packages.Values;
 
         /// <summary>
         /// Gets the hashset of skipped props.

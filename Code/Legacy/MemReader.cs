@@ -102,13 +102,5 @@ namespace LoadingScreenMod
             stream.Skip(count);
             return array;
         }
-
-        // [HarmonyPatch(typeof(PackageReader), nameof(PackageReader.ReadByteArray))]
-        // [HarmonyPrefix]
-        private static bool DreadByteArray(ref byte[] __result, PackageReader __instance)
-        {
-            __result = __instance.ReadBytes(__instance.ReadInt32());
-            return false;
-        }
     }
 }

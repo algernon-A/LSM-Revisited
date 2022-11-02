@@ -100,7 +100,6 @@ namespace LoadingScreenModRevisited
             __instance.SetSceneProgress(0f);
             CityName = asset?.name ?? "NewGame";
             new CustomDeserializer();
-            Instance<Fixes>.Create().Deploy();
 
             // Initialize loading screen.
             LoadingScreen.s_instance = new LoadingScreen();

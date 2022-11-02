@@ -11,7 +11,6 @@
     using ColossalFramework.UI;
     using LoadingScreenMod;
     using UnityEngine;
-    using UnityEngine.Profiling;
     using UnityEngine.SceneManagement;
 
     /// <summary>
@@ -684,9 +683,9 @@
         {
             if (SteamHelper.IsDLCOwned((SteamHelper.DLC)dlc))
             {
-                if (LSMRSettings.SkipPrefabs && LoadingScreenMod.Settings.SkipMatcher != null)
+                if (LSMRSettings.SkipPrefabs && Settings.SkipMatcher != null)
                 {
-                    return !LoadingScreenMod.Settings.SkipMatcher.Matches((int)dlc);
+                    return !Settings.SkipMatcher.Matches((int)dlc);
                 }
 
                 return true;
@@ -710,7 +709,6 @@
 
             // Dispose of loader instances.
             AssetLoader.Dispose();
-            Instance<Fixes>.instance.Dispose();
             CustomDeserializer.Instance.Dispose();
 
             // Stop profiling.
