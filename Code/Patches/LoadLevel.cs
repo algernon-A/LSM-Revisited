@@ -7,6 +7,7 @@ namespace LoadingScreenModRevisited
 {
     using System;
     using System.Collections;
+    using AlgernonCommons;
     using AlgernonCommons.Patching;
     using ColossalFramework.Packaging;
     using HarmonyLib;
@@ -80,19 +81,18 @@ namespace LoadingScreenModRevisited
             PatcherManager<Patcher>.Instance.PatchCustomAnimationLoader();
 
             // Report settings.
-            Util.DebugPrint(
-                "Options: 2205",
-                LSMRSettings.LoadEnabled,
-                LSMRSettings.LoadUsed,
-                LSMRSettings.ShareTextures,
-                LSMRSettings.ShareMaterials,
-                LSMRSettings.ShareMeshes,
-                LSMRSettings.OptimizeThumbs,
-                LSMRSettings.ReportAssets,
-                LSMRSettings.CheckAssets,
-                LSMRSettings.SkipPrefabs,
-                LSMRSettings.HideAssets,
-                true);
+            Logging.KeyMessage("Load enabled assets: ", LSMRSettings.LoadEnabled ? "enabled" : "disabled");
+            Logging.KeyMessage("Load used assets: ", LSMRSettings.LoadUsed ? "enabled" : "disabled");
+            Logging.KeyMessage("Texture sharing: ", LSMRSettings.ShareTextures ? "enabled" : "disabled");
+            Logging.KeyMessage("Material sharing: ", LSMRSettings.ShareMaterials ? "enabled" : "disabled");
+            Logging.KeyMessage("Mesh sharing: ", LSMRSettings.ShareMeshes ? "enabled" : "disabled");
+            Logging.KeyMessage("Thumbnail optimization: ", LSMRSettings.OptimizeThumbs ? "enabled" : "disabled");
+            Logging.KeyMessage("Asset reporting: ", LSMRSettings.ReportAssets ? "enabled" : "disabled");
+            Logging.KeyMessage("Asset checking: ", LSMRSettings.CheckAssets ? "enabled" : "disabled");
+            Logging.KeyMessage("Prefab skipping: ", LSMRSettings.SkipPrefabs ? "enabled" : "disabled");
+            Logging.KeyMessage("Asset reporting suppression: ", LSMRSettings.HideAssets ? "enabled" : "disabled");
+
+            // Apply settings.
             LevelLoader.s_optimizeThumbs = LSMRSettings.OptimizeThumbs;
             LSMRSettings.EnableDisable = LSMRSettings.LoadUsed && ShiftE;
 
