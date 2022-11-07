@@ -1,5 +1,6 @@
 ﻿Version 0.8 -
 
+- Refactor skipping code (preparation for adding new skipping types)
 - Replace now-redundant Harmony reverse patches with delegates
 - Refactor CustomDeserializer
 
