@@ -176,6 +176,12 @@ namespace LoadingScreenModRevisited
         {
             get
             {
+                // Ensure instance.
+                if (s_instance == null)
+                {
+                    s_instance = new CustomDeserializer();
+                }
+
                 // Create new list if it hasn't already been done.
                 if (s_instance._assets == null)
                 {

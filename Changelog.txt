@@ -1,4 +1,9 @@
-﻿Version 0.8 -
+﻿Verion 0.8.0.1 hotfix -
+
+- Implement workaround for unexpected CSUR Toolbox behaviour
+
+
+Version 0.8 -
 
 - Refactor skipping code (preparation for adding new skipping types)
 - Replace now-redundant Harmony reverse patches with delegates
