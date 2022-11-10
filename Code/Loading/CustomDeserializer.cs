@@ -1545,7 +1545,7 @@ namespace LoadingScreenModRevisited
         /// <returns>True if loading was successful, false otherwise.</returns>
         private bool Load(ref string fullName, Package.Asset asset)
         {
-            // Onlyh attempt to load if the 'load used assets' setting is enabled.
+            // Only attempt to load if the 'load used assets' setting is enabled.
             if (_loadUsed)
             {
                 // Check to see if the asset exists.

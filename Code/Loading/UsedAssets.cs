@@ -134,7 +134,7 @@ namespace LoadingScreenModRevisited
         /// Checks to see if the given custom asset of either of two given types is used in the current save.
         /// </summary>
         /// <param name="assetRef">Asset.</param>
-        /// <param name="type1">First possilbe asset type.</param>
+        /// <param name="type1">First possible asset type.</param>
         /// <param name="type2">Second possible asset type.</param>
         /// <returns>True if the custom asset is in use, false otherwise.</returns>
         internal bool IsUsed(Package.Asset assetRef, CustomAssetMetaData.Type type1, CustomAssetMetaData.Type type2)
