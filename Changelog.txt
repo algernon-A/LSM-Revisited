@@ -1,4 +1,6 @@
-﻿- Add check for subsidary road elevations if 'load used' is in effect and the primary road elevation isn't in use
+﻿Version 0.8.1 -
+
+- Add check for subsidary road elevations if 'load used' is in effect and the primary road elevation isn't in use
 
 
 Verion 0.8.0.1 hotfix -
