@@ -27,7 +27,7 @@ namespace LoadingScreenModRevisited
         private HashSet<string>[] _allAssets;
 
         // Hashsets of packages.
-        private HashSet<string> _allPackages = new HashSet<string>();
+        private HashSet<string> _usedPackages = new HashSet<string>();
 
         // Hashsets of assets.
         private HashSet<string> _buildingAssets = new HashSet<string>();
@@ -52,14 +52,14 @@ namespace LoadingScreenModRevisited
             };
 
             // Populate used assets hashets - buildings and nets require special treatment.
-            GetUsedBuildings(_allPackages, _buildingAssets);
-            GetUsedNets(_allPackages, _netAssets);
+            GetUsedBuildings(_usedPackages, _buildingAssets);
+            GetUsedNets(_usedPackages, _netAssets);
 
             // Generic types.
-            GetUsedAssets<CitizenInfo>(_allPackages, _citizenAssets);
-            GetUsedAssets<PropInfo>(_allPackages, _propAssets);
-            GetUsedAssets<TreeInfo>(_allPackages, _treeAssets);
-            GetUsedAssets<VehicleInfo>(_allPackages, _vehicleAssets);
+            GetUsedAssets<CitizenInfo>(_usedPackages, _citizenAssets);
+            GetUsedAssets<PropInfo>(_usedPackages, _propAssets);
+            GetUsedAssets<TreeInfo>(_usedPackages, _treeAssets);
+            GetUsedAssets<VehicleInfo>(_usedPackages, _vehicleAssets);
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace LoadingScreenModRevisited
         internal void Dispose()
         {
             // Clear all arrays and hashsets.
-            _allPackages.Clear();
+            _usedPackages.Clear();
             _buildingAssets.Clear();
             _propAssets.Clear();
             _treeAssets.Clear();
@@ -90,7 +90,7 @@ namespace LoadingScreenModRevisited
             _netAssets.Clear();
 
             // Clear all references.
-            _allPackages = null;
+            _usedPackages = null;
             _buildingAssets = null;
             _propAssets = null;
             _treeAssets = null;
@@ -112,7 +112,7 @@ namespace LoadingScreenModRevisited
         internal bool GotPackage(string packageName)
         {
             // Check to see if we've got this package in our list.
-            if (!_allPackages.Contains(packageName))
+            if (!_usedPackages.Contains(packageName))
             {
                 // Return true if this is a custom package, otherwise false.
                 return packageName.IndexOf('.') >= 0;
@@ -149,6 +149,14 @@ namespace LoadingScreenModRevisited
             // Asset was in list for type 1 - return true.
             return true;
         }
+
+
+        /// <summary>
+        /// Checks to see if the given package is in use.
+        /// </summary>
+        /// <param name="packageName">Package name.</param>
+        /// <returns>True if the package is in use, false otherwise.</returns>
+        internal bool IsPackageUsed(string packageName) => _usedPackages.Contains(packageName);
 
         /// <summary>
         /// Reports missing assets.

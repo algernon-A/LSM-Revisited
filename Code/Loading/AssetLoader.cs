@@ -937,8 +937,17 @@ namespace LoadingScreenModRevisited
                         }
                     }
 
+                    // Check for subsidary road elevations.
+                    if (!isUsed & (type == CustomAssetMetaData.Type.Road))
+                    {
+                        if (UsedAssets.Instance.IsPackageUsed(packageName))
+                        {
+                            isUsed = true;
+                        }
+                    }
+
                     // If not enabled or in use, skip.
-                    if (!(enabled || isUsed))
+                    if (!(enabled | isUsed))
                     {
                         continue;
                     }
