@@ -940,7 +940,7 @@ namespace LoadingScreenModRevisited
                     // Check for subsidary road elevations.
                     if (!isUsed & (type == CustomAssetMetaData.Type.Road))
                     {
-                        if (UsedAssets.Instance.IsPackageUsed(packageName))
+                        if (UsedAssets.Instance != null && UsedAssets.Instance.IsPackageUsed(packageName))
                         {
                             isUsed = true;
                         }
