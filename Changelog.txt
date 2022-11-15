@@ -1,4 +1,9 @@
-﻿Version 0.8.1.1 -
+﻿Version 1.0 -
+
+- Support game version 1.15.1
+
+
+Version 0.8.1.1 -
 
 - Add null check to GetLoadQueue
 
