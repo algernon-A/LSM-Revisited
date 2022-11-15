@@ -297,6 +297,22 @@ namespace LoadingScreenModRevisited
                 }
             }
 
+            if (LevelLoader.DLC(2144480u))
+            {
+                Package.Asset asset4 = PackageManager.FindAssetByName("System." + DistrictStyle.kModderPack14StyleName);
+                if (asset4 != null && asset4.isEnabled)
+                {
+                    DistrictStyle districtStyle = new DistrictStyle(DistrictStyle.kModderPack14StyleName, builtIn: true);
+                    Util.InvokeVoid(Singleton<LoadingManager>.instance, "AddChildrenToBuiltinStyle", GameObject.Find("Modder Pack 14"), districtStyle, false);
+                    if (LSMRSettings.SkipPrefabs)
+                    {
+                        PrefabLoader.RemoveSkippedFromStyle(districtStyle);
+                    }
+
+                    districtStyles.Add(districtStyle);
+                }
+            }
+
             // LSM insert.
             // Unload any skipped assets.
             if (LSMRSettings.SkipPrefabs)
@@ -884,7 +900,8 @@ namespace LoadingScreenModRevisited
             List<Package.Asset> assetRefList = new List<Package.Asset>(8);
             HashSet<string> assetNames = new HashSet<string>();
             string previousPackageName = string.Empty;
-            SteamHelper.DLC_BitMask dLC_BitMask = ~SteamHelper.GetOwnedDLCMask();
+            SteamHelper.ExpansionBitMask ownedExpansionMask = ~SteamHelper.GetOwnedExpansionMask();
+            SteamHelper.ModderPackBitMask ownedModderPackMask = ~SteamHelper.GetOwnedModderPackMask();
 
             // 'Load enabled' and 'load used' settings.
             bool loadEnabled = LSMRSettings.LoadEnabled & !LSMRSettings.EnableDisable;
@@ -919,7 +936,8 @@ namespace LoadingScreenModRevisited
                     bool isUsed = loadUsed && UsedAssets.Instance.IsUsed(finalAsset, type);
 
                     // Disable asset if relevant DLC isn't active.
-                    enabled &= (AssetImporterAssetTemplate.GetAssetDLCMask(assetRefs) & dLC_BitMask) == 0;
+                    AssetImporterAssetTemplate.GetAssetDLCMask(assetRefs, out SteamHelper.ExpansionBitMask expansionMask, out SteamHelper.ModderPackBitMask modderPackMask);
+                    enabled &= (expansionMask & ownedExpansionMask) == 0 & (modderPackMask & ownedModderPackMask) == 0;
 
                     // If we're loading used assets, and the main asset isn't used, but there are other assets in the package - check if any of the other assets are used.
                     if (assetCount > 1 & !isUsed & loadUsed)
@@ -1523,7 +1541,7 @@ namespace LoadingScreenModRevisited
                 }
 
                 // Iterate through all packages.
-                foreach (object item in LoadingScreenModRevisited.CustomDeserializer.Instance.AllPackages)
+                foreach (object item in CustomDeserializer.Instance.AllPackages)
                 {
                     // Single-package items.
                     if (item is Package singlePackage)

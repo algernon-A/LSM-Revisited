@@ -47,7 +47,9 @@ namespace LoadingScreenModRevisited
         private const int TypeVehicleInfoDoor = 70;
         private const int TypeBuildingInfo = 74;
         private const int TypeBuildingInfoSub = 77;
+        private const int TypeBuildingSpawnPoint = 80;
         private const int TypeDepotSpawnPoint = 81;
+        private const int TypePropInfo = 85;
         private const int TypePropInfoEffect = 86;
         private const int TypePropInfoVariation = 89;
         private const int TypeVehicleInfoMesh = 95;
@@ -96,7 +98,9 @@ namespace LoadingScreenModRevisited
             {
                 [typeof(ModInfo)] = TypeModInfo,
                 [typeof(TerrainModify.Surface)] = TypeInt32,
+#pragma warning disable CS0618 // Type or member is obsolete
                 [typeof(SteamHelper.DLC_BitMask)] = TypeInt32,
+#pragma warning restore CS0618 // Type or member is obsolete
                 [typeof(ItemClass.Availability)] = TypeInt32,
                 [typeof(ItemClass.Placement)] = TypeInt32,
                 [typeof(ItemClass.Service)] = TypeInt32,
@@ -135,7 +139,9 @@ namespace LoadingScreenModRevisited
                 [typeof(VehicleInfo.VehicleDoor)] = TypeVehicleInfoDoor,
                 [typeof(BuildingInfo)] = TypeBuildingInfo,
                 [typeof(BuildingInfo.SubInfo)] = TypeBuildingInfoSub,
+                [typeof(BuildingAI.SpawnPoint)] = TypeBuildingSpawnPoint,
                 [typeof(DepotAI.SpawnPoint)] = TypeDepotSpawnPoint,
+                [typeof(PropInfo)] = TypePropInfo,
                 [typeof(PropInfo.Effect)] = TypePropInfoEffect,
                 [typeof(PropInfo.Variation)] = TypePropInfoVariation,
                 [typeof(VehicleInfo.MeshInfo)] = TypeVehicleInfoMesh,
@@ -541,8 +547,14 @@ namespace LoadingScreenModRevisited
                 case TypeBuildingInfoSub:
                     return ReadBuildingInfoSubInfo(package, reader);
 
+                case TypeBuildingSpawnPoint:
+                    return ReadBuildingAISpawnPoint(reader);
+
                 case TypeDepotSpawnPoint:
                     return ReadDepotAISpawnPoint(reader);
+
+                case TypePropInfo:
+                    return ReadPropInfo(package, reader);
 
                 case TypePropInfoEffect:
                     return ReadPropInfoEffect(reader);
@@ -683,7 +695,7 @@ namespace LoadingScreenModRevisited
         /// <returns>New NetInfo.Lane.</returns>
         private NetInfo.Lane ReadNetInfoLane(Package package, PackageReader reader)
         {
-            return new NetInfo.Lane
+            NetInfo.Lane lane = new NetInfo.Lane
             {
                 m_position = reader.ReadSingle(),
                 m_width = reader.ReadSingle(),
@@ -700,6 +712,20 @@ namespace LoadingScreenModRevisited
                 m_centerPlatform = reader.ReadBoolean(),
                 m_elevated = reader.ReadBoolean(),
             };
+
+            // 1.15.1 addition.
+            if (package.version >= 9)
+            {
+                lane.m_vehicleCategoryPart1 = (VehicleInfo.VehicleCategoryPart1)reader.ReadInt32();
+                lane.m_vehicleCategoryPart2 = (VehicleInfo.VehicleCategoryPart2)reader.ReadInt32();
+            }
+            else
+            {
+                lane.m_vehicleCategoryPart1 = VehicleInfo.VehicleCategoryPart1.All;
+                lane.m_vehicleCategoryPart2 = VehicleInfo.VehicleCategoryPart2.All;
+            }
+
+            return lane;
         }
 
         /// <summary>
@@ -898,6 +924,32 @@ namespace LoadingScreenModRevisited
             node.m_connectGroup = (NetInfo.ConnectGroup)reader.ReadInt32();
             node.m_directConnect = reader.ReadBoolean();
             node.m_emptyTransparent = reader.ReadBoolean();
+
+            // 1.15.1 addition.
+            if (package.version >= 9)
+            {
+                node.m_flagsRequired2 = (NetNode.Flags2)reader.ReadInt32();
+                node.m_flagsForbidden2 = (NetNode.Flags2)reader.ReadInt32();
+                node.m_tagsRequired = reader.ReadStringArray();
+                node.m_tagsForbidden = reader.ReadStringArray();
+                node.m_forbidAnyTags = reader.ReadBoolean();
+                node.m_minSameTags = reader.ReadByte();
+                node.m_maxSameTags = reader.ReadByte();
+                node.m_minOtherTags = reader.ReadByte();
+                node.m_maxOtherTags = reader.ReadByte();
+            }
+            else
+            {
+                node.m_flagsRequired2 = NetNode.Flags2.None;
+                node.m_flagsForbidden2 = NetNode.Flags2.None;
+                node.m_tagsRequired = new string[0];
+                node.m_tagsForbidden = new string[0];
+                node.m_forbidAnyTags = false;
+                node.m_minSameTags = 0;
+                node.m_maxSameTags = 7;
+                node.m_minOtherTags = 0;
+                node.m_maxOtherTags = 7;
+            }
 
             return node;
         }
@@ -1107,6 +1159,22 @@ namespace LoadingScreenModRevisited
         }
 
         /// <summary>
+        /// Deserializes a BuildingAI.SpawnPoint.
+        /// </summary>
+        /// <param name="reader">PackageReader instance.</param>
+        /// <returns>New BuildingAI.SpawnPoint.</returns>
+        private BuildingAI.SpawnPoint ReadBuildingAISpawnPoint(PackageReader reader)
+        {
+            return new BuildingAI.SpawnPoint
+            {
+                m_position = reader.ReadVector3(),
+                m_target = reader.ReadVector3(),
+                m_vehicleCategoryPart1 = (VehicleInfo.VehicleCategoryPart1)reader.ReadInt32(),
+                m_vehicleCategoryPart2 = (VehicleInfo.VehicleCategoryPart2)reader.ReadInt32(),
+            };
+        }
+
+        /// <summary>
         /// Deserializes a DepotAI.SpawnPoint.
         /// </summary>
         /// <param name="reader">PackageReader instance.</param>
@@ -1118,6 +1186,23 @@ namespace LoadingScreenModRevisited
                 m_position = reader.ReadVector3(),
                 m_target = reader.ReadVector3(),
             };
+        }
+
+        /// <summary>
+        /// Deserializes a PropInfo.
+        /// </summary>
+        /// <param name="package">Package to deserialize.</param>
+        /// <param name="reader">PackageReader instance.</param>
+        /// <returns>New PropInfo.</returns>
+        private PropInfo ReadPropInfo(Package package, PackageReader reader)
+        {
+            // 1.15.1 addition.
+            if (package.version >= 9)
+            {
+                return PrefabCollection<PropInfo>.FindLoaded(reader.ReadString());
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -1179,10 +1264,7 @@ namespace LoadingScreenModRevisited
                 GameObject gameObject = AssetDeserializer.Instantiate(package.FindByChecksum(checksum), isMain: true, isTop: false) as GameObject;
                 meshInfo.m_subInfo = gameObject.GetComponent<VehicleInfoBase>();
                 gameObject.SetActive(value: false);
-                if (meshInfo.m_subInfo.m_lodObject != null)
-                {
-                    meshInfo.m_subInfo.m_lodObject.SetActive(value: false);
-                }
+                meshInfo.m_subInfo.m_lodObject?.SetActive(value: false);
             }
             else
             {
@@ -1213,10 +1295,7 @@ namespace LoadingScreenModRevisited
                 GameObject gameObject = AssetDeserializer.Instantiate(package.FindByChecksum(checksum), isMain: true, isTop: false) as GameObject;
                 meshInfo.m_subInfo = gameObject.GetComponent<BuildingInfoBase>();
                 gameObject.SetActive(value: false);
-                if (meshInfo.m_subInfo.m_lodObject != null)
-                {
-                    meshInfo.m_subInfo.m_lodObject.SetActive(value: false);
-                }
+                meshInfo.m_subInfo.m_lodObject?.SetActive(value: false);
             }
             else
             {
@@ -1226,6 +1305,17 @@ namespace LoadingScreenModRevisited
             // Flags etc.
             meshInfo.m_flagsForbidden = (Building.Flags)reader.ReadInt32();
             meshInfo.m_flagsRequired = (Building.Flags)reader.ReadInt32();
+
+            // 1.15.1 addition.
+            if (package.version >= 9)
+            {
+                meshInfo.m_flagsRequired2 = (Building.Flags2)reader.ReadInt32();
+            }
+            else
+            {
+                meshInfo.m_flagsRequired2 = Building.Flags2.None;
+            }
+
             meshInfo.m_position = reader.ReadVector3();
             meshInfo.m_angle = reader.ReadSingle();
 
@@ -1396,6 +1486,22 @@ namespace LoadingScreenModRevisited
             else
             {
                 prop.m_upgradable = prop.m_tree != null && prop.m_repeatDistance > 0f;
+            }
+
+            // 1.15.1 additions.
+            if (package.version >= 9)
+            {
+                prop.m_startFlagsRequired2 = (NetNode.Flags2)reader.ReadInt32();
+                prop.m_startFlagsForbidden2 = (NetNode.Flags2)reader.ReadInt32();
+                prop.m_endFlagsRequired2 = (NetNode.Flags2)reader.ReadInt32();
+                prop.m_endFlagsForbidden2 = (NetNode.Flags2)reader.ReadInt32();
+            }
+            else
+            {
+                prop.m_startFlagsRequired2 = NetNode.Flags2.None;
+                prop.m_startFlagsForbidden2 = NetNode.Flags2.None;
+                prop.m_endFlagsRequired2 = NetNode.Flags2.None;
+                prop.m_endFlagsForbidden2 = NetNode.Flags2.None;
             }
 
             return prop;

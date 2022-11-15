@@ -1078,13 +1078,25 @@
             {
                 prefabScenes.Add(new KeyValuePair<string, float>("Station13Prefabs", 0.01f));
             }
+
             if (DLC(1992292u))
             {
                 prefabScenes.Add(new KeyValuePair<string, float>("Station14Prefabs", 0.01f));
             }
+
             if (DLC(1992293u))
             {
                 prefabScenes.Add(new KeyValuePair<string, float>("Station15Prefabs", 0.01f));
+            }
+
+            if (DLC(2144483u))
+            {
+                prefabScenes.Add(new KeyValuePair<string, float>("Station16Prefabs", 0.01f));
+            }
+
+            if (DLC(2144482u))
+            {
+                prefabScenes.Add(new KeyValuePair<string, float>("Station17Prefabs", 0.01f));
             }
 
             if (DLC(1992290u))
@@ -1169,6 +1181,16 @@
                 prefabScenes.Add(new KeyValuePair<string, float>("ModderPack10Prefabs", 0.03f));
             }
 
+            if (DLC(2144481u))
+            {
+                prefabScenes.Add(new KeyValuePair<string, float>("ModderPack13Prefabs", 0.03f));
+            }
+
+            if (DLC(2144480u))
+            {
+                prefabScenes.Add(new KeyValuePair<string, float>("ModderPack14Prefabs", 0.03f));
+            }
+
             Package.Asset europeanStyles = PackageManager.FindAssetByName("System." + DistrictStyle.kEuropeanStyleName);
             if (europeanStyles != null && europeanStyles.isEnabled)
             {
@@ -1182,8 +1204,9 @@
                 }
             }
 
-            loadingManager.m_ownedMask1 = SteamHelper.GetOwnedDLCMask();
-            loadingManager.m_ownedMask2 = SteamHelper.GetOwnedDLCMask2();
+            loadingManager.m_ownedExpansionMask = SteamHelper.GetOwnedExpansionMask();
+            loadingManager.m_ownedModderPackMask = SteamHelper.GetOwnedModderPackMask();
+            loadingManager.m_ownedRadioMask = SteamHelper.GetOwnedRadioMask();
 
             return prefabScenes;
         }
