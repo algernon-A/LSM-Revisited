@@ -1,4 +1,7 @@
-﻿Version 1.0 -
+﻿- automatically create any missing skipfile directories and files when opening a specified skip file via the options panel
+
+
+Version 1.0 -
 
 - Support game version 1.15.1
 

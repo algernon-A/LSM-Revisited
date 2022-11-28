@@ -7,6 +7,7 @@ namespace LoadingScreenModRevisited
 {
     using System;
     using System.Diagnostics;
+    using System.IO;
     using AlgernonCommons;
     using AlgernonCommons.Translation;
     using AlgernonCommons.UI;
@@ -102,6 +103,29 @@ namespace LoadingScreenModRevisited
         /// </summary>
         private void OpenSkipFile()
         {
+            try
+            {
+                // Create directory if it doesn't already exist.
+                string directoryName = Path.GetDirectoryName(LSMRSettings.SkipFile);
+                if (!Directory.Exists(directoryName))
+                {
+                    Directory.CreateDirectory(directoryName);
+                }
+
+                // Create file if it doesn't already exist.
+                if (!File.Exists(LSMRSettings.SkipFile))
+                {
+                    using (StreamWriter writer = new StreamWriter(LSMRSettings.SkipFile))
+                    {
+                        writer.Write("# Loading Screen Mod skip file");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Logging.LogException(e, "exception creating skip file ", LSMRSettings.SkipFile);
+            }
+
             // Open the file.
             try
             {

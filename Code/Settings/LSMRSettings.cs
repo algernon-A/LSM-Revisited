@@ -188,6 +188,7 @@ namespace LoadingScreenModRevisited
         internal static string SkipFile
         {
             get => s_skipFile;
+
             set
             {
                 // Trim any whitespace (untrusted input).
