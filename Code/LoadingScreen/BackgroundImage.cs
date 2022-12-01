@@ -643,11 +643,16 @@ namespace LoadingScreenModRevisited
         /// </summary>
         private static void PopulateImgurRandomList()
         {
+            // Abort due to imgur changes.
+            return;
+
             // Don't do anything if the list is already populated.
             if (RandomImages.Count > 0)
             {
                 return;
             }
+
+            Logging.Message("populating random image list");
 
             try
             {
@@ -655,16 +660,32 @@ namespace LoadingScreenModRevisited
                 ServicePointManager.ServerCertificateValidationCallback += CertificateValidationFudge;
 
                 // Get the top images on /r/CitiesSkylines on imgur.
-                string imgurFeed = new WebClient().DownloadString("http://imgur.com/r/CitiesSkylines/top/hit?scrolled");
+                WebClient webClient = new WebClient();
+                string imgurFeed = webClient.DownloadString("http://imgur.com/t/CitiesSkylines/hit?scrolled");
+
+                Logging.Message("downloaded ", imgurFeed.Length);
 
                 // This is what Regex was made for.
-                MatchCollection imageCandidates = Regex.Matches(imgurFeed, @"<div id=\""(.*)\"" class=\""post\"">");
-                foreach (Match match in imageCandidates)
+                MatchCollection albumCandidates = Regex.Matches(imgurFeed, @"<a class=\""image-list-link\"" href=\""(.*)\"" data-page=\""0\"">");
+
+                // Look at each matched album.
+                foreach (Match album in albumCandidates)
                 {
-                    // Extract image name and add to list.
-                    string matchValue = match.Value;
-                    int index = matchValue.IndexOf("<div id=\"");
-                    RandomImages.Add(matchValue.Substring(index + 9, 7));
+                    int index = album.Value.IndexOf("href=\"");
+                    string albumLink = "http://imgur.com" + album.Value.Substring(index + 6, 25);
+                    Logging.Message("downloading album ", albumLink);
+                    string albumFeed = webClient.DownloadString(albumLink);
+                    Logging.Message("downloaded ", albumFeed.Length);
+
+                    MatchCollection imageCandidates = Regex.Matches(albumFeed, @"<meta property=\""og:image\"" data-react-helmet=\""true\"" content=\""https://i.imgur.com/.*\.jpeg");
+                    foreach (Match match in imageCandidates)
+                    {
+                        // Extract image name and add to list.
+                        string matchValue = match.Value;
+                        index = matchValue.IndexOf("https://i.imgur.com/");
+                        Logging.Message("found image ", matchValue.Substring(index + 20, 7));
+                        RandomImages.Add(matchValue.Substring(index + 20, 7));
+                    }
                 }
 
                 Logging.Message("downloaded ", RandomImages.Count, " imgur URLs");

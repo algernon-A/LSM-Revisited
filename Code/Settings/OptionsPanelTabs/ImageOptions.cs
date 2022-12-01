@@ -61,11 +61,12 @@ namespace LoadingScreenModRevisited
             _imgurCuratedCheck.tooltip = Translations.Translate("IMGUR_CURATED_TIP");
 
             // Add random imgur image check.
-            _imgurRandomCheck = sourceGroup.AddCheckbox(
+            /*_imgurRandomCheck = sourceGroup.AddCheckbox(
                 Translations.Translate("IMGUR_TOP"),
                 BackgroundImage.CurrentImageMode == BackgroundImage.ImageMode.ImgurRandom,
                 RandomCheckChanged) as UICheckBox;
             _imgurRandomCheck.tooltip = Translations.Translate("IMGUR_TOP_TIP");
+            */
 
             // Random local image check.
             _localRandomCheck = sourceGroup.AddCheckbox(
