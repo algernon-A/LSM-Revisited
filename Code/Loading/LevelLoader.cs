@@ -177,8 +177,8 @@ namespace LoadingScreenModRevisited
                 try
                 {
                     // Check building prefab loading status.
-                    Instance<PrefabLoader>.Create().LookupSimulationPrefabs();
-                    return Instance<PrefabLoader>.instance.AllPrefabsAvailable();
+                    PrefabLoader.Create().PopulateSimulationPrefabs();
+                    return PrefabLoader.Instance.AreSimulationPrefabsAvailable;
                 }
                 catch (Exception e)
                 {
@@ -329,7 +329,7 @@ namespace LoadingScreenModRevisited
                             }
 
                             // Implement skipping.
-                            Instance<PrefabLoader>.Create().SetSkippedPrefabs(SkippedPrefabs);
+                            PrefabLoader.Create().SkippedPrefabs = SkippedPrefabs;
                             loadingManager.QueueLoadingAction(PrefabLoader.RemoveSkippedFromSimulation());
                         }
 
@@ -418,7 +418,7 @@ namespace LoadingScreenModRevisited
                 // LSM insert.
                 if (LSMRSettings.SkipPrefabs)
                 {
-                    Instance<PrefabLoader>.Create().Deploy();
+                    PrefabLoader.Create().Deploy();
                 }
 
                 // LSM levels check.
@@ -457,7 +457,7 @@ namespace LoadingScreenModRevisited
                 }
 
                 // LSM inserts.
-                Instance<PrefabLoader>.instance?.Revert();
+                PrefabLoader.Instance?.Revert();
                 if (LSMRSettings.SkipPrefabs)
                 {
                     loadingManager.QueueLoadingAction(PrefabLoader.RemoveSkippedFromSimulation());
@@ -619,7 +619,7 @@ namespace LoadingScreenModRevisited
             // Drop gamecode re PopsManager.
 
             // LSM inserts.
-            Instance<PrefabLoader>.instance?.Dispose();
+            PrefabLoader.Instance?.Dispose();
             loadingManager.QueueLoadingAction(LoadingComplete());
 
             // Add save to list of known fast loads.

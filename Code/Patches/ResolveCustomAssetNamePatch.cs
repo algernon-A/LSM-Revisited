@@ -23,8 +23,8 @@ namespace LoadingScreenModRevisited
         /// <returns>Always false (never execute original method).</returns>
         public static bool Prefix(ref string __result, string name)
         {
-            // Check for names without periods and that haven't failed.
-            if (name.IndexOf('.') < 0 && !name.StartsWith("lsm___") && !LevelLoader.HasAssetFailed(name))
+            // Check for names without periods, that haven't been skipped, and that haven't failed.
+            if (name.IndexOf('.') < 0 && !name.StartsWith(PrefabLoader.SkipPrefix) && !LevelLoader.HasAssetFailed(name))
             {
                 Package.Asset[] array = CustomDeserializer.Assets;
                 for (int i = 0; i < array.Length; i++)

@@ -213,7 +213,7 @@ namespace LoadingScreenModRevisited
                 // Create new list if it hasn't already been done.
                 if (_skippedProps == null)
                 {
-                    _skippedProps = Instance<PrefabLoader>.instance?.SkippedProps;
+                    _skippedProps = PrefabLoader.Instance?.SkippedProps;
                     if (_skippedProps == null || _skippedProps.Count == 0)
                     {
                         // Disable skipping if there's no skip list.
