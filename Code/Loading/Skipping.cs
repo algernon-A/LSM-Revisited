@@ -20,8 +20,10 @@ namespace LoadingScreenModRevisited
         private const int Buildings = 0;
         private const int Vehicles = 1;
         private const int Props = 2;
-        private const int Levels = 3;
-        private const int NameTypes = 3;
+        private const int Trees = 3;
+        private const int Levels = 4;
+        private const int NameTypes = 4;
+        private const int NumTypes = 5;
 
         // Service index.
         private const int NoService = -1;
@@ -33,10 +35,11 @@ namespace LoadingScreenModRevisited
             new NameMatcher(),
             new NameMatcher(),
             new NameMatcher(),
+            new NameMatcher(),
         };
 
         // Regex pattern matching dictionary.
-        private readonly Dictionary<int, PatternMatcher> _patternMatchers = new Dictionary<int, PatternMatcher>(4);
+        private readonly Dictionary<int, PatternMatcher> _patternMatchers = new Dictionary<int, PatternMatcher>(NumTypes);
 
         // DLC matching hashset.
         private readonly HashSet<int> _dlcMatchers = new HashSet<int>();
@@ -99,6 +102,12 @@ namespace LoadingScreenModRevisited
                     if (categoryTitle.StartsWith("PROPS"))
                     {
                         categoryIndex = Props;
+                        continue;
+                    }
+
+                    if (categoryTitle.StartsWith("TREES"))
+                    {
+                        categoryIndex = Trees;
                         continue;
                     }
 

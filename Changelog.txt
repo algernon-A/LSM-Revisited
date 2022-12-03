@@ -1,4 +1,5 @@
-﻿- Automatically create any missing skipfile directories and files when opening a specified skip file via the options panel
+﻿- Implement tree skipping
+- Automatically create any missing skipfile directories and files when opening a specified skip file via the options panel
 
 
 Version 1.0 -

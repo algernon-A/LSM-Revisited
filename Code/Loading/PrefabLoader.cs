@@ -25,7 +25,7 @@ namespace LoadingScreenModRevisited
         /// <summary>
         /// The number of supported skipping types.
         /// </summary>
-        internal const int SkipTypes = 3;
+        internal const int SkipTypes = 4;
 
         /// <summary>
         /// The prefix applied to skipped prefab names.
@@ -36,6 +36,7 @@ namespace LoadingScreenModRevisited
         private const int Buildings = 0;
         private const int Vehicles = 1;
         private const int Props = 2;
+        private const int Trees = 3;
 
         // Interator routine string.
         private const string IteratorRoutine = "<InitializePrefabs>c__Iterator0";
@@ -62,6 +63,7 @@ namespace LoadingScreenModRevisited
 
         // Kept props list.
         private HashSet<string> _keptProps = new HashSet<string>();
+        private HashSet<string> _keptTrees = new HashSet<string>();
 
         // Status flag.
         private bool _saveDeserialized;
@@ -79,6 +81,7 @@ namespace LoadingScreenModRevisited
                     typeof(BuildingCollection),
                     typeof(VehicleCollection),
                     typeof(PropCollection),
+                    typeof(TreeCollection),
                 };
 
                 // Initialize arrays.
@@ -111,7 +114,12 @@ namespace LoadingScreenModRevisited
         /// <summary>
         /// Gets the list of skipped props.
         /// </summary>
-        internal HashSet<string> SkippedProps => _skippedPrefabs[2];
+        internal HashSet<string> SkippedProps => _skippedPrefabs[Props];
+
+        /// <summary>
+        /// Gets the list of skipped trees.
+        /// </summary>
+        internal HashSet<string> SkippedTrees => _skippedPrefabs[Trees];
 
         /// <summary>
         /// Sets the list of skipped prefabs.
@@ -151,6 +159,8 @@ namespace LoadingScreenModRevisited
                 s_instance.RemoveSkippedFromSimulation<VehicleInfo>(Vehicles);
                 yield return null;
                 s_instance.RemoveSkippedFromSimulation<PropInfo>(Props);
+                yield return null;
+                s_instance.RemoveSkippedFromSimulation<TreeInfo>(Trees);
                 yield return null;
             }
         }
@@ -207,6 +217,8 @@ namespace LoadingScreenModRevisited
                 // Clear temp arrays.
                 s_instance._keptProps.Clear();
                 s_instance._keptProps = null;
+                s_instance._keptTrees.Clear();
+                s_instance._keptTrees = null;
                 s_instance._simulationPrefabs?.Clear();
                 s_instance._simulationPrefabs = null;
 
@@ -225,6 +237,11 @@ namespace LoadingScreenModRevisited
                 if (skipCounts[Props] > 0)
                 {
                     Logging.KeyMessage("Skipped ", skipCounts[Props], " prop prefabs");
+                }
+
+                if (skipCounts[Trees] > 0)
+                {
+                    Logging.KeyMessage("Skipped ", skipCounts[Props], " tree prefabs");
                 }
 
                 try
@@ -336,6 +353,10 @@ namespace LoadingScreenModRevisited
             {
                 typeIndex = Props;
             }
+            else if (declaringType == typeof(TreeCollection))
+            {
+                typeIndex = Trees;
+            }
 
             // Wait for save to be deserialized before proceeding.
             if (typeIndex >= 0 && !s_instance._saveDeserialized)
@@ -367,9 +388,12 @@ namespace LoadingScreenModRevisited
                     case Props:
                         s_instance.Skip<PropInfo>(action, UpdatePropPrefabs, UpdatePropCollection, typeIndex);
                         break;
+                    case Trees:
+                        s_instance.Skip<TreeInfo>(action, UpdateTreePrefabs, UpdateTreeCollection, typeIndex);
+                        break;
                     default:
-                        // Remove skipped props from networks.
-                        if (s_instance.SkipMatcherHas(Props) && declaringType == typeof(NetCollection))
+                        // Remove skipped props and trees from networks.
+                        if ((s_instance.SkipMatcherHas(Props) || s_instance.SkipMatcherHas(Trees)) && declaringType == typeof(NetCollection))
                         {
                             s_instance.RemoveSkippedFromNets(action);
                         }
@@ -399,8 +423,8 @@ namespace LoadingScreenModRevisited
         /// <param name="prefabs">Building prefab array.</param>
         private static void UpdateBuildingPrefabs(Array prefabs)
         {
-            // Don't do anything if no props skipped.
-            if (!s_instance.SkipMatcherHas(Props))
+            // Don't do anything if no props or trees skipped.
+            if (!(s_instance.SkipMatcherHas(Props) || s_instance.SkipMatcherHas(Trees)))
             {
                 return;
             }
@@ -460,6 +484,28 @@ namespace LoadingScreenModRevisited
         }
 
         /// <summary>
+        /// Update tree prefabs to remove skipped prefabs.
+        /// </summary>
+        /// <param name="prefabs">Tree prefab array.</param>
+        private static void UpdateTreePrefabs(Array prefabs)
+        {
+            // Don't do anything if no props skipped.
+            if (!s_instance.SkipMatcherHas(Trees))
+            {
+                return;
+            }
+
+            // Iterate through all tree prefabs.
+            if (prefabs is TreeInfo[] trees)
+            {
+                for (int i = 0; i < trees.Length; ++i)
+                {
+                    s_instance.RemoveSkippedFromTree(trees[i]);
+                }
+            }
+        }
+
+        /// <summary>
         /// Update the building collection to reflect replaced names.
         /// </summary>
         /// <param name="name">Collection name.</param>
@@ -504,7 +550,7 @@ namespace LoadingScreenModRevisited
         }
 
         /// <summary>
-        /// Update the building collection to reflect replaced names.
+        /// Update the prop collection to reflect replaced names.
         /// </summary>
         /// <param name="name">Collection name.</param>
         /// <param name="keptPrefabs">Kept prefabs.</param>
@@ -521,6 +567,28 @@ namespace LoadingScreenModRevisited
                 if (replacedNames != null)
                 {
                     propCollection.m_replacedNames = replacedNames;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Update the tree collection to reflect replaced names.
+        /// </summary>
+        /// <param name="name">Collection name.</param>
+        /// <param name="keptPrefabs">Kept prefabs.</param>
+        /// <param name="replacedNames">Replaced names.</param>
+        private static void UpdateTreeCollection(string name, Array keptPrefabs, string[] replacedNames)
+        {
+            TreeCollection treeCollection = GameObject.Find(name)?.GetComponent<TreeCollection>();
+            if (treeCollection != null)
+            {
+                // Set kept prefabs.
+                treeCollection.m_prefabs = keptPrefabs as TreeInfo[];
+
+                // Set replaced names.
+                if (replacedNames != null)
+                {
+                    treeCollection.m_replacedNames = replacedNames;
                 }
             }
         }
@@ -546,8 +614,7 @@ namespace LoadingScreenModRevisited
             try
             {
                 // Get existing prefab array.
-                TPrefab[] prefabs = _prefabsField[index].GetValue(action) as TPrefab[];
-                if (prefabs == null)
+                if (!(_prefabsField[index].GetValue(action) is TPrefab[] prefabs))
                 {
                     _prefabsField[index].SetValue(action, new TPrefab[0]);
                     return;
@@ -569,8 +636,7 @@ namespace LoadingScreenModRevisited
                 }
 
                 // Get list of replacements.
-                string[] replacesArray = _replacesField[index].GetValue(action) as string[];
-                if (replacesArray == null)
+                if (!(_replacesField[index].GetValue(action) is string[] replacesArray))
                 {
                     replacesArray = new string[0];
                 }
@@ -723,15 +789,14 @@ namespace LoadingScreenModRevisited
             return false;
         }
 
-
         /// <summary>
         /// Checks to see if the given prop prefab should be skipped.
         /// </summary>
-        /// <param name="prop">Prop prefab prefab.</param>
+        /// <param name="tree">Prop prefab prefab.</param>
         /// <returns>True if the prop prefab should be skipped, false otherwise.</returns>
-        private bool SkippedProp(PropInfo prop)
+        private bool SkippedProp(PropInfo tree)
         {
-            string name = prop.name;
+            string name = tree.name;
 
             // If this prop is already kept, it shouldn't be skipped.
             if (_keptProps.Contains(name))
@@ -746,7 +811,7 @@ namespace LoadingScreenModRevisited
             }
 
             // Otherwise, new prop: determine skipping status.
-            bool shouldSkip = ShouldSkip(prop, Props);
+            bool shouldSkip = ShouldSkip(tree, Props);
             if (shouldSkip)
             {
                 // Skipped.
@@ -756,6 +821,43 @@ namespace LoadingScreenModRevisited
             {
                 // Kept.
                 _keptProps.Add(name);
+            }
+
+            return shouldSkip;
+        }
+
+        /// <summary>
+        /// Checks to see if the given tree prefab should be skipped.
+        /// </summary>
+        /// <param name="tree">Tree prefab prefab.</param>
+        /// <returns>True if the tree prefab should be skipped, false otherwise.</returns>
+        private bool SkippedTree(TreeInfo tree)
+        {
+            string name = tree.name;
+
+            // If this tree is already kept, it shouldn't be skipped.
+            if (_keptTrees.Contains(name))
+            {
+                return false;
+            }
+
+            // If the tree is already skipped, it should be skipped.
+            if (_skippedPrefabs[Trees].Contains(name))
+            {
+                return true;
+            }
+
+            // Otherwise, new tree: determine skipping status.
+            bool shouldSkip = ShouldSkip(tree, Trees);
+            if (shouldSkip)
+            {
+                // Skipped.
+                _skippedPrefabs[Trees].Add(name);
+            }
+            else
+            {
+                // Kept.
+                _keptTrees.Add(name);
             }
 
             return shouldSkip;
@@ -804,7 +906,7 @@ namespace LoadingScreenModRevisited
         }
 
         /// <summary>
-        /// Remove any skipped prefabs (props) from the given building prefab.
+        /// Remove any skipped prefabs (props or trees) from the given building prefab.
         /// </summary>
         /// <param name="building">Building prefab.</param>
         private void RemoveSkippedFromBuilding(BuildingInfo building)
@@ -830,8 +932,23 @@ namespace LoadingScreenModRevisited
                     {
                         if (prop.m_prop == null)
                         {
-                            // Keep empty props (probably already done this).
-                            keptProps.Add(prop);
+                            // Null prop; check for trees.
+                            if (prop.m_tree == null)
+                            {
+                                // Keep records with null prop and tree (probably already done this).
+                                keptProps.Add(prop);
+                            }
+                            else if (SkippedTree(prop.m_tree))
+                            {
+                                // This tree is skipped - remove it.
+                                prop.m_tree = prop.m_finalTree = null;
+                                removed = true;
+                            }
+                            else
+                            {
+                                // Otherwise, add this one to the kept list.
+                                keptProps.Add(prop);
+                            }
                         }
                         else if (SkippedProp(prop.m_prop))
                         {
@@ -1003,6 +1120,61 @@ namespace LoadingScreenModRevisited
         }
 
         /// <summary>
+        /// Remove any skipped prefabs (tree variations) from the given tree prefab.
+        /// </summary>
+        /// <param name="tree">Tree prefab.</param>
+        private void RemoveSkippedFromTree(TreeInfo tree)
+        {
+            // Don't do anything if prop contains no variations.
+            TreeInfo.Variation[] variations = tree.m_variations;
+            if (variations == null || variations.Length == 0)
+            {
+                return;
+            }
+
+            try
+            {
+                // Removal data.
+                List<TreeInfo.Variation> keptVariations = new List<TreeInfo.Variation>(variations.Length);
+                bool removed = false;
+
+                // Iterate through each variation in prop.
+                for (int i = 0; i < variations.Length; ++i)
+                {
+                    TreeInfo variation = variations[i].m_tree;
+                    if (variation != null)
+                    {
+                        if (SkippedTree(variation))
+                        {
+                            // This variation is skipped - remove it.
+                            variations[i].m_tree = variations[i].m_finalTree = null;
+                            removed = true;
+                        }
+                        else
+                        {
+                            // Otherwise, add this one to the kept list.
+                            keptVariations.Add(variations[i]);
+                        }
+                    }
+                }
+
+                // Were any variations removed?
+                if (removed)
+                {
+                    // Yes - assign new shortened variation array back to prop.
+                    tree.m_variations = (keptVariations.Count > 0) ? keptVariations.ToArray() : null;
+                }
+
+                // Clear list.
+                keptVariations.Clear();
+            }
+            catch (Exception e)
+            {
+                Logging.LogException(e, "exception removing skipped variations from prop ", tree?.name);
+            }
+        }
+
+        /// <summary>
         /// Remove any skipped prefabs (props) from networks.
         /// </summary>
         /// <param name="action">Network loading IEnumerator.</param>
@@ -1011,8 +1183,7 @@ namespace LoadingScreenModRevisited
             try
             {
                 // Get network array.
-                NetInfo[] networks = _netPrefabsField.GetValue(action) as NetInfo[];
-                if (networks == null)
+                if (!(_netPrefabsField.GetValue(action) is NetInfo[] networks))
                 {
                     _netPrefabsField.SetValue(action, new NetInfo[0]);
                     return;
@@ -1052,8 +1223,23 @@ namespace LoadingScreenModRevisited
                             {
                                 if (prop.m_prop == null)
                                 {
-                                    // Keep empty props (probably already done this).
-                                    keptProps.Add(prop);
+                                    // Null prop; check for trees.
+                                    if (prop.m_tree == null)
+                                    {
+                                        // Keep records with null prop and tree (probably already done this).
+                                        keptProps.Add(prop);
+                                    }
+                                    else if (SkippedTree(prop.m_tree))
+                                    {
+                                        // This tree is skipped - remove it.
+                                        prop.m_tree = prop.m_finalTree = null;
+                                        removed = true;
+                                    }
+                                    else
+                                    {
+                                        // Otherwise, add this one to the kept list.
+                                        keptProps.Add(prop);
+                                    }
                                 }
                                 else if (SkippedProp(prop.m_prop))
                                 {
