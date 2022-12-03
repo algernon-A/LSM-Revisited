@@ -29,7 +29,7 @@ namespace LoadingScreenModRevisited
         /// Count of skipped prefabs.
         /// Used by PrefabLoader.
         /// </summary>
-        internal static readonly int[] SkipCounts = new int[3];
+        internal static readonly int[] SkipCounts = new int[PrefabLoader.SkipTypes];
 
         /// <summary>
         /// Main loading lock object.
@@ -65,7 +65,7 @@ namespace LoadingScreenModRevisited
         internal static bool s_simulationFailed;
 
         // Skipped prefab lists (names by category).
-        private static readonly HashSet<string>[] SkippedPrefabs = new HashSet<string>[3];
+        private static readonly HashSet<string>[] SkippedPrefabs = new HashSet<string>[PrefabLoader.SkipTypes];
 
         // Failed assets.
         private static readonly HashSet<string> KnownFailedAssets = new HashSet<string>();
@@ -1102,20 +1102,6 @@ namespace LoadingScreenModRevisited
             if (DLC(2144482u))
             {
                 prefabScenes.Add(new KeyValuePair<string, float>("Station17Prefabs", 0.01f));
-            }
-
-            if (DLC(1992290u))
-            {
-                Package.Asset asset4 = PackageManager.FindAssetByName("System." + DistrictStyle.kModderPack11StyleName);
-                if (asset4 != null && asset4.isEnabled)
-                {
-                    prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "ModderPack11Prefabs" : "WinterModderPack11Prefabs", 0.03f));
-                }
-            }
-
-            if (DLC(1992291u))
-            {
-                prefabScenes.Add(new KeyValuePair<string, float>("ModderPack12Prefabs", 0.03f));
             }
 
             if (DLC(563850u))
