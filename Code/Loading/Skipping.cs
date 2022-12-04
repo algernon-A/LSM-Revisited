@@ -21,9 +21,10 @@ namespace LoadingScreenModRevisited
         private const int Vehicles = 1;
         private const int Props = 2;
         private const int Trees = 3;
-        private const int Levels = 4;
-        private const int NameTypes = 4;
-        private const int NumTypes = 5;
+        private const int Nets = 4;
+        private const int Levels = 5;
+        private const int NameTypes = 5;
+        private const int NumTypes = 6;
 
         // Service index.
         private const int NoService = -1;
@@ -32,6 +33,7 @@ namespace LoadingScreenModRevisited
         // Name Matching array.
         private readonly NameMatcher[] _nameMatchers = new NameMatcher[NameTypes]
         {
+            new NameMatcher(),
             new NameMatcher(),
             new NameMatcher(),
             new NameMatcher(),
@@ -108,6 +110,53 @@ namespace LoadingScreenModRevisited
                     if (categoryTitle.StartsWith("TREES"))
                     {
                         categoryIndex = Trees;
+                        continue;
+                    }
+
+                    if (categoryTitle.StartsWith("NETWORKS"))
+                    {
+                        categoryIndex = Nets;
+
+                        // Add enforced net exceptions.
+                        exceptMatcher.AddName("PEDESTRIAN CONNECTION", Nets);
+                        exceptMatcher.AddName("PEDESTRIAN CONNECTION INSIDE", Nets);
+                        exceptMatcher.AddName("PEDESTRIAN CONNECTION SURFACE", Nets);
+                        exceptMatcher.AddName("PEDESTRIAN CONNECTION UNDERGROUND", Nets);
+                        exceptMatcher.AddName("PEDESTRIAN CONNECTION TRANSITION", Nets);
+                        exceptMatcher.AddName("PEDESTRIAN CONNECTION TRANSITION ONEWAY", Nets);
+                        exceptMatcher.AddName("VEHICLE CONNECTION", Nets);
+                        exceptMatcher.AddName("CARGO CONNECTION", Nets);
+                        exceptMatcher.AddName("CROSSINGS ROAD", Nets);
+                        exceptMatcher.AddName("LARGE CARGO AIRPORT ROAD", Nets);
+                        exceptMatcher.AddName("AIRPORT CARGO CONNECTION", Nets);
+                        exceptMatcher.AddName("AIRPLANE STOP", Nets);
+                        exceptMatcher.AddName("AIRPLANE CARGO STOP", Nets);
+                        exceptMatcher.AddName("DLC SMALL AIRPLANE STOP", Nets);
+                        exceptMatcher.AddName("DLC MEDIUM LARGE AIRPLANE STOP", Nets);
+                        exceptMatcher.AddName("DLC LARGE AIRPLANE STOP", Nets);
+                        exceptMatcher.AddName("DLC AIRPLANE CARGO STOP", Nets);
+                        exceptMatcher.AddName("AIRPLANE TAXIWAY", Nets);
+                        exceptMatcher.AddName("AIRPLANE RUNWAY", Nets);
+                        exceptMatcher.AddName("AVIATION CLUB RUNWAY", Nets);
+                        exceptMatcher.AddName("BUS STATION STOP", Nets);
+                        exceptMatcher.AddName("BUS STATION WAY", Nets);
+                        exceptMatcher.AddName("TRAM DEPOT ROAD", Nets);
+                        exceptMatcher.AddName("TROLLEYBUS DEPOT ROAD", Nets);
+                        exceptMatcher.AddName("HELICOPTER STOP", Nets);
+                        exceptMatcher.AddName("HELICOPTER PATH", Nets);
+                        exceptMatcher.AddName("HELICOPTER DEPOT PATH", Nets);
+                        exceptMatcher.AddName("BLIMP STOP", Nets);
+                        exceptMatcher.AddName("BLIMP DEPOT PATH", Nets);
+                        exceptMatcher.AddName("CABLECAR STOP", Nets);
+                        exceptMatcher.AddName("HARBOR ROAD", Nets);
+                        exceptMatcher.AddName("SHIP DOCK", Nets);
+                        exceptMatcher.AddName("SHIP DOCKWAY", Nets);
+                        exceptMatcher.AddName("FERRY DOCK", Nets);
+                        exceptMatcher.AddName("FERRY DOCKWAY", Nets);
+                        exceptMatcher.AddName("FISHING DOCKWAY", Nets);
+                        exceptMatcher.AddName("HEATING PIPE", Nets);
+                        exceptMatcher.AddName("PARKING LOT 01", Nets);
+
                         continue;
                     }
 
@@ -217,13 +266,13 @@ namespace LoadingScreenModRevisited
                         {
                             // No service provided, we're parsing buildings, and this entry has wildcards.
                             // Appy wildcard protection by automatically excepting key items.
-                            exceptMatcher.AddName("STATUE OF SHOPPING", 0);
-                            exceptMatcher.AddName("ELECTRICITY POLE", 0);
-                            exceptMatcher.AddName("WIND TURBINE", 0);
-                            exceptMatcher.AddName("DAM POWER HOUSE", 0);
-                            exceptMatcher.AddName("DAM NODE BUILDING", 0);
-                            exceptMatcher.AddName("WATER PIPE JUNCTION", 0);
-                            exceptMatcher.AddName("HEATING PIPE JUNCTION", 0);
+                            exceptMatcher.AddName("STATUE OF SHOPPING", Buildings);
+                            exceptMatcher.AddName("ELECTRICITY POLE", Buildings);
+                            exceptMatcher.AddName("WIND TURBINE", Buildings);
+                            exceptMatcher.AddName("DAM POWER HOUSE", Buildings);
+                            exceptMatcher.AddName("DAM NODE BUILDING", Buildings);
+                            exceptMatcher.AddName("WATER PIPE JUNCTION", Buildings);
+                            exceptMatcher.AddName("HEATING PIPE JUNCTION", Buildings);
                         }
                     }
                 }

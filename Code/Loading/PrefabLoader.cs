@@ -25,7 +25,7 @@ namespace LoadingScreenModRevisited
         /// <summary>
         /// The number of supported skipping types.
         /// </summary>
-        internal const int SkipTypes = 4;
+        internal const int SkipTypes = 5;
 
         /// <summary>
         /// The prefix applied to skipped prefab names.
@@ -37,6 +37,7 @@ namespace LoadingScreenModRevisited
         private const int Vehicles = 1;
         private const int Props = 2;
         private const int Trees = 3;
+        private const int Nets = 4;
 
         // Interator routine string.
         private const string IteratorRoutine = "<InitializePrefabs>c__Iterator0";
@@ -61,7 +62,7 @@ namespace LoadingScreenModRevisited
         // Simulation prefab lists.
         private HashSet<string> _simulationPrefabs;
 
-        // Kept props list.
+        // Kept prefabs list.
         private HashSet<string> _keptProps = new HashSet<string>();
         private HashSet<string> _keptTrees = new HashSet<string>();
 
@@ -82,6 +83,7 @@ namespace LoadingScreenModRevisited
                     typeof(VehicleCollection),
                     typeof(PropCollection),
                     typeof(TreeCollection),
+                    typeof(NetCollection),
                 };
 
                 // Initialize arrays.
@@ -162,6 +164,8 @@ namespace LoadingScreenModRevisited
                 yield return null;
                 s_instance.RemoveSkippedFromSimulation<TreeInfo>(Trees);
                 yield return null;
+                s_instance.RemoveSkippedFromSimulation<NetInfo>(Nets);
+                yield return null;
             }
         }
 
@@ -241,7 +245,12 @@ namespace LoadingScreenModRevisited
 
                 if (skipCounts[Trees] > 0)
                 {
-                    Logging.KeyMessage("Skipped ", skipCounts[Props], " tree prefabs");
+                    Logging.KeyMessage("Skipped ", skipCounts[Trees], " tree prefabs");
+                }
+
+                if (skipCounts[Nets] > 0)
+                {
+                    Logging.KeyMessage("Skipped ", skipCounts[Nets], " net prefabs");
                 }
 
                 try
@@ -282,7 +291,9 @@ namespace LoadingScreenModRevisited
                 return;
             }
 
+            // Reset list.
             _simulationPrefabs = new HashSet<string>();
+
             try
             {
                 // Iterate through all buildings in map.
@@ -306,7 +317,52 @@ namespace LoadingScreenModRevisited
             }
             catch (Exception e)
             {
-                Logging.LogException(e, "exception populating simulation prefabs");
+                Logging.LogException(e, "exception populating simulation building prefabs");
+            }
+
+            try
+            {
+                // Iterate through all network segments in map.
+                NetSegment[] segments = Singleton<NetManager>.instance.m_segments.m_buffer;
+                int length = segments.Length;
+                for (int i = 1; i < length; ++i)
+                {
+                    // If segment exists (non-zero flags), add the prefab to the list.
+                    if (segments[i].m_flags != 0)
+                    {
+                        string prefabName = PrefabCollection<NetInfo>.PrefabName(segments[i].m_infoIndex);
+
+                        // Ignore custom assets (with periods in their names).
+                        if (!string.IsNullOrEmpty(prefabName) && prefabName.IndexOf('.') < 0)
+                        {
+                            // Add prefab to list.
+                            _simulationPrefabs.Add(prefabName);
+                        }
+                    }
+                }
+
+                // Iterate through all network nodes in map.
+                NetNode[] nodes = Singleton<NetManager>.instance.m_nodes.m_buffer;
+                length = nodes.Length;
+                for (int i = 1; i < length; ++i)
+                {
+                    // If segment exists (non-zero flags), add the prefab to the list.
+                    if (nodes[i].m_flags != 0)
+                    {
+                        string prefabName = PrefabCollection<NetInfo>.PrefabName(nodes[i].m_infoIndex);
+
+                        // Ignore custom assets (with periods in their names).
+                        if (!string.IsNullOrEmpty(prefabName) && prefabName.IndexOf('.') < 0)
+                        {
+                            // Add prefab to list.
+                            _simulationPrefabs.Add(prefabName);
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Logging.LogException(e, "exception populating simulation network prefabs");
             }
         }
 
@@ -357,6 +413,10 @@ namespace LoadingScreenModRevisited
             {
                 typeIndex = Trees;
             }
+            else if (declaringType == typeof(NetCollection))
+            {
+                typeIndex = Nets;
+            }
 
             // Wait for save to be deserialized before proceeding.
             if (typeIndex >= 0 && !s_instance._saveDeserialized)
@@ -391,13 +451,8 @@ namespace LoadingScreenModRevisited
                     case Trees:
                         s_instance.Skip<TreeInfo>(action, UpdateTreePrefabs, UpdateTreeCollection, typeIndex);
                         break;
-                    default:
-                        // Remove skipped props and trees from networks.
-                        if ((s_instance.SkipMatcherHas(Props) || s_instance.SkipMatcherHas(Trees)) && declaringType == typeof(NetCollection))
-                        {
-                            s_instance.RemoveSkippedFromNets(action);
-                        }
-
+                    case Nets:
+                        s_instance.Skip<NetInfo>(action, UpdateNetPrefabs, UpdateNetCollection, typeIndex);
                         break;
                 }
 
@@ -435,6 +490,28 @@ namespace LoadingScreenModRevisited
                 for (int i = 0; i < buildings.Length; ++i)
                 {
                     s_instance.RemoveSkippedFromBuilding(buildings[i]);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Update network prefabs to remove skipped props.
+        /// </summary>
+        /// <param name="prefabs">Network prefab array.</param>
+        private static void UpdateNetPrefabs(Array prefabs)
+        {
+            // Don't do anything if no props or trees skipped.
+            if (!(s_instance.SkipMatcherHas(Props) || s_instance.SkipMatcherHas(Trees)))
+            {
+                return;
+            }
+
+            // Iterate through all network prefabs and remove skipped trees/props.
+            if (prefabs is NetInfo[] networks)
+            {
+                for (int i = 0; i < networks.Length; ++i)
+                {
+                    s_instance.RemoveSkippedFromNet(networks[i]);
                 }
             }
         }
@@ -589,6 +666,28 @@ namespace LoadingScreenModRevisited
                 if (replacedNames != null)
                 {
                     treeCollection.m_replacedNames = replacedNames;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Update the net collection to reflect replaced names.
+        /// </summary>
+        /// <param name="name">Collection name.</param>
+        /// <param name="keptPrefabs">Kept prefabs.</param>
+        /// <param name="replacedNames">Replaced names.</param>
+        private static void UpdateNetCollection(string name, Array keptPrefabs, string[] replacedNames)
+        {
+            NetCollection netCollection = GameObject.Find(name)?.GetComponent<NetCollection>();
+            if (netCollection != null)
+            {
+                // Set kept prefabs.
+                netCollection.m_prefabs = keptPrefabs as NetInfo[];
+
+                // Set replaced names.
+                if (replacedNames != null)
+                {
+                    netCollection.m_replacedNames = replacedNames;
                 }
             }
         }
@@ -749,7 +848,7 @@ namespace LoadingScreenModRevisited
                 string name = prefab.name;
 
                 // Exempt used buildings from skipping.
-                if (typeIndex == Buildings && IsSimulationPrefab(name, replace))
+                if ((typeIndex == Buildings || typeIndex == Nets) && IsSimulationPrefab(name, replace))
                 {
                     Logging.KeyMessage(name, " -> not skipped because used in city");
                     return false;
@@ -1175,76 +1274,55 @@ namespace LoadingScreenModRevisited
         }
 
         /// <summary>
-        /// Remove any skipped prefabs (props) from networks.
+        /// Remove any skipped prefabs (props or trees) from the given network prefab.
         /// </summary>
-        /// <param name="action">Network loading IEnumerator.</param>
-        private void RemoveSkippedFromNets(IEnumerator action)
+        /// <param name="network">Network prefab.</param>
+        private void RemoveSkippedFromNet(NetInfo network)
         {
             try
             {
-                // Get network array.
-                if (!(_netPrefabsField.GetValue(action) is NetInfo[] networks))
+                // Local reference.
+                NetInfo.Lane[] lanes = network?.m_lanes;
+
+                // Skip empty nets.
+                if (lanes == null)
                 {
-                    _netPrefabsField.SetValue(action, new NetInfo[0]);
                     return;
                 }
 
+                // Iterate through each lane in network.
                 List<NetLaneProps.Prop> keptProps = new List<NetLaneProps.Prop>(16);
-                foreach (NetInfo network in networks)
+                for (int i = 0; i < lanes.Length; ++i)
                 {
-                    // Local reference.
-                    NetInfo.Lane[] lanes = network?.m_lanes;
+                    NetLaneProps laneProps = lanes[i].m_laneProps;
 
-                    // Skip empty nets.
-                    if (lanes == null)
+                    // Skip lanes with no props.
+                    if (laneProps == null || laneProps.m_props == null)
                     {
                         continue;
                     }
 
-                    // Iterate through each lane in network.
-                    for (int i = 0; i < lanes.Length; ++i)
+                    bool removed = false;
+
+                    // Iterate through each prop in lane.
+                    NetLaneProps.Prop[] lanePropsProps = laneProps.m_props;
+                    for (int j = 0; j < lanePropsProps.Length; ++j)
                     {
-                        NetLaneProps laneProps = lanes[i].m_laneProps;
-
-                        // Skip lanes with no props.
-                        if (laneProps == null || laneProps.m_props == null)
+                        NetLaneProps.Prop prop = lanePropsProps[j];
+                        if (prop != null)
                         {
-                            continue;
-                        }
-
-                        bool removed = false;
-
-                        // Iterate through each prop in lane.
-                        NetLaneProps.Prop[] lanePropsProps = laneProps.m_props;
-                        for (int j = 0; j < lanePropsProps.Length; ++j)
-                        {
-                            NetLaneProps.Prop prop = lanePropsProps[j];
-                            if (prop != null)
+                            if (prop.m_prop == null)
                             {
-                                if (prop.m_prop == null)
+                                // Null prop; check for trees.
+                                if (prop.m_tree == null)
                                 {
-                                    // Null prop; check for trees.
-                                    if (prop.m_tree == null)
-                                    {
-                                        // Keep records with null prop and tree (probably already done this).
-                                        keptProps.Add(prop);
-                                    }
-                                    else if (SkippedTree(prop.m_tree))
-                                    {
-                                        // This tree is skipped - remove it.
-                                        prop.m_tree = prop.m_finalTree = null;
-                                        removed = true;
-                                    }
-                                    else
-                                    {
-                                        // Otherwise, add this one to the kept list.
-                                        keptProps.Add(prop);
-                                    }
+                                    // Keep records with null prop and tree (probably already done this).
+                                    keptProps.Add(prop);
                                 }
-                                else if (SkippedProp(prop.m_prop))
+                                else if (SkippedTree(prop.m_tree))
                                 {
-                                    // This prop is skipped - remove it.
-                                    prop.m_prop = prop.m_finalProp = null;
+                                    // This tree is skipped - remove it.
+                                    prop.m_tree = prop.m_finalTree = null;
                                     removed = true;
                                 }
                                 else
@@ -1253,18 +1331,29 @@ namespace LoadingScreenModRevisited
                                     keptProps.Add(prop);
                                 }
                             }
+                            else if (SkippedProp(prop.m_prop))
+                            {
+                                // This prop is skipped - remove it.
+                                prop.m_prop = prop.m_finalProp = null;
+                                removed = true;
+                            }
+                            else
+                            {
+                                // Otherwise, add this one to the kept list.
+                                keptProps.Add(prop);
+                            }
                         }
-
-                        // Were any props removed?
-                        if (removed)
-                        {
-                            // Yes - assign new shortened prop array back to lane.
-                            laneProps.m_props = keptProps.ToArray();
-                        }
-
-                        // Clear list.
-                        keptProps.Clear();
                     }
+
+                    // Were any props removed?
+                    if (removed)
+                    {
+                        // Yes - assign new shortened prop array back to lane.
+                        laneProps.m_props = keptProps.ToArray();
+                    }
+
+                    // Clear list.
+                    keptProps.Clear();
                 }
             }
             catch (Exception e)
