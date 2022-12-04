@@ -1,6 +1,7 @@
 ﻿- Implement network skipping
 - Implement tree skipping
 - Automatically create any missing skipfile directories and files when opening a specified skip file via the options panel
+- Temporarily disable random imgur image option (due to imgur site changes blocking this from working)
 
 
 Version 1.0 -
