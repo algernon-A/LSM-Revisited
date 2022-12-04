@@ -1,4 +1,4 @@
-// <copyright file="SkipLoader.cs" company="algernon (K. Algernon A. Sheppard)">
+// <copyright file="PrefabLoader.cs" company="algernon (K. Algernon A. Sheppard)">
 // Copyright (c) thale5 and algernon (K. Algernon A. Sheppard). All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt file in the project root for full license information.
 // </copyright>
@@ -62,9 +62,10 @@ namespace LoadingScreenModRevisited
         // Simulation prefab lists.
         private HashSet<string> _simulationPrefabs;
 
-        // Kept prefabs list.
+        // Kept prefabs lists.
         private HashSet<string> _keptProps = new HashSet<string>();
         private HashSet<string> _keptTrees = new HashSet<string>();
+        private HashSet<string> _keptNets = new HashSet<string>();
 
         // Status flag.
         private bool _saveDeserialized;
@@ -176,7 +177,7 @@ namespace LoadingScreenModRevisited
         internal static void RemoveSkippedFromStyle(DistrictStyle style)
         {
             // Get hashset of skipped prefabs, if any.
-            HashSet<string> skippedPrefabs = s_instance != null ? s_instance._skippedPrefabs[0] : null;
+            HashSet<string> skippedPrefabs = s_instance?._skippedPrefabs[0];
             if (skippedPrefabs == null || skippedPrefabs.Count == 0)
             {
                 return;
@@ -223,6 +224,8 @@ namespace LoadingScreenModRevisited
                 s_instance._keptProps = null;
                 s_instance._keptTrees.Clear();
                 s_instance._keptTrees = null;
+                s_instance._keptNets.Clear();
+                s_instance._keptNets = null;
                 s_instance._simulationPrefabs?.Clear();
                 s_instance._simulationPrefabs = null;
 
@@ -697,7 +700,7 @@ namespace LoadingScreenModRevisited
         /// </summary>
         /// <param name="index">Skipping type index.</param>
         /// <returns>True if skipping entries exist for the given type, false otherwise.</returns>
-        private bool SkipMatcherHas(int index) => Settings.SkipMatcher != null ? Settings.SkipMatcher.Has[index] : false;
+        private bool SkipMatcherHas(int index) => Settings.SkipMatcher != null && Settings.SkipMatcher.Has[index];
 
         /// <summary>
         /// Skips prefabs for the specified type.
@@ -877,6 +880,12 @@ namespace LoadingScreenModRevisited
         /// <returns>True if the prefab should be skipped, false otherwise.</returns>
         private bool ShouldSkip(PrefabInfo prefab, int typeIndex)
         {
+            // Exempt used buildings and nets from skipping.
+            if ((typeIndex == Buildings || typeIndex == Nets) && _simulationPrefabs.Contains(prefab.name))
+            {
+                return false;
+            }
+
             // Check for matching skip entry.
             if (Settings.SkipMatcher != null && Settings.SkipMatcher.Matches(prefab, typeIndex))
             {
@@ -963,6 +972,43 @@ namespace LoadingScreenModRevisited
         }
 
         /// <summary>
+        /// Checks to see if the given net prefab should be skipped.
+        /// </summary>
+        /// <param name="network">Net prefab.</param>
+        /// <returns>True if the net prefab should be skipped, false otherwise.</returns>
+        private bool SkippedNet(NetInfo network)
+        {
+            string name = network.name;
+
+            // If this network is already kept, it shouldn't be skipped.
+            if (_keptNets.Contains(name))
+            {
+                return false;
+            }
+
+            // If the network is already skipped, it should be skipped.
+            if (_skippedPrefabs[Nets].Contains(name))
+            {
+                return true;
+            }
+
+            // Otherwise, new network: determine skipping status.
+            bool shouldSkip = ShouldSkip(network, Nets);
+            if (shouldSkip)
+            {
+                // Skipped.
+                _skippedPrefabs[Nets].Add(name);
+            }
+            else
+            {
+                // Kept.
+                _keptNets.Add(name);
+            }
+
+            return shouldSkip;
+        }
+
+        /// <summary>
         /// Checks to see if the given name/replace combination represents a simulation prefab.
         /// </summary>
         /// <param name="name">Prefab name.</param>
@@ -1010,37 +1056,46 @@ namespace LoadingScreenModRevisited
         /// <param name="building">Building prefab.</param>
         private void RemoveSkippedFromBuilding(BuildingInfo building)
         {
-            // Don't do anything if building contains no props.
+            // Remove skipped props and/or trees.
             BuildingInfo.Prop[] props = building.m_props;
-            if (props == null || props.Length == 0)
+            if (props != null && props.Length > 0)
             {
-                return;
-            }
-
-            try
-            {
-                // Removal data.
-                List<BuildingInfo.Prop> keptProps = new List<BuildingInfo.Prop>(props.Length);
-                bool removed = false;
-
-                // Iterate through each prop in building.
-                foreach (BuildingInfo.Prop prop in props)
+                try
                 {
-                    // Skip null props.
-                    if (prop != null)
+                    // Removal data.
+                    List<BuildingInfo.Prop> keptProps = new List<BuildingInfo.Prop>(props.Length);
+                    bool removed = false;
+
+                    // Iterate through each prop in building.
+                    foreach (BuildingInfo.Prop prop in props)
                     {
-                        if (prop.m_prop == null)
+                        // Skip null props.
+                        if (prop != null)
                         {
-                            // Null prop; check for trees.
-                            if (prop.m_tree == null)
+                            if (prop.m_prop == null)
                             {
-                                // Keep records with null prop and tree (probably already done this).
-                                keptProps.Add(prop);
+                                // Null prop; check for trees.
+                                if (prop.m_tree == null)
+                                {
+                                    // Keep records with null prop and tree.
+                                    keptProps.Add(prop);
+                                }
+                                else if (SkippedTree(prop.m_tree))
+                                {
+                                    // This tree is skipped - remove it.
+                                    prop.m_tree = prop.m_finalTree = null;
+                                    removed = true;
+                                }
+                                else
+                                {
+                                    // Otherwise, add this one to the kept list.
+                                    keptProps.Add(prop);
+                                }
                             }
-                            else if (SkippedTree(prop.m_tree))
+                            else if (SkippedProp(prop.m_prop))
                             {
-                                // This tree is skipped - remove it.
-                                prop.m_tree = prop.m_finalTree = null;
+                                // This prop is skipped - remove it.
+                                prop.m_prop = prop.m_finalProp = null;
                                 removed = true;
                             }
                             else
@@ -1049,51 +1104,87 @@ namespace LoadingScreenModRevisited
                                 keptProps.Add(prop);
                             }
                         }
-                        else if (SkippedProp(prop.m_prop))
+                    }
+
+                    // Were any props removed?
+                    if (removed)
+                    {
+                        // Yes - assign new shortened prop array back to building.
+                        building.m_props = keptProps.ToArray();
+
+                        // If no props remainng, suppress 'no props' warnings.
+                        if (building.m_props.Length == 0)
                         {
-                            // This prop is skipped - remove it.
-                            prop.m_prop = prop.m_finalProp = null;
+                            CommonBuildingAI commonBuildingAI = building.m_buildingAI as CommonBuildingAI;
+
+                            // Fallback attempt if direct assignment fails.
+                            if (commonBuildingAI == null)
+                            {
+                                commonBuildingAI = building.GetComponent<BuildingAI>() as CommonBuildingAI;
+                            }
+
+                            // Suppress no props warning.
+                            if (commonBuildingAI != null)
+                            {
+                                commonBuildingAI.m_ignoreNoPropsWarning = true;
+                            }
+                        }
+                    }
+
+                    // Clear list.
+                    keptProps.Clear();
+                }
+                catch (Exception e)
+                {
+                    Logging.LogException(e, "exception removing skipped props from building ", building?.name);
+                }
+            }
+
+            // Remove skipped nets.
+            BuildingInfo.PathInfo[] paths = building.m_paths;
+            if (paths != null && paths.Length > 0)
+            {
+                try
+                {
+                    bool removed = false;
+                    List<BuildingInfo.PathInfo> keptPaths = new List<BuildingInfo.PathInfo>(paths.Length);
+                    foreach (BuildingInfo.PathInfo path in paths)
+                    {
+                        if (path == null)
+                        {
+                            continue;
+                        }
+
+                        if (path.m_netInfo == null)
+                        {
+                            // Keep records with null netInfo.
+                            keptPaths.Add(path);
+                        }
+                        else if (SkippedNet(path.m_netInfo))
+                        {
+                            // This network is skipped - remove it.
+                            path.m_netInfo = path.m_finalNetInfo = null;
                             removed = true;
                         }
                         else
                         {
                             // Otherwise, add this one to the kept list.
-                            keptProps.Add(prop);
+                            keptPaths.Add(path);
                         }
                     }
-                }
 
-                // Were any props removed?
-                if (removed)
-                {
-                    // Yes - assign new shortened prop array back to building.
-                    building.m_props = keptProps.ToArray();
-
-                    // If no props remainng, suppress 'no props' warnings.
-                    if (building.m_props.Length == 0)
+                    // Were any paths removed?
+                    if (removed)
                     {
-                        CommonBuildingAI commonBuildingAI = building.m_buildingAI as CommonBuildingAI;
-
-                        // Fallback attempt if direct assignment fails.
-                        if (commonBuildingAI == null)
-                        {
-                            commonBuildingAI = building.GetComponent<BuildingAI>() as CommonBuildingAI;
-                        }
-
-                        // Suppress no props warning.
-                        if (commonBuildingAI != null)
-                        {
-                            commonBuildingAI.m_ignoreNoPropsWarning = true;
-                        }
+                        // Yes - assign new shortened path array back to building.
+                        building.m_paths = keptPaths.ToArray();
+                        Logging.Message("removed paths from building ", building.name);
                     }
                 }
-
-                // Clear list.
-                keptProps.Clear();
-            }
-            catch (Exception e)
-            {
-                Logging.LogException(e, "exception removing skipped props from building ", building?.name);
+                catch (Exception e)
+                {
+                    Logging.LogException(e, "exception removing skipped nets from building ", building?.name);
+                }
             }
         }
 
