@@ -1131,8 +1131,8 @@ namespace LoadingScreenModRevisited
 
             if (DLC(715190u))
             {
-                Package.Asset asset2 = PackageManager.FindAssetByName("System." + DistrictStyle.kEuropeanSuburbiaStyleName);
-                if (asset2 != null && asset2.isEnabled)
+                Package.Asset euSuburbiaStyle = PackageManager.FindAssetByName("System." + DistrictStyle.kEuropeanSuburbiaStyleName);
+                if (euSuburbiaStyle != null && euSuburbiaStyle.isEnabled)
                 {
                     prefabScenes.Add(new KeyValuePair<string, float>("ModderPack3Prefabs", 0.03f));
                 }
@@ -1145,8 +1145,8 @@ namespace LoadingScreenModRevisited
 
             if (DLC(1148020u))
             {
-                Package.Asset asset3 = PackageManager.FindAssetByName("System." + DistrictStyle.kModderPack5StyleName);
-                if (asset3 != null && asset3.isEnabled)
+                Package.Asset mccStyle = PackageManager.FindAssetByName("System." + DistrictStyle.kModderPack5StyleName);
+                if (mccStyle != null && mccStyle.isEnabled)
                 {
                     prefabScenes.Add(new KeyValuePair<string, float>("ModderPack5Prefabs", 0.03f));
                 }
@@ -1170,6 +1170,20 @@ namespace LoadingScreenModRevisited
             if (DLC(1726381u))
             {
                 prefabScenes.Add(new KeyValuePair<string, float>("ModderPack10Prefabs", 0.03f));
+            }
+
+            if (DLC(1992290u))
+            {
+                Package.Asset mcmStyle = PackageManager.FindAssetByName("System." + DistrictStyle.kModderPack11StyleName);
+                if (mcmStyle != null && mcmStyle.isEnabled)
+                {
+                    prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "ModderPack11Prefabs" : "WinterModderPack11Prefabs", 0.03f));
+                }
+            }
+
+            if (DLC(1992291u))
+            {
+                prefabScenes.Add(new KeyValuePair<string, float>("ModderPack12Prefabs", 0.03f));
             }
 
             if (DLC(2144481u))
