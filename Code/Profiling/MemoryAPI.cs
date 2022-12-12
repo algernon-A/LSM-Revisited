@@ -188,7 +188,7 @@ namespace LoadingScreenModRevisited
         /// Contains information about the current state of both physical and virtual memory, including extended memory.
         /// </summary>
         [StructLayout(LayoutKind.Sequential)]
-        private struct MEMORYSTATUSEX
+        private readonly struct MEMORYSTATUSEX
         {
             /// <summary>
             /// Structure size, in bytes - MUST be assigned before use.
