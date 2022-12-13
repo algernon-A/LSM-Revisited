@@ -903,6 +903,7 @@ namespace LoadingScreenModRevisited
             loadingManager.m_supportsExpansion[8] = DLC(1146930u);
             loadingManager.m_supportsExpansion[9] = DLC(1726380u);
             loadingManager.m_supportsExpansion[10] = DLC(2008400u);
+            loadingManager.m_supportsExpansion[11] = DLC(2148901u);
             bool isWinter = Singleton<SimulationManager>.instance.m_metaData.m_environment == "Winter";
             if (isWinter && !loadingManager.m_supportsExpansion[1])
             {
@@ -992,6 +993,11 @@ namespace LoadingScreenModRevisited
             if (loadingManager.m_supportsExpansion[10])
             {
                 prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "Expansion11Prefabs" : "WinterExpansion11Prefabs", 0.1f));
+            }
+
+            if (loadingManager.m_supportsExpansion[11])
+            {
+                prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "Expansion12Prefabs" : "WinterExpansion12Prefabs", 0.1f));
             }
 
             if (DLC(456200u))
@@ -1102,6 +1108,11 @@ namespace LoadingScreenModRevisited
             if (DLC(2144482u))
             {
                 prefabScenes.Add(new KeyValuePair<string, float>("Station17Prefabs", 0.01f));
+            }
+
+            if (DLC(2148904u))
+            {
+                prefabScenes.Add(new KeyValuePair<string, float>("Station18Prefabs", 0.01f));
             }
 
             if (DLC(563850u))

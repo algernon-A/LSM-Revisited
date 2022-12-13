@@ -235,7 +235,7 @@ namespace LoadingScreenModRevisited
             }
             catch (MissingMethodException)
             {
-                Logging.Error("unsupported type for deserialization: ", type.Name);
+                Logging.Error("unsupported type for deserialization: ", type.Name, " in package ", _package.packageName);
                 return null;
             }
         }

@@ -1,5 +1,6 @@
 ﻿Version 1.1 -
 
+- Support game version 1.16
 - Implement network skipping
 - Implement tree skipping
 - Automatically create any missing skipfile directories and files when opening a specified skip file via the options panel
