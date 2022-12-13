@@ -9,7 +9,7 @@
 "SIMULATION","シミュレーションスレッド",""
 "ASSETS_LOADER","カスタムアセット",""
 "NEW_LOADING_OPTIONS","新しいロードのオプション",""
-"MAJOR_GAME_UPDATE","ゲームのメジャーアップデートを検出して、MODが無効化されています！",""
+"MAJOR_GAME_UPDATE","ゲームのメジャーアップデートを検出したため、MODが無効化されています。",""
 "ASSETS_REPORT","アセットレポート",""
 "ASSETS_REPORT_FOR_CS","Cities: Skylinesのアセットレポート",""
 "TO_STOP_SAVING","レポートのファイル保存を行わない場合は、オプションの「アセットレポートの保存」を無効化して下さい。",""
