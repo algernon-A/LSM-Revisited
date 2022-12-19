@@ -1,4 +1,6 @@
-﻿- Fix NullReferenceException when toggling background image options due to missing random imgur option
+﻿Version 1.1.1 -
+
+- Fix NullReferenceException when toggling background image options due to missing random imgur option
 - Add more curated background images
 
 
