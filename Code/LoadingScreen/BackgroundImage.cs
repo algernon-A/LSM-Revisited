@@ -593,7 +593,7 @@ namespace LoadingScreenModRevisited
                             };
                         }
 
-                        Logging.Message("downloaded image was too small; skipping");
+                        Logging.KeyMessage("downloaded image was too small; skipping");
                     }
                 }
                 catch (Exception e)
