@@ -19,7 +19,7 @@ namespace LoadingScreenModRevisited
         // Panel components.
         private readonly UICheckBox _defaultCheck;
         private readonly UICheckBox _imgurCuratedCheck;
-        private readonly UICheckBox _imgurRandomCheck;
+        // private readonly UICheckBox _imgurRandomCheck;
         private readonly UICheckBox _localRandomCheck;
         private readonly UICheckBox _fitImageCheck;
         private readonly UICheckBox _cropImageCheck;
@@ -306,7 +306,7 @@ namespace LoadingScreenModRevisited
             // Set check states.
             _defaultCheck.isChecked = BackgroundImage.CurrentImageMode == BackgroundImage.ImageMode.Standard;
             _imgurCuratedCheck.isChecked = BackgroundImage.CurrentImageMode == BackgroundImage.ImageMode.ImgurCurated;
-            _imgurRandomCheck.isChecked = BackgroundImage.CurrentImageMode == BackgroundImage.ImageMode.ImgurRandom;
+            // _imgurRandomCheck.isChecked = BackgroundImage.CurrentImageMode == BackgroundImage.ImageMode.ImgurRandom;
             _localRandomCheck.isChecked = BackgroundImage.CurrentImageMode == BackgroundImage.ImageMode.LocalRandom;
 
             // Resume event handling.

@@ -1,4 +1,7 @@
-﻿Version 1.1 -
+﻿- Fix NullReferenceException when toggling background image options due to missing random imgur option
+
+
+Version 1.1 -
 
 - Support game version 1.16
 - Implement network skipping
