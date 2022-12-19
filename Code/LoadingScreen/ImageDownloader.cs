@@ -98,12 +98,12 @@ namespace LoadingScreenModRevisited
                         }
 
                         // Recreate direct image URL from image name.
-                        string imageURL = "http://i.imgur.com/" + imageList[random.Next(imageList.Count)] + ".jpg";
+                        string imageURL = "http://i.imgur.com/" + imageList[random.Next(imageList.Count)];
                         try
                         {
                             // Download image data.
                             s_imageData = webClient.DownloadData(imageURL);
-                            Logging.Message("downloaded background image ", imageURL);
+                            Logging.KeyMessage("downloaded background image ", imageURL);
                             DownloadReady = true;
                             return;
                         }
