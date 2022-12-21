@@ -23,6 +23,14 @@ namespace LoadingScreenModRevisited
 
             // Set up options panel event handler (need to redo this now that options panel has been reset after loading into game).
             OptionsPanelManager<OptionsPanel>.OptionsEventHook();
+
+            // Disable single-use options.
+            if (LSMRSettings.RemoveVehicles | LSMRSettings.RemoveCitizenInstances | LSMRSettings.RecoverMissingNets)
+            {
+                LSMRSettings.RemoveVehicles = false;
+                LSMRSettings.RemoveCitizenInstances = false;
+                LSMRSettings.Save();
+            }
         }
     }
 }

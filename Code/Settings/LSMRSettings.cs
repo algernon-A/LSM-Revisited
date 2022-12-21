@@ -155,7 +155,7 @@ namespace LoadingScreenModRevisited
         /// Gets or sets a value indicating whether attempts shoudl be made to recover from simulation errors on the next load.
         /// </summary>
         [XmlElement("recover")]
-        public bool XMLTryRecover { get => TryRecover; set => TryRecover = value; }
+        public bool XMLTryRecover { get => RecoverMissingNets; set => RecoverMissingNets = value; }
 
         /// <summary>
         /// Gets or sets a value indicating whether duplicate asset warnings should be displayed on the loading screen scroll.
@@ -300,10 +300,10 @@ namespace LoadingScreenModRevisited
         internal static bool RemoveCitizenInstances { get; set; } = false;
 
         /// <summary>
-        /// Gets or sets a value indicating whether attempts shoudl be made to recover from simulation errors on the next load.
+        /// Gets or sets a value indicating whether attempts should be made to recover from simulation errors caused by missing networks on the next load.
         /// </summary>
         [XmlIgnore]
-        internal static bool TryRecover { get; set; } = false;
+        internal static bool RecoverMissingNets { get; set; } = false;
 
         /// <summary>
         /// Gets or sets a value indicating whether assets should be enabled and disabled to match usage of the current save.

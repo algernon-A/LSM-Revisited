@@ -86,16 +86,27 @@ namespace LoadingScreenModRevisited
             openSkipFileButton.tooltip = Translations.Translate("CLICK_TO_OPEN");
 
             // Recovery options.
-            UIHelper recoveryGroup = AddGroup(helper, Translations.Translate("SAFE_MODE"), Translations.Translate("AUTOMATICALLY_DISABLED"));
+            string tooltipString = Translations.Translate("AUTOMATICALLY_DISABLED");
+            UIHelper recoveryGroup = AddGroup(helper, Translations.Translate("SAFE_MODE"), tooltipString);
             UILabel recoveryLabel = ((recoveryGroup as UIHelper)?.self as UIPanel)?.Find<UILabel>("Label");
             if (recoveryLabel != null)
             {
-                recoveryLabel.tooltip = Translations.Translate("AUTOMATICALLY_DISABLED");
+                recoveryLabel.tooltip = tooltipString;
             }
 
-            recoveryGroup.AddCheckbox(Translations.Translate("REMOVE_VEHICLE_AGENTS"), LSMRSettings.RemoveVehicles, (isChecked) => { LSMRSettings.RemoveVehicles = isChecked; });
-            recoveryGroup.AddCheckbox(Translations.Translate("REMOVE_CITIZEN_AGENTS"), LSMRSettings.RemoveCitizenInstances, (isChecked) => { LSMRSettings.RemoveCitizenInstances = isChecked; });
-            recoveryGroup.AddCheckbox(Translations.Translate("TRY_TO_RECOVER"), LSMRSettings.TryRecover, (isChecked) => { LSMRSettings.TryRecover = isChecked; });
+            UICheckBox removeVehiclesCheck = recoveryGroup.AddCheckbox(Translations.Translate("REMOVE_VEHICLE_AGENTS"), LSMRSettings.RemoveVehicles, (isChecked) => { LSMRSettings.RemoveVehicles = isChecked; } as UICheckBox);
+            UICheckBox removeCitizensCheck = recoveryGroup.AddCheckbox(Translations.Translate("REMOVE_CITIZEN_AGENTS"), LSMRSettings.RemoveCitizenInstances, (isChecked) => { LSMRSettings.RemoveCitizenInstances = isChecked; } as UICheckBox);
+            removeVehiclesCheck.tooltip = tooltipString;
+            removeCitizensCheck.tooltip = tooltipString;
+
+            UIHelper simulationGroup = AddGroup(helper, Translations.Translate("TRY_TO_RECOVER"));
+            UILabel simulationLabel = ((recoveryGroup as UIHelper)?.self as UIPanel)?.Find<UILabel>("Label");
+            if (simulationLabel != null)
+            {
+                simulationLabel.tooltip = tooltipString;
+            }
+            UICheckBox recoverNetCheck = simulationGroup.AddCheckbox(Translations.Translate("RECOVER_NETS"), LSMRSettings.RecoverMissingNets, (isChecked) => { LSMRSettings.RecoverMissingNets = isChecked; }) as UICheckBox;
+            recoverNetCheck.tooltip = tooltipString;
         }
 
         /// <summary>

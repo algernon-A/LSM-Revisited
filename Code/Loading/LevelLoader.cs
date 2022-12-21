@@ -483,7 +483,7 @@ namespace LoadingScreenModRevisited
                 loadingManager.QueueLoadingAction(AssetLoader.Instance.LoadCustomContent());
 
                 // LSM Safenets insert.
-                if (LSMRSettings.TryRecover)
+                if (LSMRSettings.RecoverMissingNets)
                 {
                     loadingManager.QueueLoadingAction(Safenets.Setup());
                 }
