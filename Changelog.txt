@@ -1,4 +1,6 @@
-﻿- Fix simulation recovery options not reverting after use
+﻿Version 1.1.2 -
+
+- Fix simulation recovery options not reverting after use
 - Update options panel layout to make missing net recovery more explicit
 
 
