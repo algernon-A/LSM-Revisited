@@ -94,8 +94,8 @@ namespace LoadingScreenModRevisited
                 recoveryLabel.tooltip = tooltipString;
             }
 
-            UICheckBox removeVehiclesCheck = recoveryGroup.AddCheckbox(Translations.Translate("REMOVE_VEHICLE_AGENTS"), LSMRSettings.RemoveVehicles, (isChecked) => { LSMRSettings.RemoveVehicles = isChecked; } as UICheckBox);
-            UICheckBox removeCitizensCheck = recoveryGroup.AddCheckbox(Translations.Translate("REMOVE_CITIZEN_AGENTS"), LSMRSettings.RemoveCitizenInstances, (isChecked) => { LSMRSettings.RemoveCitizenInstances = isChecked; } as UICheckBox);
+            UICheckBox removeVehiclesCheck = recoveryGroup.AddCheckbox(Translations.Translate("REMOVE_VEHICLE_AGENTS"), LSMRSettings.RemoveVehicles, (isChecked) => { LSMRSettings.RemoveVehicles = isChecked; }) as UICheckBox;
+            UICheckBox removeCitizensCheck = recoveryGroup.AddCheckbox(Translations.Translate("REMOVE_CITIZEN_AGENTS"), LSMRSettings.RemoveCitizenInstances, (isChecked) => { LSMRSettings.RemoveCitizenInstances = isChecked; }) as UICheckBox;
             removeVehiclesCheck.tooltip = tooltipString;
             removeCitizensCheck.tooltip = tooltipString;
 
