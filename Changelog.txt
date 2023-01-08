@@ -1,4 +1,7 @@
-﻿Version 1.1.2 -
+﻿- Asset report filename is no longer localized (to facilitate automatic bundling of logs via Compatibility Report)
+
+
+Version 1.1.2 -
 
 - Fix simulation recovery options not reverting after use
 - Update options panel layout to make missing net recovery more explicit

@@ -333,7 +333,7 @@ namespace LoadingScreenMod
                 {
                     text = text.Replace(oldChar, 'x');
                 }
-                reportFilePath = Util.GetFileName(text + " - " + Translations.Translate("ASSETS_REPORT"), "htm", true); ;
+                reportFilePath = Util.GetFileName(text + " - Assets Report", "htm", true);
                 Util.DebugPrint("Saving assets report to", reportFilePath);
                 w = new StreamWriter(reportFilePath);
                 w.WriteLine("<!DOCTYPE html><html lang=\"" + Translations.CurrentLanguage + "\"><head><meta charset=\"UTF-8\"><title>" + Translations.Translate("ASSETS_REPORT") + "</title><style>");
