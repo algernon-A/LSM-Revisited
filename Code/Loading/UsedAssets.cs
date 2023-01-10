@@ -208,7 +208,7 @@ namespace LoadingScreenModRevisited
                     if (CustomDeserializer.FindLoaded<TPrefab>(customAsset, tryName: false) == null)
                     {
                         // Asset not found.
-                        AssetLoader.Instance.AssetMissing(customAsset);
+                        AssetLoader.Instance.AssetMissing(customAsset, typeof(TPrefab));
 
                         // Report missing asset if we're doing so.
                         if (reportAssets)

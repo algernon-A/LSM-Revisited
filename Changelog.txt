@@ -1,4 +1,5 @@
 ﻿- Asset report filename is no longer localized (to facilitate automatic bundling of logs via Compatibility Report)
+- Missing networks are now displayed in red on loading screen scroll
 
 
 Version 1.1.2 -

@@ -770,7 +770,8 @@ namespace LoadingScreenModRevisited
         /// Reports a missing asset.
         /// </summary>
         /// <param name="fullName">Asset full name.</param>
-        internal void AssetMissing(string fullName)
+        /// <param name="type">Prefab type (determines severity of error).</param>
+        internal void AssetMissing(string fullName, Type type)
         {
             // Check that text isn't null and we haven't already recorded this asset as missing or having failed.
             if (fullName != null && LevelLoader.AddFailed(fullName))
@@ -780,7 +781,7 @@ namespace LoadingScreenModRevisited
                 // Display missing asset name unless we're supressing this one as a known missing asset.
                 if (!_hiddenAssets.Contains(fullName))
                 {
-                    LoadingScreen.s_instance.SceneAndAssetStatus?.AssetNotFound(ShortAssetName(fullName));
+                    LoadingScreen.s_instance.SceneAndAssetStatus?.AssetNotFound(ShortAssetName(fullName), type == typeof(NetInfo));
                 }
             }
         }

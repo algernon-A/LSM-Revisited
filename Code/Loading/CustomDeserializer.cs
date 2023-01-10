@@ -1546,7 +1546,7 @@ namespace LoadingScreenModRevisited
             }
 
             // Not loaded - this asset is used, so try to load it (if 'load used assets' is enabled).
-            if (prefab == null && s_instance.Load(ref fullName, FindAsset(fullName)))
+            if (prefab == null && s_instance.Load(ref fullName, FindAsset(fullName), typeof(TPrefab)))
             {
                 prefab = FindLoaded<TPrefab>(fullName);
             }
@@ -1580,7 +1580,7 @@ namespace LoadingScreenModRevisited
                 {
                     // Not loaded - this asset is used, so try to load it (if 'load used assets' is enabled).
                     string fullName = asset.fullName;
-                    if (s_instance.Load(ref fullName, asset))
+                    if (s_instance.Load(ref fullName, asset, typeof(TPrefab)))
                     {
                         prefab = FindLoaded<TPrefab>(fullName);
                     }
@@ -1634,7 +1634,7 @@ namespace LoadingScreenModRevisited
                 }
 
                 // Not loaded - this asset is used, so try to load it (if 'load used assets' is enabled).
-                if (s_instance.Load(ref fullName, asset))
+                if (s_instance.Load(ref fullName, asset, typeof(TPrefab)))
                 {
                     prefab = FindLoaded<TPrefab>(fullName);
                 }
@@ -1648,8 +1648,9 @@ namespace LoadingScreenModRevisited
         /// </summary>
         /// <param name="fullName">Prefab full name.</param>
         /// <param name="asset">Asset.</param>
+        /// <param name="type">Prefab type (used for error reporting).</param>
         /// <returns>True if loading was successful, false otherwise.</returns>
-        private bool Load(ref string fullName, Package.Asset asset)
+        private bool Load(ref string fullName, Package.Asset asset, Type type)
         {
             // Only attempt to load if the 'load used assets' setting is enabled.
             if (_loadUsed)
@@ -1682,7 +1683,7 @@ namespace LoadingScreenModRevisited
                 else
                 {
                     // Asset doesn't exist - report missing asset.
-                    AssetLoader.Instance.AssetMissing(fullName);
+                    AssetLoader.Instance.AssetMissing(fullName, type);
                 }
             }
             else

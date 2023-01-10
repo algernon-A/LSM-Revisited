@@ -168,12 +168,13 @@ namespace LoadingScreenModRevisited
         /// Adds a missing asset record.
         /// </summary>
         /// <param name="assetName">Asset name.</param>
-        internal void AssetNotFound(string assetName)
+        /// <param name="isCritical">True if the asset is critical (e.g. network), false otherwise - determines display color.</param>
+        internal void AssetNotFound(string assetName, bool isCritical)
         {
             ++_assetsNotFound;
             _problemCountChanged = true;
             EnsureLines();
-            m_text.Append("<color=orange>");
+            m_text.Append(isCritical ? "<color=red>" : "<color=orange>");
             m_text.Append(assetName);
             m_text.Append(_missingText);
             m_text.AppendLine("</color>");
