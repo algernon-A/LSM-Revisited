@@ -117,7 +117,7 @@
 "REMOVE_VEHICLE_AGENTS","Verwijder alle voertuigagents"
 "REMOVE_CITIZEN_AGENTS","Verwijders alle burgeragents"
 "TRY_TO_RECOVER","Probeer te herstellen van een Simulatie-error"
-"RECOVER_NETS","Try to recover from missing networks"
+"RECOVER_NETS","Probeer ontbrekende netwerken te herstellen"
 "NAME","Naam"
 "TYPE","Type"
 "STATUS","Status"

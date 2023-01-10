@@ -117,7 +117,7 @@
 "REMOVE_VEHICLE_AGENTS","Remover todos os agentes de veículos"
 "REMOVE_CITIZEN_AGENTS","Remover todos os agentes de cidadãos"
 "TRY_TO_RECOVER","Tente se recuperar dos Erros de Simulação"
-"RECOVER_NETS","Try to recover from missing networks"
+"RECOVER_NETS","Tentar se recuperar de redes ausentes"
 "NAME","Nome"
 "TYPE","Tipo"
 "STATUS","Status"
