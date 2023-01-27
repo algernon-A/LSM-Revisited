@@ -452,6 +452,9 @@ namespace LoadingScreenModRevisited
             "nFi7w93.jpeg",
             "BJVMNLB.png",
             "0VdKsjt.png",
+            "kkylAGt.png",
+            "L4yzYxb.png",
+            "sDLBAUo.png",
         };
 
         /// <summary>
