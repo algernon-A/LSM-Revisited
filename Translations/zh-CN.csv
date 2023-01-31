@@ -112,7 +112,7 @@
 "PREFAB_SKIPPING","跳过指定资产"
 "PREFAB_MEANS","指定资产为游戏中的内置资产"
 "SKIP_THESE","跳过此文件中提及的指定资产（可手动更改目录）:"
-"SAFE_MODE","在安全模式下加载保存"
+"SAFE_MODE","在安全模式下加载下一个存档"
 "AUTOMATICALLY_DISABLED","当您退出桌面时，选项会自动禁用"
 "REMOVE_VEHICLE_AGENTS","删除所有车辆主题"
 "REMOVE_CITIZEN_AGENTS","删除所有市民主题"
