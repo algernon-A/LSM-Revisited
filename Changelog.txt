@@ -1,4 +1,7 @@
-﻿Version 1.1.3
+﻿- Add additional null checks to API
+
+
+Version 1.1.3
 
 - Asset report filename is no longer localized (to facilitate automatic bundling of logs via Compatibility Report)
 - Missing networks are now displayed in red on loading screen scroll

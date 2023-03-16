@@ -61,13 +61,33 @@ namespace LSM
         /// </summary>
         /// <param name="netInfo">Network prefab.</param>
         /// <returns>Containing package (null if unsuccessful).</returns>
-        public static Package GetPackageOf(NetInfo netInfo) => CustomDeserializer.FindAsset(netInfo.name).package;
+        public static Package GetPackageOf(NetInfo netInfo)
+        {
+            // Null check.
+            if (netInfo?.name != null)
+            {
+                return CustomDeserializer.FindAsset(netInfo.name)?.package;
+            }
+
+            // If we got here, something failed; return null.
+            return null;
+        }
 
         /// <summary>
         /// Attempts to retrieve the package asset containing the provided network prefab.
         /// </summary>
         /// <param name="netInfo">Network prefab.</param>
         /// <returns>Containing package asset (null if unsuccessful).</returns>
-        public static Package.Asset GetAsset(NetInfo netInfo) => CustomDeserializer.FindAsset(netInfo.name);
+        public static Package.Asset GetAsset(NetInfo netInfo)
+        {
+            // Null check.
+            if (netInfo?.name != null)
+            {
+                return CustomDeserializer.FindAsset(netInfo.name);
+            }
+
+            // If we got here, something failed; return null.
+            return null;
+        }
     }
 }
