@@ -117,7 +117,7 @@
 "REMOVE_VEHICLE_AGENTS","Odstranit všechny agenty vozidel"
 "REMOVE_CITIZEN_AGENTS","Odstranit všechny agenty občanů"
 "TRY_TO_RECOVER","Pokus o zotavení z chyb simulace"
-"RECOVER_NETS","Try to recover from missing networks"
+"RECOVER_NETS","Pokus o obnovení chybějících silnic"
 "NAME","Název"
 "TYPE","Typ"
 "STATUS","Stav"
