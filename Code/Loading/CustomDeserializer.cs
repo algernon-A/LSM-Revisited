@@ -530,7 +530,7 @@ namespace LoadingScreenModRevisited
                     return ReadMessageInfo(reader);
 
                 case TypeVehicleInfoEffect:
-                    return ReadVehicleInfoEffect(reader);
+                    return ReadVehicleInfoEffect(package, reader);
 
                 case TypeTransportInfo:
                     return ReadTransportInfo(reader);
@@ -1056,11 +1056,12 @@ namespace LoadingScreenModRevisited
         /// <summary>
         /// Deserializes a VehicleInfo.Effect.
         /// </summary>
+        /// <param name="package">Package to deserialize.</param>
         /// <param name="reader">PackageReader instance.</param>
         /// <returns>New VehicleInfo.Effect.</returns>
-        private VehicleInfo.Effect ReadVehicleInfoEffect(PackageReader reader)
+        private VehicleInfo.Effect ReadVehicleInfoEffect(Package package, PackageReader reader)
         {
-            return new VehicleInfo.Effect
+            VehicleInfo.Effect effect = new VehicleInfo.Effect
             {
                 m_effect = EffectCollection.FindEffect(reader.ReadString()),
                 m_parkedFlagsForbidden = (VehicleParked.Flags)reader.ReadInt32(),
@@ -1068,6 +1069,20 @@ namespace LoadingScreenModRevisited
                 m_vehicleFlagsForbidden = (Vehicle.Flags)reader.ReadInt32(),
                 m_vehicleFlagsRequired = (Vehicle.Flags)reader.ReadInt32(),
             };
+
+            // 1.16.1.
+            if (package.version >= 10)
+            {
+                effect.m_vehicleFlagsForbidden2 = (Vehicle.Flags2)reader.ReadInt32();
+                effect.m_vehicleFlagsRequired2 = (Vehicle.Flags2)reader.ReadInt32();
+            }
+            else
+            {
+                effect.m_vehicleFlagsForbidden2 = 0;
+                effect.m_vehicleFlagsRequired2 = 0;
+            }
+
+            return effect;
         }
 
         /// <summary>
