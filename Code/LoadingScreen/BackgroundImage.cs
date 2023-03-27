@@ -14,6 +14,7 @@ namespace LoadingScreenModRevisited
     using System.Text.RegularExpressions;
     using System.Threading;
     using AlgernonCommons;
+    using ColossalFramework;
     using UnityEngine;
 
     /// <summary>
@@ -498,6 +499,11 @@ namespace LoadingScreenModRevisited
             /// Random image from a local directory.
             /// </summary>
             LocalRandom,
+
+            /// <summary>
+            /// Classic image.
+            /// </summary>
+            Classic,
         }
 
         /// <summary>
@@ -562,6 +568,20 @@ namespace LoadingScreenModRevisited
 
                     return GetDownloadedMaterial(originalMaterial, RandomImages);
 
+                case ImageMode.Classic:
+                    // Get the game environment name.
+                    string environment = Singleton<SimulationManager>.instance.m_metaData.m_environment;
+
+                    // No legacy background for Snowfall.
+                    if (environment.Equals("Winter"))
+                    {
+                        return null;
+                    }
+
+                    // Load image.
+                    string backgroundPath = Path.Combine(AssemblyUtils.AssemblyPath, "Backgrounds");
+                    return LoadImageFile(Path.Combine(backgroundPath, environment + " Loading Image.png"), originalMaterial);
+
                 default:
                     return null;
             }
@@ -617,9 +637,9 @@ namespace LoadingScreenModRevisited
         /// <summary>
         /// Attempts to replace the given material with one from a randomly selected file in a local image directory.
         /// </summary>
-        /// <param name="material">Original material.</param>
+        /// <param name="originalMaterial">Original material.</param>
         /// <returns>New material based on original with new texture, or null if failed.</returns>
-        private static Material GetLocalImage(Material material)
+        private static Material GetLocalImage(Material originalMaterial)
         {
             // Check that the specified directory exists.
             if (!Directory.Exists(s_imageDir))
@@ -627,9 +647,6 @@ namespace LoadingScreenModRevisited
                 Logging.KeyMessage("local image directory not found: ", s_imageDir);
                 return null;
             }
-
-            // Background texture base.
-            Texture2D newTexture = new Texture2D(1, 1);
 
             // Get list of files.
             System.Random random = new System.Random();
@@ -646,17 +663,8 @@ namespace LoadingScreenModRevisited
                         continue;
                     }
 
-                    Logging.Message("found image file ", imageFileName);
-
-                    // Read file and convert to texture.
-                    byte[] imageData = File.ReadAllBytes(imageFileName);
-                    newTexture.LoadImage(imageData);
-
-                    // Got an eligible candidate - convert to material and return it.
-                    return new Material(material)
-                    {
-                        mainTexture = newTexture,
-                    };
+                    // Load image.
+                    return LoadImageFile(imageFileName, originalMaterial);
                 }
                 catch (Exception e)
                 {
@@ -667,6 +675,36 @@ namespace LoadingScreenModRevisited
 
             // If we got here, we didn't get an image; return null.
             return null;
+        }
+
+        /// <summary>
+        /// Loads an image texture from file.
+        /// </summary>
+        /// <param name="imageFileName">Image file to load (full path).</param>
+        /// <param name="originalMaterial">Original material.</param>
+        /// <returns>New material based on original with new texture, or null if failed.</returns>
+        private static Material LoadImageFile(string imageFileName, Material originalMaterial)
+        {
+            try
+            {
+                // Background texture base.
+                Texture2D newTexture = new Texture2D(1, 1);
+
+                // Read file and convert to texture.
+                byte[] imageData = File.ReadAllBytes(imageFileName);
+                newTexture.LoadImage(imageData);
+
+                // Got an eligible candidate - convert to material and return it.
+                return new Material(originalMaterial)
+                {
+                    mainTexture = newTexture,
+                };
+            }
+            catch (Exception e)
+            {
+                Logging.LogException(e, "exception reading image file ", imageFileName);
+                return null;
+            }
         }
 
         /// <summary>

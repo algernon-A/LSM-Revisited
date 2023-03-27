@@ -20,6 +20,7 @@ namespace LoadingScreenModRevisited
         private readonly UICheckBox _defaultCheck;
         private readonly UICheckBox _imgurCuratedCheck;
         // private readonly UICheckBox _imgurRandomCheck;
+        private readonly UICheckBox _classicCheck;
         private readonly UICheckBox _localRandomCheck;
         private readonly UICheckBox _fitImageCheck;
         private readonly UICheckBox _cropImageCheck;
@@ -67,6 +68,13 @@ namespace LoadingScreenModRevisited
                 RandomCheckChanged) as UICheckBox;
             _imgurRandomCheck.tooltip = Translations.Translate("IMGUR_TOP_TIP");
             */
+
+            // Classic image check.
+            _classicCheck = sourceGroup.AddCheckbox(
+                Translations.Translate("CLASSIC_IMAGE"),
+                BackgroundImage.CurrentImageMode == BackgroundImage.ImageMode.Classic,
+                ClassicCheckChanged) as UICheckBox;
+            _classicCheck.tooltip = Translations.Translate("CLASSIC_IMAGE_TIP");
 
             // Random local image check.
             _localRandomCheck = sourceGroup.AddCheckbox(
@@ -201,6 +209,28 @@ namespace LoadingScreenModRevisited
             if (isChecked)
             {
                 BackgroundImage.CurrentImageMode = BackgroundImage.ImageMode.ImgurRandom;
+            }
+
+            // Update all mode check states.
+            UpdateModeChecks();
+        }
+
+        /// <summary>
+        /// Classic background image check change handler.
+        /// </summary>
+        /// <param name="isChecked">New checked status.</param>
+        private void ClassicCheckChanged(bool isChecked)
+        {
+            // Don't do anything if events are ignored.
+            if (ignoreEvents)
+            {
+                return;
+            }
+
+            // Only update if this is being checked.
+            if (isChecked)
+            {
+                BackgroundImage.CurrentImageMode = BackgroundImage.ImageMode.Classic;
             }
 
             // Update all mode check states.

@@ -1,4 +1,7 @@
-﻿Version 1.1.4 -
+﻿- Add classic background image mode
+
+
+Version 1.1.4 -
 
 - Support game version 1.16.1 and associated DLC
 - Add additional null checks to API
