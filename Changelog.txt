@@ -1,4 +1,7 @@
-﻿- Add classic background image mode
+﻿Version 1.1.5 -
+
+- Add classic background image mode
+- Change memory use display from total page to additional allocated page
 
 
 Version 1.1.4 -
