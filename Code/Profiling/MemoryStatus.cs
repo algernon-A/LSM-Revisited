@@ -21,9 +21,9 @@ namespace LoadingScreenModRevisited
 
         // Title strings.
         private readonly string _gameRAMTitle = Translations.Translate("GAME_RAM_USE");
-        private readonly string _gamePageTitle = Translations.Translate("GAME_PAGE_USE");
+        private readonly string _gamePageTitle = Translations.Translate("GAME_EXTRA_USE");
         private readonly string _sysRAMTitle = Translations.Translate("SYS_RAM_USE");
-        private readonly string _sysPageTitle = Translations.Translate("SYS_PAGE_USE");
+        private readonly string _sysPageTitle = Translations.Translate("SYS_EXTRA_USE");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MemoryStatus"/> class.
@@ -50,17 +50,17 @@ namespace LoadingScreenModRevisited
                 _memoryText.Length = _titleLength;
 
                 // Get memory usage.
-                MemoryAPI.GetMemoryUse(out double gameUsedPhyiscal, out double sysUsedPhysical, out double totalPhysical, out double gameUsedPage, out double sysUsedPage, out double totalPage);
+                MemoryAPI.GetMemoryUse(out double gameUsedPhyiscal, out double sysUsedPhysical, out double totalPhysical, out double gameExtraPage, out double sysExtraPage, out double totalPage);
 
                 // Calculate ratios.
                 double memUseRatio = sysUsedPhysical / totalPhysical;
-                double pageUseRatio = sysUsedPage / totalPage;
+                double pageUseRatio = (sysUsedPhysical + sysExtraPage) / totalPage;
 
                 // Add usage strings.
                 SetMemoryText(_gameRAMTitle, memUseRatio, gameUsedPhyiscal);
-                SetMemoryText(_gamePageTitle, pageUseRatio, gameUsedPage);
+                SetMemoryText(_gamePageTitle, pageUseRatio, gameExtraPage);
                 SetMemoryText(_sysRAMTitle, memUseRatio, sysUsedPhysical, totalPhysical);
-                SetMemoryText(_sysPageTitle, pageUseRatio, sysUsedPage, totalPage);
+                SetMemoryText(_sysPageTitle, pageUseRatio, sysExtraPage, totalPage);
 
                 return _memoryText;
             }

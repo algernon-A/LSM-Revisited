@@ -44,10 +44,10 @@ namespace LoadingScreenModRevisited
         /// <param name="gameUsedRAM">Physical RAM currently used by game, in GB.</param>
         /// <param name="sysUsedRAM">Total system RAM currently in use, in GB.</param>
         /// <param name="totalRAM">Total system RAM, in GB.</param>
-        /// <param name="gameUsedPage">Virtual memory currently used by game, in GB.</param>
-        /// <param name="sysUsedPage">>Total system virtual memory currently in use, in GB.</param>
+        /// <param name="gameExtraPage">Additional paged memory currently allocated to game, in GB.</param>
+        /// <param name="sysExtraPage">Additional paged memory currently allocated to system, in GB.</param>
         /// <param name="totalPage">Total system virtual memory size, in GB.</param>
-        internal static void GetMemoryUse(out double gameUsedRAM, out double sysUsedRAM, out double totalRAM, out double gameUsedPage, out double sysUsedPage, out double totalPage)
+        internal static void GetMemoryUse(out double gameUsedRAM, out double sysUsedRAM, out double totalRAM, out double gameExtraPage, out double sysExtraPage, out double totalPage)
         {
             // Get process memory usage.
             GetProcessMemoryInfo(ProcessHandle, out s_processCounters, s_processCounters.cb);
@@ -59,8 +59,13 @@ namespace LoadingScreenModRevisited
             sysUsedRAM = (s_statusEX.TotalPhysical - s_statusEX.AvailablePhysical) * ByteToGB;
             totalRAM = s_statusEX.TotalPhysical * ByteToGB;
 
-            gameUsedPage = s_processCounters.PagefileUsage * ByteToGB;
-            sysUsedPage = (s_statusEX.TotalPageFile - s_statusEX.AvailablePageFile) * ByteToGB;
+            // Calculate extra (non-physical) allocated page.
+            double gameUsedPage = s_processCounters.PagefileUsage * ByteToGB;
+            double sysUsedPage = (s_statusEX.TotalPageFile - s_statusEX.AvailablePageFile) * ByteToGB;
+
+            // Set extra page totals.
+            gameExtraPage = gameUsedPage - gameUsedRAM;
+            sysExtraPage = sysUsedPage - sysUsedRAM;
             totalPage = s_statusEX.TotalPageFile * ByteToGB;
 
             // Update maximums.
