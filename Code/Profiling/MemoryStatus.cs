@@ -54,7 +54,7 @@ namespace LoadingScreenModRevisited
 
                 // Calculate ratios.
                 double memUseRatio = sysUsedPhysical / totalPhysical;
-                double pageUseRatio = (sysUsedPhysical + sysExtraPage) / totalPage;
+                double pageUseRatio = sysExtraPage / totalPage;
 
                 // Add usage strings.
                 SetMemoryText(_gameRAMTitle, memUseRatio, gameUsedPhyiscal);
