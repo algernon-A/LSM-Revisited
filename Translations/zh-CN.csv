@@ -47,7 +47,7 @@
 "TIMES","次",""
 "MATERIALS","材质",""
 "MESHES","网格",""
-"SKIPPED_PREFABS","跳过预制资产",""
+"SKIPPED_PREFABS","跳过指定资产",""
 "BUILDING_PREFABS","建筑预制资产",""
 "VEHICLE_PREFABS","车辆预制资产",""
 "PROP_PREFABS","道具预制资产",""
