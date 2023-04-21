@@ -1,4 +1,5 @@
-﻿- Update AlgernonCommons
+﻿- Reset skipping file path to default when path is empty
+- Update AlgernonCommons
 
 
 Version 1.1.5 -

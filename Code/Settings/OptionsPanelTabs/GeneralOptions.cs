@@ -11,6 +11,7 @@ namespace LoadingScreenModRevisited
     using AlgernonCommons;
     using AlgernonCommons.Translation;
     using AlgernonCommons.UI;
+    using ColossalFramework;
     using ColossalFramework.UI;
 
     /// <summary>
@@ -18,6 +19,9 @@ namespace LoadingScreenModRevisited
     /// </summary>
     internal class GeneralOptions : OptionsPanelTab
     {
+        // Panel components.
+        private UITextField _skipFileTextField;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="GeneralOptions"/> class.
         /// </summary>
@@ -81,7 +85,7 @@ namespace LoadingScreenModRevisited
             // Prefab skipping options.
             UIHelper skippingGroup = AddGroup(helper, Translations.Translate("PREFAB_SKIPPING"), Translations.Translate("PREFAB_MEANS"));
             UICheckBox skipCheck = skippingGroup.AddCheckbox(Translations.Translate("SKIP_THESE"), LSMRSettings.SkipPrefabs, (isChecked) => { LSMRSettings.SkipPrefabs = isChecked; }) as UICheckBox;
-            TextField(skippingGroup, LSMRSettings.SkipFile, (value) => LSMRSettings.SkipFile = value);
+            _skipFileTextField = TextField(skippingGroup, LSMRSettings.SkipFile, (value) => LSMRSettings.SkipFile = value);
             UIButton openSkipFileButton = skippingGroup.AddButton(Translations.Translate("OPEN_FILE"), OpenSkipFile) as UIButton;
             openSkipFileButton.tooltip = Translations.Translate("CLICK_TO_OPEN");
 
@@ -105,6 +109,7 @@ namespace LoadingScreenModRevisited
             {
                 simulationLabel.tooltip = tooltipString;
             }
+
             UICheckBox recoverNetCheck = simulationGroup.AddCheckbox(Translations.Translate("RECOVER_NETS"), LSMRSettings.RecoverMissingNets, (isChecked) => { LSMRSettings.RecoverMissingNets = isChecked; }) as UICheckBox;
             recoverNetCheck.tooltip = tooltipString;
         }
@@ -116,6 +121,15 @@ namespace LoadingScreenModRevisited
         {
             try
             {
+                // If string is null, reset it.
+                if (LSMRSettings.SkipFile.IsNullOrWhiteSpace())
+                {
+                    LSMRSettings.SkipFile = LoadingScreenMod.Settings.DefaultSkipFile;
+
+                    // Update textfield.
+                    _skipFileTextField.text = LSMRSettings.SkipFile;
+                }
+
                 // Create directory if it doesn't already exist.
                 string directoryName = Path.GetDirectoryName(LSMRSettings.SkipFile);
                 if (!Directory.Exists(directoryName))

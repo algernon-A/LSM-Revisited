@@ -22,7 +22,8 @@ namespace LoadingScreenModRevisited
         /// <param name="group">UIHelper group.</param>
         /// <param name="text">Initial text.</param>
         /// <param name="action">Text changed action.</param>
-        protected void TextField(UIHelper group, string text, OnTextChanged action)
+        /// <returns>New UITextField.</returns>
+        protected UITextField TextField(UIHelper group, string text, OnTextChanged action)
         {
             try
             {
@@ -48,11 +49,16 @@ namespace LoadingScreenModRevisited
                     uILabel.Hide();
                     parentPanel.height -= height;
                 }
+
+                return textField;
             }
             catch (Exception e)
             {
                 Logging.LogException(e, "Exception creating options panel textfield");
             }
+
+            // If we got here, something went wrong; return null.
+            return null;
         }
 
         /// <summary>
