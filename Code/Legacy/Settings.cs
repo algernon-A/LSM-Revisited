@@ -81,7 +81,7 @@ namespace LoadingScreenMod
 
         internal static string DefaultSavePath => Path.Combine(Path.Combine(DataLocation.localApplicationData, "Report"), "LoadingScreenMod");
 
-        private static string DefaultSkipFile => Path.Combine(Path.Combine(DataLocation.localApplicationData, "SkippedPrefabs"), "skip.txt");
+        internal static string DefaultSkipFile => Path.Combine(Path.Combine(DataLocation.localApplicationData, "SkippedPrefabs"), "skip.txt");
 
         internal static string HiddenAssetsFile => LoadingScreenModRevisited.LSMRSettings.HiddenAssetsFile;
 
