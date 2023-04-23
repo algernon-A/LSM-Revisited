@@ -14,6 +14,9 @@ namespace LoadingScreenModRevisited
     /// </summary>
     internal class ReportingOptions : OptionsPanelTab
     {
+        // Panel components.
+        private readonly UITextField _reportTextField;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ReportingOptions"/> class.
         /// </summary>
@@ -52,7 +55,7 @@ namespace LoadingScreenModRevisited
             }) as UICheckBox;
             reportCheck.tooltip = Translations.Translate("SAVE_REPORTS_OF_ASSETS");
 
-            TextField(reportingGroup, LSMRSettings.ReportDirectory, (text) =>
+            _reportTextField = TextField(reportingGroup, LSMRSettings.ReportDirectory, (text) =>
             {
                 if (text != LSMRSettings.ReportDirectory)
                 {
@@ -62,6 +65,11 @@ namespace LoadingScreenModRevisited
 
             UIButton openReportDirectoryButton = reportingGroup.AddButton(Translations.Translate("OPEN_DIRECTORY"), LSMRSettings.OpenReportDirectory) as UIButton;
             openReportDirectoryButton.tooltip = Translations.Translate("CLICK_TO_OPEN") + ' ' + LoadingScreenMod.Settings.HiddenAssetsFile;
+            UIButton resetFileLocationButton = reportingGroup.AddButton(Translations.Translate("RESET_FILE_LOCATION"), () =>
+            {
+                LSMRSettings.ReportDirectory = LSMRSettings.DefaultReportsDirectory;
+                _reportTextField.text = LSMRSettings.ReportDirectory;
+            }) as UIButton;
 
             // Suprressing options.
             UIHelper suppressingGroup = AddGroup(helper, Translations.Translate("DO_NOT_REPORT"));

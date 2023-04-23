@@ -315,7 +315,7 @@ namespace LoadingScreenModRevisited
         /// Gets the default reports directory path.
         /// </summary>
         [XmlIgnore]
-        private static string DefaultReportsDirectory => Path.Combine(Path.Combine(DataLocation.localApplicationData, "Report"), "LoadingScreenMod");
+        internal static string DefaultReportsDirectory => Path.Combine(Path.Combine(DataLocation.localApplicationData, "Report"), "LoadingScreenMod");
 
         /// <summary>
         /// Loads settings from file.

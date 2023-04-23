@@ -13,6 +13,7 @@ namespace LoadingScreenModRevisited
     using AlgernonCommons.UI;
     using ColossalFramework;
     using ColossalFramework.UI;
+    using UnityEngine;
 
     /// <summary>
     /// Options panel for setting basic mod options.
@@ -20,7 +21,7 @@ namespace LoadingScreenModRevisited
     internal class GeneralOptions : OptionsPanelTab
     {
         // Panel components.
-        private UITextField _skipFileTextField;
+        private readonly UITextField _skipFileTextField;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GeneralOptions"/> class.
@@ -88,6 +89,14 @@ namespace LoadingScreenModRevisited
             _skipFileTextField = TextField(skippingGroup, LSMRSettings.SkipFile, (value) => LSMRSettings.SkipFile = value);
             UIButton openSkipFileButton = skippingGroup.AddButton(Translations.Translate("OPEN_FILE"), OpenSkipFile) as UIButton;
             openSkipFileButton.tooltip = Translations.Translate("CLICK_TO_OPEN");
+            UIButton resetSkipLocationButton = openSkipFileButton.AttachUIComponent(UITemplateManager.GetAsGameObject("OptionsButtonTemplate")) as UIButton;
+            resetSkipLocationButton.relativePosition = new Vector2(openSkipFileButton.width + 10f, 0f);
+            resetSkipLocationButton.text = Translations.Translate("RESET_FILE_LOCATION");
+            resetSkipLocationButton.eventClicked += (c, p) =>
+            {
+                LSMRSettings.SkipFile = LoadingScreenMod.Settings.DefaultSkipFile;
+                _skipFileTextField.text = LSMRSettings.SkipFile;
+            };
 
             // Recovery options.
             string tooltipString = Translations.Translate("AUTOMATICALLY_DISABLED");

@@ -112,6 +112,7 @@
 "PREFAB_SKIPPING","Prefab skipping"
 "PREFAB_MEANS","Prefab means the built-in assets in the game"
 "SKIP_THESE","Skip the prefabs named in this file:"
+"RESET_FILE_LOCATION","Reset file location"
 "SAFE_MODE","Load next save in Safe Mode"
 "AUTOMATICALLY_DISABLED","These options are automatically disabled when you exit to desktop"
 "REMOVE_VEHICLE_AGENTS","Remove all vehicle agents"
