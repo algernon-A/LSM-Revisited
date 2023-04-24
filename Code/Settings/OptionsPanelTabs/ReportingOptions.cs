@@ -8,6 +8,7 @@ namespace LoadingScreenModRevisited
     using AlgernonCommons.Translation;
     using AlgernonCommons.UI;
     using ColossalFramework.UI;
+    using UnityEngine;
 
     /// <summary>
     /// Options panel for setting reporting options.
@@ -63,13 +64,26 @@ namespace LoadingScreenModRevisited
                 }
             });
 
-            UIButton openReportDirectoryButton = reportingGroup.AddButton(Translations.Translate("OPEN_DIRECTORY"), LSMRSettings.OpenReportDirectory) as UIButton;
+            // Buttons.
+            UIComponent reportingPanel = reportingGroup.self as UIComponent;
+            UIPanel buttonPanel = reportingPanel.AddUIComponent<UIPanel>();
+            buttonPanel.autoLayout = false;
+            buttonPanel.autoSize = true;
+            
+            UIButton openReportDirectoryButton = buttonPanel.AttachUIComponent(UITemplateManager.GetAsGameObject("OptionsButtonTemplate")) as UIButton;
+            openReportDirectoryButton.relativePosition = Vector2.zero;
+            openReportDirectoryButton.text = Translations.Translate("OPEN_DIRECTORY");
             openReportDirectoryButton.tooltip = Translations.Translate("CLICK_TO_OPEN") + ' ' + LoadingScreenMod.Settings.HiddenAssetsFile;
-            UIButton resetFileLocationButton = reportingGroup.AddButton(Translations.Translate("RESET_FILE_LOCATION"), () =>
+            openReportDirectoryButton.eventClicked += (c, p) => LSMRSettings.OpenReportDirectory();
+
+            UIButton resetFileLocationButton = buttonPanel.AttachUIComponent(UITemplateManager.GetAsGameObject("OptionsButtonTemplate")) as UIButton;
+            resetFileLocationButton.relativePosition = new Vector2(openReportDirectoryButton.width + 10f, 0f);
+            resetFileLocationButton.text = Translations.Translate("RESET_FILE_LOCATION");
+            resetFileLocationButton.eventClicked += (c, p) =>
             {
                 LSMRSettings.ReportDirectory = LSMRSettings.DefaultReportsDirectory;
                 _reportTextField.text = LSMRSettings.ReportDirectory;
-            }) as UIButton;
+            };
 
             // Suprressing options.
             UIHelper suppressingGroup = AddGroup(helper, Translations.Translate("DO_NOT_REPORT"));

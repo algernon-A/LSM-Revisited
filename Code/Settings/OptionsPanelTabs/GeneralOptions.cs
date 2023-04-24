@@ -83,13 +83,24 @@ namespace LoadingScreenModRevisited
             UICheckBox optimizeThumbsCheck = assetGroup.AddCheckbox(Translations.Translate("OPTIMIZE_THUMBNAILS"), LSMRSettings.OptimizeThumbs, (isChecked) => { LSMRSettings.OptimizeThumbs = isChecked; }) as UICheckBox;
             optimizeThumbsCheck.tooltip = Translations.Translate("OPTIMIZE_TEXTURES");
 
-            // Prefab skipping options.
+            // Prefab skipping filepath.
             UIHelper skippingGroup = AddGroup(helper, Translations.Translate("PREFAB_SKIPPING"), Translations.Translate("PREFAB_MEANS"));
             UICheckBox skipCheck = skippingGroup.AddCheckbox(Translations.Translate("SKIP_THESE"), LSMRSettings.SkipPrefabs, (isChecked) => { LSMRSettings.SkipPrefabs = isChecked; }) as UICheckBox;
             _skipFileTextField = TextField(skippingGroup, LSMRSettings.SkipFile, (value) => LSMRSettings.SkipFile = value);
-            UIButton openSkipFileButton = skippingGroup.AddButton(Translations.Translate("OPEN_FILE"), OpenSkipFile) as UIButton;
+
+            // Prefab skipping buttons.
+            UIComponent skippingPanel = skippingGroup.self as UIComponent;
+            UIPanel buttonPanel = skippingPanel.AddUIComponent<UIPanel>();
+            buttonPanel.autoLayout = false;
+            buttonPanel.autoSize = true;
+
+            UIButton openSkipFileButton = buttonPanel.AttachUIComponent(UITemplateManager.GetAsGameObject("OptionsButtonTemplate")) as UIButton;
+            openSkipFileButton.relativePosition = Vector2.zero;
+            openSkipFileButton.text = Translations.Translate("OPEN_FILE");
             openSkipFileButton.tooltip = Translations.Translate("CLICK_TO_OPEN");
-            UIButton resetSkipLocationButton = openSkipFileButton.AttachUIComponent(UITemplateManager.GetAsGameObject("OptionsButtonTemplate")) as UIButton;
+            openSkipFileButton.eventClicked += (c, p) => OpenSkipFile();
+
+            UIButton resetSkipLocationButton = buttonPanel.AttachUIComponent(UITemplateManager.GetAsGameObject("OptionsButtonTemplate")) as UIButton;
             resetSkipLocationButton.relativePosition = new Vector2(openSkipFileButton.width + 10f, 0f);
             resetSkipLocationButton.text = Translations.Translate("RESET_FILE_LOCATION");
             resetSkipLocationButton.eventClicked += (c, p) =>
