@@ -1,6 +1,5 @@
 // <copyright file="PrefabLoader.cs" company="algernon (K. Algernon A. Sheppard)">
 // Copyright (c) thale5 and algernon (K. Algernon A. Sheppard). All rights reserved.
-// Licensed under the MIT license. See LICENSE.txt file in the project root for full license information.
 // </copyright>
 
 namespace LoadingScreenModRevisited
@@ -23,21 +22,39 @@ namespace LoadingScreenModRevisited
     public sealed class PrefabLoader
     {
         /// <summary>
-        /// The number of supported skipping types.
-        /// </summary>
-        internal const int SkipTypes = 5;
-
-        /// <summary>
         /// The prefix applied to skipped prefab names.
         /// </summary>
         internal const string SkipPrefix = "lsm___";
 
-        // Type indexes.
-        private const int Buildings = 0;
-        private const int Vehicles = 1;
-        private const int Props = 2;
-        private const int Trees = 3;
-        private const int Nets = 4;
+        /// <summary>
+        /// Building type index.
+        /// </summary>
+        internal const int Buildings = 0;
+
+        /// <summary>
+        /// Vehicle type index.
+        /// </summary>
+        internal const int Vehicles = 1;
+
+        /// <summary>
+        /// Prop type index.
+        /// </summary>
+        internal const int Props = 2;
+
+        /// <summary>
+        /// Tree type index.
+        /// </summary>
+        internal const int Trees = 3;
+
+        /// <summary>
+        /// Network type index.
+        /// </summary>
+        internal const int Nets = 4;
+
+        /// <summary>
+        /// The number of supported skipping types.
+        /// </summary>
+        internal const int SkipTypes = 5;
 
         // Interator routine string.
         private const string IteratorRoutine = "<InitializePrefabs>c__Iterator0";
@@ -233,27 +250,27 @@ namespace LoadingScreenModRevisited
                 int[] skipCounts = LevelLoader.SkipCounts;
                 if (skipCounts[Buildings] > 0)
                 {
-                    Logging.KeyMessage("Skipped ", skipCounts[Buildings], " building prefabs");
+                    Logging.KeyMessage("skipped ", skipCounts[Buildings], " building prefabs");
                 }
 
                 if (skipCounts[Vehicles] > 0)
                 {
-                    Logging.KeyMessage("Skipped ", skipCounts[Vehicles], " vehicle prefabs");
+                    Logging.KeyMessage("skipped ", skipCounts[Vehicles], " vehicle prefabs");
                 }
 
                 if (skipCounts[Props] > 0)
                 {
-                    Logging.KeyMessage("Skipped ", skipCounts[Props], " prop prefabs");
+                    Logging.KeyMessage("skipped ", skipCounts[Props], " prop prefabs");
                 }
 
                 if (skipCounts[Trees] > 0)
                 {
-                    Logging.KeyMessage("Skipped ", skipCounts[Trees], " tree prefabs");
+                    Logging.KeyMessage("skipped ", skipCounts[Trees], " tree prefabs");
                 }
 
                 if (skipCounts[Nets] > 0)
                 {
-                    Logging.KeyMessage("Skipped ", skipCounts[Nets], " net prefabs");
+                    Logging.KeyMessage("skipped ", skipCounts[Nets], " net prefabs");
                 }
 
                 try
@@ -284,7 +301,7 @@ namespace LoadingScreenModRevisited
         internal void Revert() => PatcherManager<Patcher>.Instance.UnpatchMethod(typeof(LoadingManager), typeof(PrefabLoader), nameof(QueueLoadingAction));
 
         /// <summary>
-        /// Looks up all simulation prefabs (used buildings).
+        /// Looks up all simulation prefabs (used buildings and networks).
         /// </summary>
         internal void PopulateSimulationPrefabs()
         {
@@ -374,7 +391,7 @@ namespace LoadingScreenModRevisited
         /// </summary>
         internal void Dispose()
         {
-            // CLear arrays.
+            // Clear arrays.
             _simulationPrefabs?.Clear();
             _simulationPrefabs = null;
 

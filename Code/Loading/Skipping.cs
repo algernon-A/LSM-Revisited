@@ -1,6 +1,5 @@
 // <copyright file="Skipping.cs" company="algernon (K. Algernon A. Sheppard)">
 // Copyright (c) thale5 and algernon (K. Algernon A. Sheppard). All rights reserved.
-// Licensed under the MIT license. See LICENSE.txt file in the project root for full license information.
 // </copyright>
 
 namespace LoadingScreenModRevisited
@@ -10,18 +9,14 @@ namespace LoadingScreenModRevisited
     using System.IO;
     using System.Text.RegularExpressions;
     using AlgernonCommons;
+    using static PrefabLoader;
 
     /// <summary>
     /// Prefab name matcher for asset skipping.
     /// </summary>
     internal sealed class Skipping
     {
-        // Matching types.
-        private const int Buildings = 0;
-        private const int Vehicles = 1;
-        private const int Props = 2;
-        private const int Trees = 3;
-        private const int Nets = 4;
+        // Matching types (additional to PrefabLoader defined type indexes).
         private const int Levels = 5;
         private const int NameTypes = 5;
         private const int NumTypes = 6;
