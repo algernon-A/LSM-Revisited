@@ -1,10 +1,10 @@
 ﻿// <copyright file="ReportingOptions.cs" company="algernon (K. Algernon A. Sheppard)">
 // Copyright (c) algernon (K. Algernon A. Sheppard). All rights reserved.
-// Licensed under the MIT license. See LICENSE.txt file in the project root for full license information.
 // </copyright>
 
 namespace LoadingScreenModRevisited
 {
+    using AlgernonCommons;
     using AlgernonCommons.Translation;
     using AlgernonCommons.UI;
     using ColossalFramework.UI;
@@ -68,8 +68,7 @@ namespace LoadingScreenModRevisited
             UIComponent reportingPanel = reportingGroup.self as UIComponent;
             UIPanel buttonPanel = reportingPanel.AddUIComponent<UIPanel>();
             buttonPanel.autoLayout = false;
-            buttonPanel.autoSize = true;
-            
+
             UIButton openReportDirectoryButton = buttonPanel.AttachUIComponent(UITemplateManager.GetAsGameObject("OptionsButtonTemplate")) as UIButton;
             openReportDirectoryButton.relativePosition = Vector2.zero;
             openReportDirectoryButton.text = Translations.Translate("OPEN_DIRECTORY");
@@ -85,6 +84,8 @@ namespace LoadingScreenModRevisited
                 _reportTextField.text = LSMRSettings.ReportDirectory;
             };
 
+            buttonPanel.height = 40f;
+
             // Suprressing options.
             UIHelper suppressingGroup = AddGroup(helper, Translations.Translate("DO_NOT_REPORT"));
 
@@ -93,6 +94,10 @@ namespace LoadingScreenModRevisited
             hideCheck.tooltip = Translations.Translate("DO_NOT_REPORT_THESE_TOOLTIP");
             UIButton openHideFileButton = suppressingGroup.AddButton(Translations.Translate("OPEN_FILE"), LSMRSettings.OpenHideFile) as UIButton;
             openHideFileButton.tooltip = Translations.Translate("CLICK_TO_OPEN") + ' ' + LoadingScreenMod.Settings.HiddenAssetsFile;
+
+            // Debugging options.
+            UIHelper debugGroup = AddGroup(helper, Translations.Translate("DETAIL_LOGGING"));
+            UICheckBox detailedLoggingCheck = debugGroup.AddCheckbox(Translations.Translate("DETAIL_LOGGING"), Logging.DetailLogging, (isChecked) => Logging.DetailLogging = isChecked) as UICheckBox;
         }
     }
 }

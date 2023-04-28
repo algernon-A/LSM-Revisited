@@ -1,5 +1,6 @@
 ﻿Version 1.1.6 -
 
+- Add detailed debugging logging option
 - Reset skipping file path to default when path is empty or invalid
 - Add 'reset to default path' buttons for skip files and reports
 - Update AlgernonCommons

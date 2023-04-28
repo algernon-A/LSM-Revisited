@@ -92,7 +92,6 @@ namespace LoadingScreenModRevisited
             UIComponent skippingPanel = skippingGroup.self as UIComponent;
             UIPanel buttonPanel = skippingPanel.AddUIComponent<UIPanel>();
             buttonPanel.autoLayout = false;
-            buttonPanel.autoSize = true;
 
             UIButton openSkipFileButton = buttonPanel.AttachUIComponent(UITemplateManager.GetAsGameObject("OptionsButtonTemplate")) as UIButton;
             openSkipFileButton.relativePosition = Vector2.zero;
@@ -108,6 +107,8 @@ namespace LoadingScreenModRevisited
                 LSMRSettings.SkipFile = LoadingScreenMod.Settings.DefaultSkipFile;
                 _skipFileTextField.text = LSMRSettings.SkipFile;
             };
+
+            buttonPanel.height = 40f;
 
             // Recovery options.
             string tooltipString = Translations.Translate("AUTOMATICALLY_DISABLED");
