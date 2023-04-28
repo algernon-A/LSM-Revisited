@@ -112,6 +112,7 @@
 "PREFAB_SKIPPING","プレハブのスキップ"
 "PREFAB_MEANS","プレハブとは、ゲーム本体やDLCに組み込まれたアセットです。"
 "SKIP_THESE","ファイルに記述されたプレハブをスキップ:"
+"RESET_FILE_LOCATION","ファイルの保存場所をリセット"
 "SAFE_MODE","セーフモードで次回のロードを実行"
 "AUTOMATICALLY_DISABLED","これらのオプションは、ゲームを終了して戻ると自動的に無効化します。"
 "REMOVE_VEHICLE_AGENTS","車両情報を全て削除"

@@ -112,6 +112,7 @@
 "PREFAB_SKIPPING","Prefabrik atlama"
 "PREFAB_MEANS","Prefabrik, oyundaki yerleşik varlıklar anlamına gelir"
 "SKIP_THESE","Bu dosyada adı geçen prefabrikleri atlayın:"
+"RESET_FILE_LOCATION","Reset file location"
 "SAFE_MODE","Bir sonraki kaydı Güvenli Mod'da yükle"
 "AUTOMATICALLY_DISABLED","Masaüstüne çıktığınızda bu seçenekler otomatik olarak devre dışı bırakılır"
 "REMOVE_VEHICLE_AGENTS","Tüm sahte araçları kaldır"

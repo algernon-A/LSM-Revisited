@@ -112,6 +112,7 @@
 "PREFAB_SKIPPING","Přeskakování modelu"
 "PREFAB_MEANS","Model znamená vestavěný objekt ve hře"
 "SKIP_THESE","Přeskočit modely jmenované v tomto souboru:"
+"RESET_FILE_LOCATION","Reset file location"
 "SAFE_MODE","Načíst další uloženou pozici v nouzovém režimu"
 "AUTOMATICALLY_DISABLED","Tyto možnosti jsou automaticky vypnuty, když ukončíte na plochu"
 "REMOVE_VEHICLE_AGENTS","Odstranit všechny agenty vozidel"

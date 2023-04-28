@@ -112,6 +112,7 @@
 "PREFAB_SKIPPING","Pomijanie elementów"
 "PREFAB_MEANS","Elementy oznaczają zasoby, z których zbudowana jest gra"
 "SKIP_THESE","Skip the prefabs named in this file:"
+"RESET_FILE_LOCATION","Reset file location"
 "SAFE_MODE","Załaduj następny zapis w trybie bezpiecznym"
 "AUTOMATICALLY_DISABLED","These options are automatically disabled when you exit to desktop"
 "REMOVE_VEHICLE_AGENTS","Remove all vehicle agents"
