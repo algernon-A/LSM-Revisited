@@ -1,6 +1,5 @@
 ﻿// <copyright file="LevelLoader.cs" company="algernon (K. Algernon A. Sheppard)">
 // Copyright (c) thale5 and algernon (K. Algernon A. Sheppard). All rights reserved.
-// Licensed under the MIT license. See LICENSE.txt file in the project root for full license information.
 // </copyright>
 
 namespace LoadingScreenModRevisited
