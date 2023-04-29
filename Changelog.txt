@@ -1,4 +1,7 @@
-﻿Version 1.1.6 -
+﻿- Increase right column display width
+
+
+Version 1.1.6 -
 
 - Add detailed debugging logging option
 - Reset skipping file path to default when path is empty or invalid

@@ -1,6 +1,5 @@
 // <copyright file="LoadingScreen.cs" company="algernon (K. Algernon A. Sheppard)">
 // Copyright (c) thale5 and algernon (K. Algernon A. Sheppard). All rights reserved.
-// Licensed under the MIT license. See LICENSE.txt file in the project root for full license information.
 // </copyright>
 
 namespace LoadingScreenModRevisited
@@ -50,7 +49,7 @@ namespace LoadingScreenModRevisited
 
         // Private layout constants.
         private const float ScreenMargin = 50f;
-        private const float BoxWidth = 480f;
+        private const float BoxWidth = 500f;
 
         // Is this Windows?
         private static readonly bool IsWindows = Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor;
