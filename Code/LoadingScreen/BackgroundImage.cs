@@ -687,6 +687,8 @@ namespace LoadingScreenModRevisited
         {
             try
             {
+                Logging.KeyMessage("loading background image file ", imageFileName);
+
                 // Background texture base.
                 Texture2D newTexture = new Texture2D(1, 1);
 

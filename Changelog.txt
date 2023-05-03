@@ -1,4 +1,5 @@
 ﻿- Increase right column display width
+- Log local file name used as background
 
 
 Version 1.1.6 -
