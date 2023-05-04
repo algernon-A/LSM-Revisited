@@ -1,4 +1,5 @@
-﻿- Increase right column display width
+﻿- Remove misleading 'total available' system paging counter
+- Increase right column display width
 - Log local file name used as background
 
 

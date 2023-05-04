@@ -60,7 +60,7 @@ namespace LoadingScreenModRevisited
                 SetMemoryText(_gameRAMTitle, memUseRatio, gameUsedPhyiscal);
                 SetMemoryText(_gamePageTitle, pageUseRatio, gameExtraPage);
                 SetMemoryText(_sysRAMTitle, memUseRatio, sysUsedPhysical, totalPhysical);
-                SetMemoryText(_sysPageTitle, pageUseRatio, sysExtraPage, totalPage);
+                SetMemoryText(_sysPageTitle, pageUseRatio, sysExtraPage, -1d);
 
                 return _memoryText;
             }
@@ -87,16 +87,22 @@ namespace LoadingScreenModRevisited
         /// <param name="title">Line title.</param>
         /// <param name="ratio">Memory usage ratio.</param>
         /// <param name="usage">Memory usage (in GB).</param>
-        /// <param name="total">Total memory available (in GB).</param>
+        /// <param name="total">Total memory available (in GB); -1 to disable.</param>
         private void SetMemoryText(string title, double ratio, double usage, double total)
         {
             _memoryText.Append(title);
             _memoryText.Append(": ");
             _memoryText.Append(GetMemoryColor(ratio));
             _memoryText.Append(usage.ToString("N2"));
-            _memoryText.Append("GB / ");
-            _memoryText.Append(total.ToString("N2"));
-            _memoryText.AppendLine("GB</color>");
+            _memoryText.Append("GB ");
+
+            if (total > 0)
+            {
+                _memoryText.Append(" / ");
+                _memoryText.Append(total.ToString("N2"));
+                _memoryText.Append("GB");
+            }
+            _memoryText.AppendLine("</color>");
         }
 
         /// <summary>
