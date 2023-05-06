@@ -171,7 +171,7 @@
 "IMGUR_CURATED","Curated loading screen background from imgur.com"
 "IMGUR_CURATED_TIP","Enable this to randomly select the loading screen background from a curated list of selected images from /r/CitiesSkylines on imgur.com"
 "CLASSIC_IMAGE","Classic loading image"
-"CLASSIC_IMAGE_TIP","Enable this to use classic loading images from the original version of the game (a different imaage for each map theme)"
+"CLASSIC_IMAGE_TIP","Enable this to use classic loading images from the original version of the game (a different image for each map theme)"
 "LOCAL_IMAGE","Losowy obraz z lokalnego katalogu:"
 "LOCAL_IMAGE_TIP","Włącz, aby losowo wybrać tło ekranu wczytywania z obrazów .jpg lub .png w określonym katalogu"
 "IMAGE_SCALE","Skalowanie obrazu w tle","Group title in options panel."
