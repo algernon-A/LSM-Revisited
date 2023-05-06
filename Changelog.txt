@@ -1,13 +1,11 @@
-﻿- Remove misleading 'total available' system paging counter
-- Increase right column display width
-- Log local file name used as background
-
-
-Version 1.1.6 -
+﻿Version 1.1.6 -
 
 - Add detailed debugging logging option
 - Reset skipping file path to default when path is empty or invalid
 - Add 'reset to default path' buttons for skip files and reports
+- Remove misleading 'total available' system paging counter
+- Increase right column display width
+- Log local file name used as background
 - Update AlgernonCommons
 
 
