@@ -1,4 +1,7 @@
-﻿Version 1.1.6 -
+﻿- Update bundled CitiesHarmony
+
+
+Version 1.1.6 -
 
 - Add detailed debugging logging option
 - Reset skipping file path to default when path is empty or invalid
