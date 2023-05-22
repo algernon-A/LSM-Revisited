@@ -112,7 +112,7 @@
 "PREFAB_SKIPPING","Salta prefab"
 "PREFAB_MEANS","Prefab indica le risorse integrate nel gioco"
 "SKIP_THESE","Salta i prefab nominati in questo file:"
-"RESET_FILE_LOCATION","Reset file location"
+"RESET_FILE_LOCATION","Ripristinare la posizione del file"
 "SAFE_MODE","Carica il prossimo salvataggio in modalità provvisoria"
 "AUTOMATICALLY_DISABLED","Queste opzioni sono disabilitate automaticamente quando esci al desktop"
 "REMOVE_VEHICLE_AGENTS","Rimuovere tutti gli agenti del veicolo"
