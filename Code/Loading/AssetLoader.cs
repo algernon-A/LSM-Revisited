@@ -282,8 +282,8 @@ namespace LoadingScreenModRevisited
 
             if (LevelLoader.DLC(1992290u))
             {
-                Package.Asset asset3 = PackageManager.FindAssetByName("System." + DistrictStyle.kModderPack11StyleName);
-                if (asset3 != null && asset3.isEnabled)
+                Package.Asset asset = PackageManager.FindAssetByName("System." + DistrictStyle.kModderPack11StyleName);
+                if (asset != null && asset.isEnabled)
                 {
                     DistrictStyle districtStyle = new DistrictStyle(DistrictStyle.kModderPack11StyleName, builtIn: true);
                     Util.InvokeVoid(Singleton<LoadingManager>.instance, "AddChildrenToBuiltinStyle", GameObject.Find("Modder Pack 11"), districtStyle, false);
@@ -298,8 +298,8 @@ namespace LoadingScreenModRevisited
 
             if (LevelLoader.DLC(2144480u))
             {
-                Package.Asset asset4 = PackageManager.FindAssetByName("System." + DistrictStyle.kModderPack14StyleName);
-                if (asset4 != null && asset4.isEnabled)
+                Package.Asset asset = PackageManager.FindAssetByName("System." + DistrictStyle.kModderPack14StyleName);
+                if (asset != null && asset.isEnabled)
                 {
                     DistrictStyle districtStyle = new DistrictStyle(DistrictStyle.kModderPack14StyleName, builtIn: true);
                     Util.InvokeVoid(Singleton<LoadingManager>.instance, "AddChildrenToBuiltinStyle", GameObject.Find("Modder Pack 14"), districtStyle, false);
@@ -314,11 +314,59 @@ namespace LoadingScreenModRevisited
 
             if (LevelLoader.DLC(2224691u))
             {
-                Package.Asset asset5 = PackageManager.FindAssetByName("System." + DistrictStyle.kModderPack16StyleName);
-                if (asset5 != null && asset5.isEnabled)
+                Package.Asset asset = PackageManager.FindAssetByName("System." + DistrictStyle.kModderPack16StyleName);
+                if (asset != null && asset.isEnabled)
                 {
                     DistrictStyle districtStyle = new DistrictStyle(DistrictStyle.kModderPack16StyleName, builtIn: true);
                     Util.InvokeVoid(Singleton<LoadingManager>.instance, "AddChildrenToBuiltinStyle", GameObject.Find("Modder Pack 16"), districtStyle, false);
+                    if (LSMRSettings.SkipPrefabs)
+                    {
+                        PrefabLoader.RemoveSkippedFromStyle(districtStyle);
+                    }
+
+                    districtStyles.Add(districtStyle);
+                }
+            }
+
+            if (LevelLoader.DLC(2148900u))
+            {
+                Package.Asset asset = PackageManager.FindAssetByName("System." + DistrictStyle.kModderPack18StyleName);
+                if (asset != null && asset.isEnabled)
+                {
+                    DistrictStyle districtStyle = new DistrictStyle(DistrictStyle.kModderPack18StyleName, builtIn: true);
+                    Util.InvokeVoid(Singleton<LoadingManager>.instance, "AddChildrenToBuiltinStyle", GameObject.Find("Modder Pack 18"), districtStyle, false);
+                    if (LSMRSettings.SkipPrefabs)
+                    {
+                        PrefabLoader.RemoveSkippedFromStyle(districtStyle);
+                    }
+
+                    districtStyles.Add(districtStyle);
+                }
+            }
+
+            if (LevelLoader.DLC(2313322u))
+            {
+                Package.Asset asset = PackageManager.FindAssetByName("System." + DistrictStyle.kModderPack20StyleName);
+                if (asset != null && asset.isEnabled)
+                {
+                    DistrictStyle districtStyle = new DistrictStyle(DistrictStyle.kModderPack18StyleName, builtIn: true);
+                    Util.InvokeVoid(Singleton<LoadingManager>.instance, "AddChildrenToBuiltinStyle", GameObject.Find("Modder Pack 20"), districtStyle, false);
+                    if (LSMRSettings.SkipPrefabs)
+                    {
+                        PrefabLoader.RemoveSkippedFromStyle(districtStyle);
+                    }
+
+                    districtStyles.Add(districtStyle);
+                }
+            }
+
+            if (LevelLoader.DLC(2313320u))
+            {
+                Package.Asset asset = PackageManager.FindAssetByName("System." + DistrictStyle.kModderPack21StyleName);
+                if (asset != null && asset.isEnabled)
+                {
+                    DistrictStyle districtStyle = new DistrictStyle(DistrictStyle.kModderPack21StyleName, builtIn: true);
+                    Util.InvokeVoid(Singleton<LoadingManager>.instance, "AddChildrenToBuiltinStyle", GameObject.Find("Modder Pack 21"), districtStyle, false);
                     if (LSMRSettings.SkipPrefabs)
                     {
                         PrefabLoader.RemoveSkippedFromStyle(districtStyle);
