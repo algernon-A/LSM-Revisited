@@ -1,6 +1,6 @@
 ﻿Version 1.1.7.1 hotfix -
 
-- Fix "Africa in Minature" style being confused with "Industrial Evolution".
+- Fix "Africa in Minature" style being confused with "Industrial Evolution"
 
 
 Version 1.1.7 -
