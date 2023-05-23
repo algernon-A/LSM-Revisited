@@ -349,7 +349,7 @@ namespace LoadingScreenModRevisited
                 Package.Asset asset = PackageManager.FindAssetByName("System." + DistrictStyle.kModderPack20StyleName);
                 if (asset != null && asset.isEnabled)
                 {
-                    DistrictStyle districtStyle = new DistrictStyle(DistrictStyle.kModderPack18StyleName, builtIn: true);
+                    DistrictStyle districtStyle = new DistrictStyle(DistrictStyle.kModderPack20StyleName, builtIn: true);
                     Util.InvokeVoid(Singleton<LoadingManager>.instance, "AddChildrenToBuiltinStyle", GameObject.Find("Modder Pack 20"), districtStyle, false);
                     if (LSMRSettings.SkipPrefabs)
                     {
