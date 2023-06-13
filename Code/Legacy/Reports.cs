@@ -449,7 +449,20 @@ namespace LoadingScreenMod
                     SecOff();
                     Sec("#c9c6ba");
                     H2(Translations.Translate("THESE_ARE_UNNECESSARY"));
-                    Item[] array5 = assets.Values.Where((Item item) => item.Enabled && !item.Used && !LoadingScreenModRevisited.AssetLoader.Instance.IsIntersection(item.FullName)).ToArray();
+
+                    // List of items to ignore as unused.
+                    List<string> ignoreItems = new List<string>
+                    {
+                        // BOB random templates.
+                        "BOBRandomPropTemplate",
+                        "BOBRandomTreeTemplate",
+
+                        // Procedural objects templates.
+                        "Cube",
+                        "Square",
+                    };
+
+                    Item[] array5 = assets.Values.Where((Item item) => item.Enabled && !item.Used && !ignoreItems.Contains(item.name) && !LoadingScreenModRevisited.AssetLoader.Instance.IsIntersection(item.FullName)).ToArray();
                     if (array5.Length != 0)
                     {
                         Italics(Translations.Translate("ENABLED_BUT_UNNECESSARY"));

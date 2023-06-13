@@ -1621,10 +1621,10 @@ namespace LoadingScreenModRevisited
                     }
                 }
 
-                // Report cleared assets.
+                // Clear recirded assets.
                 Instance<Reports>.instance.ClearAssets();
 
-                // Mark game settigns file as dirty.
+                // Mark game settings file as dirty.
                 GameSettings.FindSettingsFileByName(PackageManager.assetStateSettingsFile).MarkDirty();
             }
             catch (Exception e)
