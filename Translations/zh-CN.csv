@@ -37,7 +37,7 @@
 "ASSETS","资产"
 "LOADING_SPEED","加载速度"
 "ASSETS_PER_SECOND","个资产 / 秒"
-"ASSETS_LOADING_TIME","自定义资产加载时间"
+"ASSETS_LOADING_TIME","自定义资产加载耗时"
 "MINUTES_SECONDS","分钟：秒"
 "TOTAL_LOADING_TIME","总加载时间"
 "PEAK_MEMORY_USAGE","内存使用峰值"
