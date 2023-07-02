@@ -1,5 +1,6 @@
 ﻿Version 1.1.8 -
 
+- Add environment variable resolution to reporting and skipping filepaths
 - Exclude BOB and Procedural Objects templates from being reported as unused assets
 
 

@@ -373,7 +373,7 @@ namespace LoadingScreenModRevisited
                     Directory.CreateDirectory(s_reportsDirectory);
                 }
 
-                return s_reportsDirectory;
+                return Environment.ExpandEnvironmentVariables(s_reportsDirectory);
             }
             catch (Exception e)
             {
@@ -423,16 +423,17 @@ namespace LoadingScreenModRevisited
         internal static void OpenReportDirectory()
         {
             // Check to see if the directory already exists.
-            if (Directory.Exists(s_reportsDirectory))
+            string reportsDirectory = Environment.ExpandEnvironmentVariables(s_reportsDirectory);
+            if (Directory.Exists(reportsDirectory))
             {
                 // Open it.
                 try
                 {
-                    Process.Start(s_reportsDirectory);
+                    Process.Start(reportsDirectory);
                 }
                 catch (Exception e)
                 {
-                    Logging.LogException(e, "exception opening reports directory ", s_reportsDirectory ?? "null");
+                    Logging.LogException(e, "exception opening reports directory ", reportsDirectory ?? "null");
                 }
             }
         }

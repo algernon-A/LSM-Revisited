@@ -135,11 +135,12 @@ namespace LoadingScreenMod
             {
                 if (LoadingScreenModRevisited.LSMRSettings.SkipPrefabs)
                 {
-                    bool flag = File.Exists(LoadingScreenModRevisited.LSMRSettings.SkipFile);
+                    string skipFile = Environment.ExpandEnvironmentVariables(LoadingScreenModRevisited.LSMRSettings.SkipFile);
+                    bool flag = File.Exists(skipFile);
                     DateTime lastWriteTimeUtc;
-                    if (flag && LoadingScreenModRevisited.LSMRSettings.SkipFileTimestamp != (lastWriteTimeUtc = File.GetLastWriteTimeUtc(LoadingScreenModRevisited.LSMRSettings.SkipFile)))
+                    if (flag && LoadingScreenModRevisited.LSMRSettings.SkipFileTimestamp != (lastWriteTimeUtc = File.GetLastWriteTimeUtc(skipFile)))
                     {
-                        LoadingScreenModRevisited.Skipping[] array = LoadingScreenModRevisited.Skipping.Load(LoadingScreenModRevisited.LSMRSettings.SkipFile);
+                        LoadingScreenModRevisited.Skipping[] array = LoadingScreenModRevisited.Skipping.Load(skipFile);
                         SkipMatcher = array[0];
                         ExceptMatcher = array[1];
                         LoadingScreenModRevisited.LSMRSettings.SkipFileTimestamp = lastWriteTimeUtc;

@@ -140,6 +140,8 @@ namespace LoadingScreenModRevisited
         /// </summary>
         private void OpenSkipFile()
         {
+            string skipFile;
+
             try
             {
                 // If string is null, reset it.
@@ -151,17 +153,20 @@ namespace LoadingScreenModRevisited
                     _skipFileTextField.text = LSMRSettings.SkipFile;
                 }
 
+                // Resolve environment variabiles.
+                skipFile = Environment.ExpandEnvironmentVariables(LSMRSettings.SkipFile);
+
                 // Create directory if it doesn't already exist.
-                string directoryName = Path.GetDirectoryName(LSMRSettings.SkipFile);
+                string directoryName = Path.GetDirectoryName(skipFile);
                 if (!Directory.Exists(directoryName))
                 {
                     Directory.CreateDirectory(directoryName);
                 }
 
                 // Create file if it doesn't already exist.
-                if (!File.Exists(LSMRSettings.SkipFile))
+                if (!File.Exists(skipFile))
                 {
-                    using (StreamWriter writer = new StreamWriter(LSMRSettings.SkipFile))
+                    using (StreamWriter writer = new StreamWriter(skipFile))
                     {
                         writer.Write("# Loading Screen Mod skip file");
                     }
@@ -170,12 +175,13 @@ namespace LoadingScreenModRevisited
             catch (Exception e)
             {
                 Logging.LogException(e, "exception creating skip file ", LSMRSettings.SkipFile);
+                return;
             }
 
             // Open the file.
             try
             {
-                Process.Start(LSMRSettings.SkipFile);
+                Process.Start(skipFile);
             }
             catch (Exception e)
             {
