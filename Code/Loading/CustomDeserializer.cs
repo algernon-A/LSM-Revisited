@@ -152,7 +152,7 @@ namespace LoadingScreenModRevisited
                 [typeof(DisasterProperties.DisasterSettings)] = TypeDisasterSettings,
             };
 
-            // Setup thumbnal optimization, if enabled.
+            // Setup thumbnail optimization, if enabled.
             if (_optimizeThumbs)
             {
                 _largeSprite = new Texture2D(492, 147, TextureFormat.ARGB32, mipmap: false, linear: false);
@@ -251,7 +251,7 @@ namespace LoadingScreenModRevisited
                         return package.Find(assetName);
                     }
 
-                    // If result wisas a list of packages, iterate through to find the target.
+                    // If result was a list of packages, iterate through to find the target.
                     if (packageObject is List<Package> packageList)
                     {
                         for (int i = 0; i < packageList.Count; ++i)
@@ -303,7 +303,7 @@ namespace LoadingScreenModRevisited
                 return prefab.m_prefab;
             }
 
-            // If tryName is set and the fullanme contains a package number, and the asset hasn't failed, then serach assets for a name match.
+            // If tryName is set and the fullname contains a package number, and the asset hasn't failed, then search assets for a name match.
             if (tryName && fullName.IndexOf('.') < 0 && !LevelLoader.HasAssetFailed(fullName))
             {
                 Package.Asset[] array = Assets;
@@ -360,7 +360,7 @@ namespace LoadingScreenModRevisited
             // Check for existing entry.
             else if (_packages.TryGetValue(packageName, out object value))
             {
-                // If there's an exising list, add this package to it.
+                // If there's an existing list, add this package to it.
                 if (value is List<Package> packageList)
                 {
                     packageList.Add(package);
@@ -1569,7 +1569,7 @@ namespace LoadingScreenModRevisited
         }
 
         /// <summary>
-        /// Gets a PrefabInfo from the asset name provided from the specified packaage.
+        /// Gets a PrefabInfo from the asset name provided from the specified package.
         /// </summary>
         /// <typeparam name="TPrefab">Prefab type.</typeparam>
         /// <param name="package">Package.</param>
@@ -1836,7 +1836,7 @@ namespace LoadingScreenModRevisited
         }
 
         /// <summary>
-        /// Altas worker thread.
+        /// Atlas worker thread.
         /// </summary>
         private void AtlasWorker()
         {
@@ -1855,7 +1855,7 @@ namespace LoadingScreenModRevisited
                     atlas.bytes = null;
                 }
 
-                // Add atlast to outgoing queue.
+                // Add atlas to outgoing queue.
                 _atlasOut.Enqueue(atlas);
             }
 
@@ -2038,7 +2038,7 @@ namespace LoadingScreenModRevisited
             // Four bytes per pixel.
             int sourceWidthSize = (sourceWidth - width - (width >> 1)) << 2;
             int destinationWidthSize = (destinationWidth - width) << 2;
-            int souceOffset = ((sourceY * sourceWidth) + sourceX + 4) << 2;
+            int sourceOffset = ((sourceY * sourceWidth) + sourceX + 4) << 2;
             int destinationOffset = ((destinationY * destinationWidth) + destinationX) << 2;
 
             int halfWidth = width >> 1;
@@ -2047,23 +2047,23 @@ namespace LoadingScreenModRevisited
             {
                 for (int x = 0; x < halfWidth; ++x)
                 {
-                    destination[destinationOffset++] = source[souceOffset++];
-                    destination[destinationOffset++] = source[souceOffset++];
-                    destination[destinationOffset++] = source[souceOffset++];
-                    destination[destinationOffset++] = source[souceOffset];
-                    souceOffset += 5;
-                    destination[destinationOffset++] = source[souceOffset++];
-                    destination[destinationOffset++] = source[souceOffset++];
-                    destination[destinationOffset++] = source[souceOffset++];
-                    destination[destinationOffset++] = source[souceOffset++];
+                    destination[destinationOffset++] = source[sourceOffset++];
+                    destination[destinationOffset++] = source[sourceOffset++];
+                    destination[destinationOffset++] = source[sourceOffset++];
+                    destination[destinationOffset++] = source[sourceOffset];
+                    sourceOffset += 5;
+                    destination[destinationOffset++] = source[sourceOffset++];
+                    destination[destinationOffset++] = source[sourceOffset++];
+                    destination[destinationOffset++] = source[sourceOffset++];
+                    destination[destinationOffset++] = source[sourceOffset++];
                 }
 
-                souceOffset += sourceWidthSize;
+                sourceOffset += sourceWidthSize;
                 destinationOffset += destinationWidthSize;
                 if (++count == 2)
                 {
                     count = 0;
-                    souceOffset += sourceWidth << 2;
+                    sourceOffset += sourceWidth << 2;
                 }
             }
         }

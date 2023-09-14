@@ -209,7 +209,7 @@ namespace LoadingScreenModRevisited
         }
 
         /// <summary>
-        /// The custom content loader iteslf.
+        /// The custom content loader itself.
         /// </summary>
         /// <returns>Yielding IEnumerator.</returns>
         public IEnumerator LoadCustomContent()
@@ -576,9 +576,9 @@ namespace LoadingScreenModRevisited
                 // Include memory usage if on Windows.
                 if (Application.platform == RuntimePlatform.WindowsPlayer)
                 {
-                    MemoryAPI.GetMemoryUse(out double gameUsedPhyiscal, out double sysUsedPhysical, out double totalPhysical, out double gameExtraPage, out double sysExtraPage, out double totalPage);
+                    MemoryAPI.GetMemoryUse(out double gameUsedPhysical, out double sysUsedPhysical, out double totalPhysical, out double gameExtraPage, out double sysExtraPage, out double totalPage);
                     logMessage.Append(" Game RAM use: ");
-                    logMessage.AppendLine(gameUsedPhyiscal.ToString("N2"));
+                    logMessage.AppendLine(gameUsedPhysical.ToString("N2"));
                     logMessage.Append(" System RAM use: ");
                     logMessage.AppendLine(sysUsedPhysical.ToString("N2"));
                     logMessage.Append(" Game additional page: ");
@@ -765,9 +765,9 @@ namespace LoadingScreenModRevisited
         }
 
         /// <summary>
-        /// Gets the asset metdata type for the given package.
+        /// Gets the asset metadata type for the given package.
         /// </summary>
-        /// <param name="package">Pakcage.</param>
+        /// <param name="package">Package.</param>
         /// <returns>Asset metadata type (defaults to Building if type cannot be obtained).</returns>
         internal CustomAssetMetaData.Type GetPackageTypeFor(Package package)
         {
@@ -797,7 +797,7 @@ namespace LoadingScreenModRevisited
         /// </summary>
         /// <param name="assetRef">Asset.</param>
         /// <param name="package">Package.</param>
-        /// <param name="e">Asset execption.</param>
+        /// <param name="e">Asset exception.</param>
         internal void AssetFailed(Package.Asset assetRef, Package package, Exception e)
         {
             // Get asset name.
@@ -892,7 +892,7 @@ namespace LoadingScreenModRevisited
             int sortOrder = string.Compare(a.packageName, b.packageName);
             if (sortOrder != 0)
             {
-                // Strings aren't identical; return sort order (< 0 if a lexically preceeds b, > 0 if b lexically preceeds a).
+                // Strings aren't identical; return sort order (< 0 if a lexically precedes b, > 0 if b lexically precedes a).
                 return sortOrder;
             }
 
@@ -921,7 +921,7 @@ namespace LoadingScreenModRevisited
                 return -1;
             }
 
-            // Othewise, the package with the greatest offset goes first.
+            // Otherwise, the package with the greatest offset goes first.
             return (int)assetB.offset - (int)assetA.offset;
         }
 
@@ -1019,7 +1019,7 @@ namespace LoadingScreenModRevisited
                         }
                     }
 
-                    // Check for subsidary road elevations.
+                    // Check for subsidiary road elevations.
                     if (!isUsed & (type == CustomAssetMetaData.Type.Road))
                     {
                         if (UsedAssets.Instance != null && UsedAssets.Instance.IsPackageUsed(packageName))
@@ -1509,7 +1509,7 @@ namespace LoadingScreenModRevisited
         /// </summary>
         /// <param name="packageName">Package name.</param>
         /// <param name="assetName">.Asset name.</param>
-        /// <returns>Pillor or elevation name.</returns>
+        /// <returns>Pillar or elevation name.</returns>
         private string PillarOrElevationName(string packageName, string assetName) => packageName + "." + PackageHelper.StripName(assetName);
 
         /// <summary>
@@ -1552,7 +1552,7 @@ namespace LoadingScreenModRevisited
         }
 
         /// <summary>
-        /// Struips leading package number from the given name.
+        /// Strips leading package number from the given name.
         /// </summary>
         /// <param name="fullName_Data">Name.</param>
         /// <returns>Name stripped of leading package number and period (unchanged input if no leading package number).</returns>
@@ -1621,7 +1621,7 @@ namespace LoadingScreenModRevisited
                     }
                 }
 
-                // Clear recirded assets.
+                // Clear recorded assets.
                 Instance<Reports>.instance.ClearAssets();
 
                 // Mark game settings file as dirty.
@@ -1629,7 +1629,7 @@ namespace LoadingScreenModRevisited
             }
             catch (Exception e)
             {
-                Logging.LogException(e, "exception enabling/disabling assset");
+                Logging.LogException(e, "exception enabling/disabling asset");
             }
         }
 
