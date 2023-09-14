@@ -1553,7 +1553,7 @@ namespace LoadingScreenModRevisited
             TPrefab prefab = FindLoaded<TPrefab>(fullName);
 
             // If there's a missing NetInfo, call ResolveLegacyPrefab to see if it maps to a new prefab name.
-            if (prefab == null && typeof(TPrefab) == typeof(NetInfo))
+            if (prefab == null && (typeof(TPrefab) == typeof(NetInfo) || typeof(TPrefab) == typeof(BuildingInfo)))
             {
                 string newName = BuildConfig.ResolveLegacyPrefab(fullName);
                 prefab = FindLoaded<TPrefab>(newName);

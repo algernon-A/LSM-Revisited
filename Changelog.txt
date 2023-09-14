@@ -1,4 +1,7 @@
-﻿Version 1.1.8 -
+﻿- Add building prefab substitution hook
+
+
+Version 1.1.8 -
 
 - Add environment variable resolution to reporting and skipping filepaths
 - Exclude BOB and Procedural Objects templates from being reported as unused assets
