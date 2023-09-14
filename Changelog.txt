@@ -1,4 +1,6 @@
-﻿- Add building prefab substitution hook
+﻿Version 1.1.9 -
+
+- Add building prefab substitution hook
 
 
 Version 1.1.8 -
