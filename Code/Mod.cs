@@ -17,7 +17,7 @@ namespace LoadingScreenModRevisited
     /// </summary>
     public sealed class Mod : PatcherMod<OptionsPanel, Patcher>, IUserMod
     {
-        private readonly string _compatibleVersion = "1.19";
+        private readonly string _compatibleVersion = "1.20";
 
         /// <summary>
         /// Gets the mod's base display name (name only).
