@@ -58,6 +58,9 @@ namespace LoadingScreenModRevisited
         private const int TypeDictStringByte = 125;
         private const int TypeParkingSpace = 3232;
         private const int TypeDisasterSettings = 11386;
+        private const int TypeParadeGroupInfoProp = 99997;
+        private const int TypeParadeGroupInfoPerformer = 99998;
+        private const int TypeParadeGroupInfoVehicle = 99999;
 
         // Active instance.
         private static CustomDeserializer s_instance;
@@ -150,6 +153,9 @@ namespace LoadingScreenModRevisited
                 [typeof(Dictionary<string, byte[]>)] = TypeDictStringByte,
                 [typeof(PropInfo.ParkingSpace)] = TypeParkingSpace,
                 [typeof(DisasterProperties.DisasterSettings)] = TypeDisasterSettings,
+                [typeof(ParadeGroupInfo.Prop)] = TypeParadeGroupInfoProp,
+                [typeof(ParadeGroupInfo.Performer)] = TypeParadeGroupInfoPerformer,
+                [typeof(ParadeGroupInfo.Vehicle)] = TypeParadeGroupInfoVehicle,
             };
 
             // Setup thumbnail optimization, if enabled.
@@ -582,8 +588,18 @@ namespace LoadingScreenModRevisited
                 case TypeDisasterSettings:
                     return ReadDisasterPropertiesDisasterSettings(reader);
 
+                case TypeParadeGroupInfoProp:
+                    return ReadParadeGroupInfoProp(reader);
+
+                case TypeParadeGroupInfoPerformer:
+                    return ReadParadeGroupInfoPerformer(reader);
+
+                case TypeParadeGroupInfoVehicle:
+                    return ReadParadeGroupInfoVehicle(package, reader);
+
                 default:
                     // Unsupported type.
+                    Logging.Error("unsupported type for deserialization: ", type.FullName);
                     return null;
             }
         }
@@ -893,6 +909,12 @@ namespace LoadingScreenModRevisited
                 pathInfo.m_yieldSigns = reader.ReadBooleanArray();
             }
 
+            if (package.version >= 11)
+            {
+                pathInfo.m_isInvertible = reader.ReadBoolean();
+                pathInfo.m_isUpgradeable = reader.ReadBoolean();
+            }
+
             return pathInfo;
         }
 
@@ -979,6 +1001,16 @@ namespace LoadingScreenModRevisited
             segment.m_forwardForbidden = (NetSegment.Flags)reader.ReadInt32();
             segment.m_backwardRequired = (NetSegment.Flags)reader.ReadInt32();
             segment.m_backwardForbidden = (NetSegment.Flags)reader.ReadInt32();
+
+            // New flags in 1.21.
+            if (package.version >= 11)
+            {
+                segment.m_forwardRequired2 = (NetSegment.Flags2)reader.ReadInt32();
+                segment.m_forwardForbidden2 = (NetSegment.Flags2)reader.ReadInt32();
+                segment.m_backwardRequired2 = (NetSegment.Flags2)reader.ReadInt32();
+                segment.m_backwardForbidden2 = (NetSegment.Flags2)reader.ReadInt32();
+            }
+
             segment.m_emptyTransparent = reader.ReadBoolean();
             segment.m_disableBendNodes = reader.ReadBoolean();
 
@@ -1446,6 +1478,54 @@ namespace LoadingScreenModRevisited
             }
 
             return netLaneProps;
+        }
+
+        /// <summary>
+        /// Deserializes a ParadeGroupInfo.Prop.
+        /// </summary>
+        /// <param name="reader">PackageReader instance.</param>
+        /// <returns>New NetLanParadeGroupInfo.Prop.</returns>
+        private ParadeGroupInfo.Prop ReadParadeGroupInfoProp(PackageReader reader)
+        {
+            return new ParadeGroupInfo.Prop
+            {
+                m_prop = PrefabCollection<PropInfo>.FindLoaded(reader.ReadString()),
+                m_position = reader.ReadVector3(),
+                m_angle = reader.ReadSingle(),
+            };
+        }
+
+        /// <summary>
+        /// Deserializes a ParadeGroupInfo.Performer.
+        /// </summary>
+        /// <param name="reader">PackageReader instance.</param>
+        /// <returns>New NetLanParadeGroupInfo.Performer.</returns>
+        private ParadeGroupInfo.Performer ReadParadeGroupInfoPerformer(PackageReader reader)
+        {
+            return new ParadeGroupInfo.Performer
+            {
+                m_citizen = PrefabCollection<CitizenInfo>.FindLoaded(reader.ReadString()),
+                m_position = reader.ReadVector3(),
+                m_angle = reader.ReadSingle(),
+            };
+        }
+
+        /// <summary>
+        /// Deserializes a ParadeGroupInfo.Vehicle.
+        /// </summary>
+        /// <param name="package">Package to deserialize.</param>
+        /// <param name="reader">PackageReader instance.</param>
+        /// <returns>New NetLanParadeGroupInfo.Vehicle.</returns>
+        private ParadeGroupInfo.Vehicle ReadParadeGroupInfoVehicle(Package package, PackageReader reader)
+        {
+            return new ParadeGroupInfo.Vehicle
+            {
+                m_vehicle = PrefabCollection<VehicleInfo>.FindLoaded(reader.ReadString()),
+                m_position = reader.ReadVector3(),
+                m_angle = reader.ReadSingle(),
+                m_performers = PackageHelper.CustomDeserializeArray<ParadeGroupInfo.Performer>(package, reader),
+                m_props = PackageHelper.CustomDeserializeArray<ParadeGroupInfo.Prop>(package, reader),
+            };
         }
 
         /// <summary>

@@ -836,6 +836,9 @@ namespace LoadingScreenModRevisited
             DestroyLoaded<DisasterInfo>();
             DestroyLoaded<RadioContentInfo>();
             DestroyLoaded<RadioChannelInfo>();
+            DestroyLoaded<InvestmentInfo>();
+            DestroyLoaded<ParadeGroupInfo>();
+            DestroyLoaded<RaceTeamInfo>();
         }
 
         /// <summary>
@@ -904,6 +907,7 @@ namespace LoadingScreenModRevisited
             loadingManager.m_supportsExpansion[10] = DLC(2008400u);
             loadingManager.m_supportsExpansion[11] = DLC(2148901u);
             loadingManager.m_supportsExpansion[12] = DLC(2342310u);
+            loadingManager.m_supportsExpansion[13] = DLC(4031130u);
             bool isWinter = Singleton<SimulationManager>.instance.m_metaData.m_environment == "Winter";
             if (isWinter && !loadingManager.m_supportsExpansion[1])
             {
@@ -1003,6 +1007,11 @@ namespace LoadingScreenModRevisited
             if (loadingManager.m_supportsExpansion[12])
             {
                 prefabScenes.Add(new KeyValuePair<string, float>("Expansion13Prefabs", 0.1f));
+            }
+
+            if (loadingManager.m_supportsExpansion[13])
+            {
+                prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "Expansion14Prefabs" : "WinterExpansion14Prefabs", 0.1f));
             }
 
             if (DLC(456200u))
@@ -1160,6 +1169,11 @@ namespace LoadingScreenModRevisited
                 prefabScenes.Add(new KeyValuePair<string, float>("Station26Prefabs", 0.01f));
             }
 
+            if (DLC(4031160u))
+            {
+                prefabScenes.Add(new KeyValuePair<string, float>("Station27Prefabs", 0.01f));
+            }
+
             if (DLC(563850u))
             {
                 prefabScenes.Add(new KeyValuePair<string, float>("ChinaPackPrefabs", 0.02f));
@@ -1310,6 +1324,16 @@ namespace LoadingScreenModRevisited
             if (DLC(3731510u))
             {
                 prefabScenes.Add(new KeyValuePair<string, float>("ModderPack27Prefabs", 0.03f));
+            }
+
+            if (DLC(4031150u))
+            {
+                prefabScenes.Add(new KeyValuePair<string, float>("ModderPack28Prefabs", 0.03f));
+            }
+
+            if (DLC(4031140u))
+            {
+                prefabScenes.Add(new KeyValuePair<string, float>("ModderPack29Prefabs", 0.03f));
             }
 
             Package.Asset europeanStyles = PackageManager.FindAssetByName("System." + DistrictStyle.kEuropeanStyleName);

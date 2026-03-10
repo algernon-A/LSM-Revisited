@@ -17,7 +17,7 @@ namespace LoadingScreenModRevisited
     /// </summary>
     public sealed class Mod : PatcherMod<OptionsPanel, Patcher>, IUserMod
     {
-        private readonly string _compatibleVersion = "1.20";
+        private readonly string _compatibleVersion = "1.21";
 
         /// <summary>
         /// Gets the mod's base display name (name only).
@@ -42,7 +42,7 @@ namespace LoadingScreenModRevisited
             // Disable mod if version isn't compatible.
             if (!BuildConfig.applicationVersion.StartsWith(_compatibleVersion))
             {
-                Logging.Error("invalid game version detected!");
+                Logging.Error($"invalid game version {BuildConfig.applicationVersion} detected!");
 
                 // Display error message.
                 // First, check to see if UIView is ready.
