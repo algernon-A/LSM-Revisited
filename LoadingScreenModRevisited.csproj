@@ -8,7 +8,7 @@
 		<Authors>algernon,thale5</Authors>
 		<Copyright>Copyright © 2016-2026 algernon, thale5</Copyright>
 		<Product>$(Title)</Product>
-		<Version>1.1.13</Version>
+		<Version>1.1.14</Version>
 		<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
 		<ManagedDLLPath>$(MSBuildProgramFiles32)/Steam/steamapps/common/Cities_Skylines/Cities_Data/Managed</ManagedDLLPath>
 		<AssemblySearchPaths>
