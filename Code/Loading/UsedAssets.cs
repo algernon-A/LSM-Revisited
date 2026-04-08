@@ -44,10 +44,10 @@ namespace LoadingScreenModRevisited
         {
             // Create all assets hashset array from individual asset type hashsets.
             // This needs to map to AssetLoader.typeMap.
-            _allAssets = new HashSet<string>[12]
+            _allAssets = new HashSet<string>[16]
             {
                 _buildingAssets, _propAssets, _treeAssets, _vehicleAssets, _vehicleAssets, _buildingAssets, _buildingAssets, _propAssets, _citizenAssets, _netAssets,
-                _netAssets, _buildingAssets,
+                _netAssets, _buildingAssets, _propAssets, _propAssets, _propAssets, _propAssets,
             };
 
             // Populate used assets hashets - buildings and nets require special treatment.

@@ -58,6 +58,8 @@ namespace LoadingScreenModRevisited
         private const int TypeDictStringByte = 125;
         private const int TypeParkingSpace = 3232;
         private const int TypeDisasterSettings = 11386;
+        private const int TypeRaceEventAITierInfo = 99995;
+        private const int TypeCitizenColorsColorSet = 99996;
         private const int TypeParadeGroupInfoProp = 99997;
         private const int TypeParadeGroupInfoPerformer = 99998;
         private const int TypeParadeGroupInfoVehicle = 99999;
@@ -153,6 +155,8 @@ namespace LoadingScreenModRevisited
                 [typeof(Dictionary<string, byte[]>)] = TypeDictStringByte,
                 [typeof(PropInfo.ParkingSpace)] = TypeParkingSpace,
                 [typeof(DisasterProperties.DisasterSettings)] = TypeDisasterSettings,
+                [typeof(RaceEventAI.TierInfo)] = TypeRaceEventAITierInfo,
+                [typeof(CitizenColors.ColorSet)] = TypeCitizenColorsColorSet,
                 [typeof(ParadeGroupInfo.Prop)] = TypeParadeGroupInfoProp,
                 [typeof(ParadeGroupInfo.Performer)] = TypeParadeGroupInfoPerformer,
                 [typeof(ParadeGroupInfo.Vehicle)] = TypeParadeGroupInfoVehicle,
@@ -587,6 +591,12 @@ namespace LoadingScreenModRevisited
 
                 case TypeDisasterSettings:
                     return ReadDisasterPropertiesDisasterSettings(reader);
+
+                case TypeRaceEventAITierInfo:
+                    return ReadRaceEventAITierInfo(reader);
+
+                case TypeCitizenColorsColorSet:
+                    return ReadCitizenColorsColorSet(package, reader);
 
                 case TypeParadeGroupInfoProp:
                     return ReadParadeGroupInfoProp(reader);
@@ -1481,10 +1491,39 @@ namespace LoadingScreenModRevisited
         }
 
         /// <summary>
+        /// Deserializes a RaceEventAI.TierInfo.
+        /// </summary>
+        /// <param name="reader">PackageReader instance.</param>
+        /// <returns>New RaceEventAI.TierInfo.</returns>
+        private RaceEventAI.TierInfo ReadRaceEventAITierInfo(PackageReader reader)
+        {
+            return new RaceEventAI.TierInfo
+            {
+                m_maxParticipants = reader.ReadInt32(),
+                m_prizePool = reader.ReadInt32(),
+            };
+        }
+
+        /// <summary>
+        /// Deserializes a CitizenColors.ColorSet.
+        /// </summary>
+        /// <param name="package">Package to deserialize.</param>
+        /// <param name="reader">PackageReader instance.</param>
+        /// <returns>New CitizenColors.ColorSet.</returns>
+        private CitizenColors.ColorSet ReadCitizenColorsColorSet(Package package, PackageReader reader)
+        {
+            return new CitizenColors.ColorSet
+            {
+                m_name = reader.ReadString(),
+                m_colors = reader.ReadArray<Color>(package),
+            };
+        }
+
+        /// <summary>
         /// Deserializes a ParadeGroupInfo.Prop.
         /// </summary>
         /// <param name="reader">PackageReader instance.</param>
-        /// <returns>New NetLanParadeGroupInfo.Prop.</returns>
+        /// <returns>New NetLaneParadeGroupInfo.Prop.</returns>
         private ParadeGroupInfo.Prop ReadParadeGroupInfoProp(PackageReader reader)
         {
             return new ParadeGroupInfo.Prop
@@ -1507,6 +1546,7 @@ namespace LoadingScreenModRevisited
                 m_citizen = PrefabCollection<CitizenInfo>.FindLoaded(reader.ReadString()),
                 m_position = reader.ReadVector3(),
                 m_angle = reader.ReadSingle(),
+                m_propName = reader.ReadString(),
             };
         }
 
@@ -1523,8 +1563,8 @@ namespace LoadingScreenModRevisited
                 m_vehicle = PrefabCollection<VehicleInfo>.FindLoaded(reader.ReadString()),
                 m_position = reader.ReadVector3(),
                 m_angle = reader.ReadSingle(),
-                m_performers = PackageHelper.CustomDeserializeArray<ParadeGroupInfo.Performer>(package, reader),
-                m_props = PackageHelper.CustomDeserializeArray<ParadeGroupInfo.Prop>(package, reader),
+                m_performers = reader.ReadArray<ParadeGroupInfo.Performer>(package),
+                m_props = reader.ReadArray<ParadeGroupInfo.Prop>(package),
             };
         }
 

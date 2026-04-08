@@ -31,7 +31,7 @@ namespace LoadingScreenModRevisited
         /// <summary>
         /// Custom asset types.
         /// </summary>
-        private readonly CustomAssetMetaData.Type[] typeMap = new CustomAssetMetaData.Type[12]
+        private readonly CustomAssetMetaData.Type[] typeMap = new CustomAssetMetaData.Type[16]
         {
             CustomAssetMetaData.Type.Building,
             CustomAssetMetaData.Type.Prop,
@@ -45,6 +45,10 @@ namespace LoadingScreenModRevisited
             CustomAssetMetaData.Type.Road,
             CustomAssetMetaData.Type.Road,
             CustomAssetMetaData.Type.Building,
+            CustomAssetMetaData.Type.Sponsor,
+            CustomAssetMetaData.Type.RaceTeam,
+            CustomAssetMetaData.Type.ParadeGroup,
+            CustomAssetMetaData.Type.RaceEvent,
         };
 
         // Loading order queue index for loading each of the above asset types.
@@ -54,9 +58,9 @@ namespace LoadingScreenModRevisited
         // 2: Roads, elevations, and pillars
         // 3: Buildings and sub-buildings
         // 4: Vehicles and trailers
-        private readonly int[] loadQueueIndex = new int[12]
+        private readonly int[] loadQueueIndex = new int[16]
         {
-            3, 1, 0, 4, 4, 3, 3, 1, 0, 2, 2, 2,
+            3, 1, 0, 4, 4, 3, 3, 1, 0, 2, 2, 2, 1, 1, 1, 1,
         };
 
         private readonly bool _recordAssets = LSMRSettings.RecordAssets;
@@ -866,7 +870,7 @@ namespace LoadingScreenModRevisited
                 }
 
                 // Log and display failure.
-                Logging.Error("asset failed: ", text);
+                Logging.Error("asset failed: ", text, ":", assetRef?.GetType().FullName ?? "null", ":", e.StackTrace);
                 LoadingScreen.s_instance.SceneAndAssetStatus?.AssetFailed(ShortAssetName(text));
             }
 
@@ -1125,6 +1129,8 @@ namespace LoadingScreenModRevisited
                 }
                 catch (Exception e)
                 {
+
+                    Logging.Error($"Asset {finalAsset?.name ?? "null"} failed at AssetLoader.GetLoadQueue");
                     AssetFailed(finalAsset, package, e);
                 }
             }
