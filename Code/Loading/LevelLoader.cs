@@ -1174,6 +1174,11 @@ namespace LoadingScreenModRevisited
                 prefabScenes.Add(new KeyValuePair<string, float>("Station27Prefabs", 0.01f));
             }
 
+            if (DLC(4771390u))
+            {
+                prefabScenes.Add(new KeyValuePair<string, float>("Station28Prefabs", 0.01f));
+            }
+
             if (DLC(563850u))
             {
                 prefabScenes.Add(new KeyValuePair<string, float>("ChinaPackPrefabs", 0.02f));
@@ -1334,6 +1339,16 @@ namespace LoadingScreenModRevisited
             if (DLC(4031140u))
             {
                 prefabScenes.Add(new KeyValuePair<string, float>("ModderPack29Prefabs", 0.03f));
+            }
+
+            if (DLC(4771370u))
+            {
+                prefabScenes.Add(new KeyValuePair<string, float>("ModderPack30Prefabs", 0.03f));
+            }
+
+            if (DLC(4771380u))
+            {
+                prefabScenes.Add(new KeyValuePair<string, float>((!isWinter) ? "ModderPack31Prefabs" : "WinterModderPack31Prefabs", 0.03f));
             }
 
             Package.Asset europeanStyles = PackageManager.FindAssetByName("System." + DistrictStyle.kEuropeanStyleName);

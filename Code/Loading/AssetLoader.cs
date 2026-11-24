@@ -428,6 +428,22 @@ namespace LoadingScreenModRevisited
                 }
             }
 
+            if (LevelLoader.DLC(4771380u))
+            {
+                Package.Asset asset12 = PackageManager.FindAssetByName("System." + DistrictStyle.kModderPack31StyleName);
+                if (asset12 != null && asset12.isEnabled)
+                {
+                    DistrictStyle districtStyle = new DistrictStyle(DistrictStyle.kModderPack31StyleName, builtIn: true);
+                    Util.InvokeVoid(Singleton<LoadingManager>.instance, "AddChildrenToBuiltinStyle", GameObject.Find("Modder Pack 31"), districtStyle, false);
+                    if (LSMRSettings.SkipPrefabs)
+                    {
+                        PrefabLoader.RemoveSkippedFromStyle(districtStyle);
+                    }
+
+                    districtStyles.Add(districtStyle);
+                }
+            }
+
             // LSM insert.
             // Unload any skipped assets.
             if (LSMRSettings.SkipPrefabs)

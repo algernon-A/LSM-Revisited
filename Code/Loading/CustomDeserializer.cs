@@ -63,6 +63,7 @@ namespace LoadingScreenModRevisited
         private const int TypeParadeGroupInfoProp = 99997;
         private const int TypeParadeGroupInfoPerformer = 99998;
         private const int TypeParadeGroupInfoVehicle = 99999;
+        private const int TypeModderPackBitMask = 100000;
 
         // Active instance.
         private static CustomDeserializer s_instance;
@@ -160,6 +161,7 @@ namespace LoadingScreenModRevisited
                 [typeof(ParadeGroupInfo.Prop)] = TypeParadeGroupInfoProp,
                 [typeof(ParadeGroupInfo.Performer)] = TypeParadeGroupInfoPerformer,
                 [typeof(ParadeGroupInfo.Vehicle)] = TypeParadeGroupInfoVehicle,
+                [typeof(SteamHelper.ModderPackBitMask)] = TypeModderPackBitMask,
             };
 
             // Setup thumbnail optimization, if enabled.
@@ -606,6 +608,9 @@ namespace LoadingScreenModRevisited
 
                 case TypeParadeGroupInfoVehicle:
                     return ReadParadeGroupInfoVehicle(package, reader);
+
+                case TypeModderPackBitMask:
+                    return (SteamHelper.ModderPackBitMask1)reader.ReadInt32();
 
                 default:
                     // Unsupported type.

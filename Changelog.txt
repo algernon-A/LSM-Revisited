@@ -1,4 +1,9 @@
-﻿Version 1.1.14 -
+﻿Version 1.1.15 -
+
+- Add support for game version 1.21.2 and associated DLC
+
+
+Version 1.1.14 -
 
 - Add support for custom race team prefabs
 
